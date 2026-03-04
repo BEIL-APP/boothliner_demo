@@ -12,7 +12,7 @@ export default function AuthPage() {
           <QrCode className="w-5 h-5 text-white" />
         </div>
         <div>
-          <div className="text-lg font-bold text-gray-900 leading-tight">BoothConnect</div>
+          <div className="text-lg font-bold text-gray-900 leading-tight">BoothLiner</div>
           <div className="text-xs text-gray-400 leading-tight">B2B 팝업 이벤트 플랫폼</div>
         </div>
       </div>

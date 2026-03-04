@@ -4,6 +4,7 @@ import {
   ArrowLeft, Download, Eye, Heart, MessageSquare, ExternalLink, FileDown,
   Upload, Trash2, Calendar, ToggleLeft, ToggleRight, Paperclip,
   ClipboardList, Users, Link2, Plus, X, Instagram, ShoppingBag, Globe,
+  Edit3, ImagePlus, HelpCircle,
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { AdminLayout } from '../../components/AdminLayout';
@@ -60,6 +61,16 @@ export default function AdminBoothDetailPage() {
   const [newCustomLabel, setNewCustomLabel] = useState('');
   const [newCustomUrl, setNewCustomUrl] = useState('');
 
+  // Booth content edit state (B-2)
+  const [editName, setEditName] = useState('');
+  const [editTagline, setEditTagline] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editImages, setEditImages] = useState<string[]>([]);
+  const [editFaq, setEditFaq] = useState<Array<{ question: string; answer: string }>>([]);
+  const [editNextEvents, setEditNextEvents] = useState<Array<{ title: string; date: string; location: string }>>([]);
+  const [contentSaved, setContentSaved] = useState(false);
+
   // Attachments state
   const [attachments, setAttachments] = useState<Attachment[]>([]);
 
@@ -86,6 +97,13 @@ export default function AdminBoothDetailPage() {
         site: booth.links.site ?? '',
       });
       setCustomLinks(booth.customLinks ?? []);
+      setEditName(booth.name);
+      setEditTagline(booth.tagline);
+      setEditCategory(booth.category);
+      setEditDescription(booth.description);
+      setEditImages([...booth.images]);
+      setEditFaq(booth.faq.map((f) => ({ ...f })));
+      setEditNextEvents(booth.nextEvents.map((e) => ({ ...e })));
     }
   }, [booth?.id]);
 
@@ -115,6 +133,24 @@ export default function AdminBoothDetailPage() {
 
   const handleRemoveCustomLink = (i: number) => {
     setCustomLinks((prev) => prev.filter((_, idx) => idx !== i));
+  };
+
+  const handleSaveContent = () => {
+    if (!booth) return;
+    const updated = {
+      ...booth,
+      name: editName.trim() || booth.name,
+      tagline: editTagline.trim(),
+      category: editCategory.trim() || booth.category,
+      description: editDescription.trim(),
+      images: editImages.filter((img) => img.trim()),
+      faq: editFaq.filter((f) => f.question.trim()),
+      nextEvents: editNextEvents.filter((e) => e.title.trim()),
+    };
+    saveBooth(updated);
+    setContentSaved(true);
+    setTimeout(() => setContentSaved(false), 2000);
+    showToast('부스 정보가 저장됐어요!', 'success');
   };
 
   const handleDownloadQR = () => {
@@ -683,44 +719,200 @@ export default function AdminBoothDetailPage() {
           </p>
         </div>
 
-        {/* Booth Preview Info */}
+        {/* ─── 부스 정보 편집 (B-2) ──────────────────────────────────────────── */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h2 className="text-sm font-semibold text-gray-800 mb-4">부스 정보</h2>
-          <div className="space-y-3">
-            {booth.images.length > 0 && (
-              <div className="flex gap-2">
-                {booth.images.map((img, i) => (
-                  <div key={i} className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100">
-                    <img src={img} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="grid grid-cols-2 gap-3 pt-2">
+          <div className="flex items-center gap-2 mb-5">
+            <Edit3 className="w-4 h-4 text-brand-600" />
+            <h2 className="text-sm font-semibold text-gray-800">부스 정보 편집</h2>
+          </div>
+
+          {/* Basic info */}
+          <div className="space-y-4 mb-6">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-gray-400 mb-0.5">FAQ 항목</p>
-                <p className="text-sm font-medium text-gray-700">{booth.faq.length}개</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 mb-0.5">링크</p>
-                <p className="text-sm font-medium text-gray-700">
-                  {[booth.links.instagram, booth.links.store, booth.links.site].filter(Boolean).length}개 연결
-                </p>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">부스명</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand-300 transition-all"
+                />
               </div>
               <div>
-                <p className="text-xs text-gray-400 mb-0.5">첨부 파일</p>
-                <p className="text-sm font-medium text-gray-700">{attachments.length}개</p>
+                <label className="block text-xs font-medium text-gray-600 mb-1.5">카테고리</label>
+                <input
+                  type="text"
+                  value={editCategory}
+                  onChange={(e) => setEditCategory(e.target.value)}
+                  className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand-300 transition-all"
+                />
               </div>
-              {booth.nextEvents.length > 0 && (
-                <div>
-                  <p className="text-xs text-gray-400 mb-0.5">다음 이벤트</p>
-                  <p className="text-sm font-medium text-gray-700 truncate">
-                    {booth.nextEvents[0].title}
-                  </p>
-                </div>
-              )}
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">태그라인</label>
+              <input
+                type="text"
+                value={editTagline}
+                onChange={(e) => setEditTagline(e.target.value)}
+                placeholder="한 줄 소개"
+                className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand-300 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">소개 문구</label>
+              <textarea
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                rows={3}
+                placeholder="부스 상세 설명"
+                className="w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand-300 transition-all resize-none"
+              />
             </div>
           </div>
+
+          {/* Images */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <ImagePlus className="w-3.5 h-3.5 text-gray-500" />
+              <p className="text-xs font-medium text-gray-600">이미지 URL</p>
+            </div>
+            <div className="space-y-2 mb-2">
+              {editImages.map((img, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="url"
+                    value={img}
+                    onChange={(e) => setEditImages((prev) => prev.map((v, idx) => idx === i ? e.target.value : v))}
+                    placeholder="https://..."
+                    className="flex-1 text-xs bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-300 transition-all"
+                  />
+                  {img && (
+                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                      <img src={img} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setEditImages((prev) => prev.filter((_, idx) => idx !== i))}
+                    className="p-1.5 text-gray-300 hover:text-red-400 rounded-lg hover:bg-red-50 transition-colors shrink-0"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setEditImages((prev) => [...prev, ''])}
+              className="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              이미지 추가
+            </button>
+          </div>
+
+          {/* FAQ */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <HelpCircle className="w-3.5 h-3.5 text-gray-500" />
+              <p className="text-xs font-medium text-gray-600">FAQ</p>
+            </div>
+            <div className="space-y-3 mb-2">
+              {editFaq.map((item, i) => (
+                <div key={i} className="bg-gray-50 rounded-xl p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={item.question}
+                      onChange={(e) => setEditFaq((prev) => prev.map((f, idx) => idx === i ? { ...f, question: e.target.value } : f))}
+                      placeholder="질문"
+                      className="flex-1 text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-300 transition-all font-medium"
+                    />
+                    <button
+                      onClick={() => setEditFaq((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="p-1.5 text-gray-300 hover:text-red-400 rounded-lg hover:bg-red-50 transition-colors shrink-0"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <textarea
+                    value={item.answer}
+                    onChange={(e) => setEditFaq((prev) => prev.map((f, idx) => idx === i ? { ...f, answer: e.target.value } : f))}
+                    placeholder="답변"
+                    rows={2}
+                    className="w-full text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-300 transition-all resize-none"
+                  />
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setEditFaq((prev) => [...prev, { question: '', answer: '' }])}
+              className="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              항목 추가
+            </button>
+          </div>
+
+          {/* Next Events */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="w-3.5 h-3.5 text-gray-500" />
+              <p className="text-xs font-medium text-gray-600">다음 이벤트</p>
+            </div>
+            <div className="space-y-3 mb-2">
+              {editNextEvents.map((ev, i) => (
+                <div key={i} className="bg-gray-50 rounded-xl p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={ev.title}
+                      onChange={(e) => setEditNextEvents((prev) => prev.map((v, idx) => idx === i ? { ...v, title: e.target.value } : v))}
+                      placeholder="이벤트 제목"
+                      className="flex-1 text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-300 transition-all"
+                    />
+                    <button
+                      onClick={() => setEditNextEvents((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="p-1.5 text-gray-300 hover:text-red-400 rounded-lg hover:bg-red-50 transition-colors shrink-0"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="date"
+                      value={ev.date}
+                      onChange={(e) => setEditNextEvents((prev) => prev.map((v, idx) => idx === i ? { ...v, date: e.target.value } : v))}
+                      className="text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-300 transition-all"
+                    />
+                    <input
+                      type="text"
+                      value={ev.location}
+                      onChange={(e) => setEditNextEvents((prev) => prev.map((v, idx) => idx === i ? { ...v, location: e.target.value } : v))}
+                      placeholder="장소"
+                      className="text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-300 transition-all"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setEditNextEvents((prev) => [...prev, { title: '', date: '', location: '' }])}
+              className="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              이벤트 추가
+            </button>
+          </div>
+
+          <button
+            onClick={handleSaveContent}
+            className={`w-full text-sm font-medium rounded-xl py-3 transition-all ${
+              contentSaved
+                ? 'bg-green-500 text-white'
+                : 'bg-brand-600 text-white hover:bg-brand-700'
+            }`}
+          >
+            {contentSaved ? '저장됐어요 ✓' : '부스 정보 저장'}
+          </button>
         </div>
       </div>
     </AdminLayout>

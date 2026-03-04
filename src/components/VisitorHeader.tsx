@@ -27,7 +27,7 @@ export function VisitorHeader() {
           <div className="w-7 h-7 bg-brand-600 rounded-lg flex items-center justify-center">
             <QrCode className="w-4 h-4 text-white" />
           </div>
-          <span className="font-semibold text-gray-900 text-sm">BoothConnect</span>
+          <span className="font-semibold text-gray-900 text-sm">BoothLiner</span>
         </Link>
 
         {/* Right: nav + bell + login */}

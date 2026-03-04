@@ -1,4 +1,4 @@
-# BoothConnect — B2B 팝업 이벤트 플랫폼 데모
+# 부스라이너 (BoothLiner) — B2B 팝업 이벤트 플랫폼 데모
 
 Vite + React 18 + TypeScript + Tailwind CSS로 구현한 B2B 이벤트 부스 관리 데모입니다.
 백엔드 없이 localStorage 기반으로 동작합니다.

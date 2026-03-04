@@ -72,7 +72,7 @@ export default function OAuthPage() {
         <div className="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center shadow-md">
           <QrCode className="w-4 h-4 text-white" />
         </div>
-        <div className="text-base font-bold text-gray-900">BoothConnect</div>
+        <div className="text-base font-bold text-gray-900">BoothLiner</div>
       </div>
 
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-card p-8">

@@ -39,7 +39,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <QrCode className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-gray-900 leading-tight">BoothConnect</div>
+              <div className="text-sm font-semibold text-gray-900 leading-tight">BoothLiner</div>
               <div className="text-[10px] text-gray-400 leading-tight">운영자 대시보드</div>
             </div>
           </Link>

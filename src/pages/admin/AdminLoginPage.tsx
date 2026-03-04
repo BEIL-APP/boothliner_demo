@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
             <QrCode className="w-5 h-5 text-white" />
           </div>
           <div>
-            <div className="font-bold text-gray-900">BoothConnect</div>
+            <div className="font-bold text-gray-900">BoothLiner</div>
             <div className="text-xs text-gray-400">운영자 대시보드</div>
           </div>
         </div>
