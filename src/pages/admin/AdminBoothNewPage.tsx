@@ -113,9 +113,9 @@ export default function AdminBoothNewPage() {
     { question: '', answer: '' },
     { question: '', answer: '' },
   ]);
-  const [nextEvents, setNextEvents] = useState<Array<{ title: string; date: string; location: string }>>([
-    { title: '', date: '', location: '' },
-  ]);
+  const [eventTitle, setEventTitle] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [eventLocation, setEventLocation] = useState('');
 
   const handleSave = () => {
     if (!name.trim()) {
@@ -140,7 +140,9 @@ export default function AdminBoothNewPage() {
         site: site.trim() || undefined,
       },
       faq: faq.filter((f) => f.question.trim() && f.answer.trim()),
-      nextEvents: nextEvents.filter((e) => e.title.trim()),
+      nextEvents: eventTitle.trim()
+        ? [{ title: eventTitle.trim(), date: eventDate, location: eventLocation.trim() }]
+        : [],
       createdAt: new Date().toISOString(),
     };
 
@@ -337,62 +339,32 @@ export default function AdminBoothNewPage() {
             </div>
           </div>
 
-          {/* Next Events */}
+          {/* Current Event */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h2 className="text-sm font-semibold text-gray-800">행사 일정 & 장소</h2>
-                <p className="text-xs text-gray-400 mt-0.5">참가 예정 행사의 일정과 부스 위치를 등록하세요</p>
-              </div>
+            <div className="mb-5">
+              <h2 className="text-sm font-semibold text-gray-800">이번 행사 정보</h2>
+              <p className="text-xs text-gray-400 mt-0.5">현재 참가 중인 행사의 일정과 부스 위치를 입력하세요</p>
             </div>
-            <div className="space-y-4">
-              {nextEvents.map((ev, i) => (
-                <div key={i} className="bg-gray-50 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-medium text-gray-500">일정 {i + 1}</p>
-                    {nextEvents.length > 1 && (
-                      <button
-                        onClick={() => setNextEvents((prev) => prev.filter((_, idx) => idx !== i))}
-                        className="p-1 text-gray-300 hover:text-red-400 rounded-lg hover:bg-red-50 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-                  <div className="space-y-3">
-                    <TextInput
-                      value={ev.title}
-                      onChange={(v) => setNextEvents((prev) => prev.map((e, idx) => idx === i ? { ...e, title: v } : e))}
-                      placeholder="행사명 (예: 2026 봄 B2B 박람회)"
-                    />
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1.5">날짜</p>
-                        <input
-                          type="date"
-                          value={ev.date}
-                          onChange={(e) => setNextEvents((prev) => prev.map((v, idx) => idx === i ? { ...v, date: e.target.value } : v))}
-                          className="w-full text-sm text-gray-700 bg-white border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all"
-                        />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1.5">부스 위치</p>
-                        <TextInput
-                          value={ev.location}
-                          onChange={(v) => setNextEvents((prev) => prev.map((e, idx) => idx === i ? { ...e, location: v } : e))}
-                          placeholder="예: COEX Hall A, B-12"
-                        />
-                      </div>
-                    </div>
-                  </div>
+            <div className="space-y-3">
+              <div>
+                <FieldLabel>행사명</FieldLabel>
+                <TextInput value={eventTitle} onChange={setEventTitle} placeholder="예: 2026 서울 B2B 박람회" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <FieldLabel>날짜</FieldLabel>
+                  <input
+                    type="date"
+                    value={eventDate}
+                    onChange={(e) => setEventDate(e.target.value)}
+                    className="w-full text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-brand-300 focus:border-brand-400 transition-all"
+                  />
                 </div>
-              ))}
-              <button
-                onClick={() => setNextEvents((prev) => [...prev, { title: '', date: '', location: '' }])}
-                className="flex items-center gap-1.5 text-xs text-brand-600 hover:text-brand-700 transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" /> 일정 추가
-              </button>
+                <div>
+                  <FieldLabel>부스 위치</FieldLabel>
+                  <TextInput value={eventLocation} onChange={setEventLocation} placeholder="예: Hall A, B-12" />
+                </div>
+              </div>
             </div>
           </div>
 
