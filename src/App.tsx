@@ -16,6 +16,7 @@ import MessagesPage from './pages/visitor/MessagesPage';
 import NotificationsPage from './pages/visitor/NotificationsPage';
 import SettingsPage from './pages/visitor/SettingsPage';
 import ExplorePage from './pages/visitor/ExplorePage';
+import LandingPage from './pages/LandingPage';
 
 // Admin pages
 import AdminLoginPage from './pages/admin/AdminLoginPage';
@@ -40,8 +41,9 @@ function AdminGuard({ children }: { children: React.ReactNode }) {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Home — booth explore */}
-      <Route path="/" element={<ExplorePage />} />
+      {/* Landing */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/explore" element={<ExplorePage />} />
 
       {/* Auth */}
       <Route path="/auth" element={<AuthPage />} />
