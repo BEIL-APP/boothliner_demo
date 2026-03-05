@@ -19,6 +19,7 @@ import {
   LogIn,
   Share2,
   ExternalLink,
+  Sparkles,
 } from 'lucide-react';
 import { VisitorHeader } from '../../components/VisitorHeader';
 import { Modal } from '../../components/Modal';
@@ -104,6 +105,8 @@ export default function BoothPage() {
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [surveyDone, setSurveyDone] = useState(false);
   const tracked = useRef(false);
+  const [ipTrackingConsent, setIpTrackingConsent] = useState(false);
+  const [showAiSummary, setShowAiSummary] = useState(false);
 
   useEffect(() => {
     if (!boothId || tracked.current) return;
@@ -181,6 +184,7 @@ export default function BoothPage() {
     setInquiryConsent(false);
     setInquiryConsentMarketing(false);
     setInquiryAbuseCheck(false);
+    setIpTrackingConsent(false);
   };
 
   const handleShare = async () => {
@@ -256,6 +260,12 @@ export default function BoothPage() {
   const inquiryFormValid = isLoggedIn
     ? inquiryText.trim().length > 0
     : inquiryText.trim().length > 0 && inquiryEmail.includes('@') && inquiryAbuseCheck;
+
+  const mockAiSummary = booth ? {
+    keywords: [booth.category, ...booth.faq.slice(0, 2).map((f) => f.question.split(' ').slice(0, 2).join(' '))].filter(Boolean),
+    summary: `${booth.name}은(는) ${booth.category} 분야의 부스입니다. ${booth.description.slice(0, 80)}...`,
+    highlight: booth.faq.length > 0 ? `FAQ ${booth.faq.length}개 제공` : '상세 소개 제공',
+  } : null;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
@@ -395,6 +405,36 @@ export default function BoothPage() {
         <div className="md:flex md:gap-8">
           {/* ─── Main column ─── */}
           <div className="flex-1 min-w-0 space-y-5 md:space-y-6">
+            {/* AI Summary */}
+            {mockAiSummary && (
+              <div className="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setShowAiSummary(!showAiSummary)}
+                  className="w-full flex items-center gap-2.5 px-5 py-3.5 md:px-6 text-left hover:bg-gray-100 transition-all duration-150"
+                >
+                  <div className="w-7 h-7 bg-gray-200 rounded-lg flex items-center justify-center shrink-0">
+                    <Sparkles className="w-3.5 h-3.5 text-gray-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-gray-800">AI 부스 요약</p>
+                    <p className="text-xs text-gray-500 truncate">{mockAiSummary.highlight}</p>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0 ${showAiSummary ? 'rotate-180' : ''}`} />
+                </button>
+                {showAiSummary && (
+                  <div className="px-5 pb-4 md:px-6 animate-fade-in">
+                    <p className="text-sm text-gray-600 leading-relaxed mb-3">{mockAiSummary.summary}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {mockAiSummary.keywords.map((kw, i) => (
+                        <span key={i} className="text-xs bg-white border border-gray-200 text-gray-600 px-2 py-0.5 rounded-md">{kw}</span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-300 mt-3">AI 요약은 부스 정보 기반 자동 생성입니다</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Description */}
             <div className="bg-white border border-gray-200/60 rounded-xl p-5 md:p-6">
               <h2 className="text-sm font-semibold text-gray-900 mb-3">소개</h2>
@@ -662,6 +702,10 @@ export default function BoothPage() {
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" checked={inquiryAbuseCheck} onChange={(e) => setInquiryAbuseCheck(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
                   <span className="text-xs text-gray-500">부적절한 문의(스팸, 광고 등)는 이용이 제한될 수 있음을 확인했습니다</span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" checked={ipTrackingConsent} onChange={(e) => setIpTrackingConsent(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
+                  <span className="text-xs text-gray-500">(선택) 비로그인 상태에서 방문 추적(IP 기반)에 동의합니다<span className="text-gray-400 block">동의 시 재방문 시 이전 문의를 이어볼 수 있어요</span></span>
                 </label>
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" checked={inquiryConsent} onChange={(e) => setInquiryConsent(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />

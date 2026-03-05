@@ -12,10 +12,14 @@ import {
   Building2,
   Briefcase,
   LogIn,
+  FileText,
+  RotateCcw,
 } from 'lucide-react';
 import { VisitorHeader } from '../../components/VisitorHeader';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import { getConsentWithdrawals, requestConsentWithdrawal, retryFailedNotifications, getFailedNotificationCount } from '../../utils/localStorage';
+import type { ConsentWithdrawal } from '../../types';
 
 interface VisitorProfile {
   name: string;
@@ -104,6 +108,10 @@ export default function SettingsPage() {
 
   const [saving, setSaving] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [withdrawals, setWithdrawals] = useState<ConsentWithdrawal[]>(() => getConsentWithdrawals());
+  const [withdrawReason, setWithdrawReason] = useState('');
+  const [showWithdrawForm, setShowWithdrawForm] = useState(false);
+  const [failedCount, setFailedCount] = useState(() => getFailedNotificationCount());
 
   const saveSection = (section: string, key: string, data: unknown) => {
     setSaving(section);
@@ -308,8 +316,111 @@ export default function SettingsPage() {
                   description="이벤트 트렌드와 소식을 이메일로 받습니다"
                 />
               </div>
-              <div className="px-5 py-3 border-t border-gray-100">
+              <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
                 <p className="text-xs text-gray-400">알림 설정은 즉시 반영됩니다 (데모)</p>
+                {failedCount > 0 && (
+                  <button
+                    onClick={() => {
+                      const retried = retryFailedNotifications();
+                      setFailedCount(getFailedNotificationCount());
+                      showToast(`${retried}건의 알림을 재시도했어요`, 'info');
+                    }}
+                    className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 font-medium transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    실패 {failedCount}건 재시도
+                  </button>
+                )}
+              </div>
+            </section>
+
+            {/* ─── Consent Withdrawal ─── */}
+            <section className="bg-white border border-gray-200/60 rounded-xl">
+              <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2.5">
+                <FileText className="w-4 h-4 text-gray-400" />
+                <h2 className="text-sm font-semibold text-gray-900">동의 철회</h2>
+              </div>
+              <div className="p-5 space-y-4">
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  이전에 제공한 개인정보 수집·이용 동의를 철회할 수 있어요. 철회 후에는 관련 데이터가 삭제됩니다.
+                </p>
+
+                {withdrawals.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-gray-600">처리 내역</p>
+                    {withdrawals.map((w) => (
+                      <div key={w.id} className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2.5">
+                        <span className={`h-5 px-1.5 rounded text-[10px] font-medium inline-flex items-center ${
+                          w.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700' :
+                          w.status === 'PROCESSING' ? 'bg-amber-50 text-amber-700' :
+                          'bg-brand-50 text-brand-700'
+                        }`}>
+                          {w.status === 'COMPLETED' ? '완료' : w.status === 'PROCESSING' ? '처리중' : '요청됨'}
+                        </span>
+                        <span className="text-xs text-gray-700">
+                          {w.type === 'data_delete' ? '데이터 삭제' : '마케팅 수신 철회'}
+                        </span>
+                        <span className="text-xs text-gray-400 ml-auto">
+                          {new Date(w.requestedAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {showWithdrawForm ? (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3 animate-fade-in">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1.5">철회 사유 (선택)</label>
+                      <input
+                        type="text"
+                        value={withdrawReason}
+                        onChange={(e) => setWithdrawReason(e.target.value)}
+                        placeholder="사유를 입력해주세요"
+                        className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                      />
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <button
+                        onClick={() => {
+                          requestConsentWithdrawal('marketing_opt_out', withdrawReason || undefined);
+                          setWithdrawals(getConsentWithdrawals());
+                          setWithdrawReason('');
+                          setShowWithdrawForm(false);
+                          showToast('마케팅 수신 동의가 철회됐어요', 'success');
+                        }}
+                        className="h-9 px-4 bg-brand-600 text-white text-[13px] font-medium rounded-lg hover:bg-brand-500 transition-all duration-150"
+                      >
+                        마케팅 수신 철회
+                      </button>
+                      <button
+                        onClick={() => {
+                          requestConsentWithdrawal('data_delete', withdrawReason || undefined);
+                          setWithdrawals(getConsentWithdrawals());
+                          setWithdrawReason('');
+                          setShowWithdrawForm(false);
+                          showToast('데이터 삭제가 요청됐어요. 처리까지 최대 3일 소요됩니다.', 'info');
+                        }}
+                        className="h-9 px-4 text-red-600 text-[13px] font-medium bg-white border border-gray-200 rounded-lg hover:bg-red-50 transition-all duration-150"
+                      >
+                        데이터 삭제 요청
+                      </button>
+                      <button
+                        onClick={() => setShowWithdrawForm(false)}
+                        className="h-9 px-4 text-gray-600 text-[13px] font-medium rounded-lg hover:bg-gray-100 transition-all duration-150"
+                      >
+                        취소
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowWithdrawForm(true)}
+                    className="h-9 px-4 text-[13px] font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-150 w-full sm:w-auto"
+                  >
+                    동의 철회 요청
+                  </button>
+                )}
               </div>
             </section>
 

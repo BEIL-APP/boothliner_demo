@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowLeft, Save, Sparkles, Upload, Loader2 } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Save, Sparkles, Upload, Loader2, Layout } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { useBooths } from '../../hooks/useBooths';
 import { useToast } from '../../contexts/ToastContext';
@@ -44,6 +44,13 @@ const CATEGORIES = [
   '핸드크래프트', '웰니스 & 복지', '마케팅', '패션 & 라이프스타일', '기타',
 ];
 
+const BOOTH_TEMPLATES = [
+  { id: 'minimal', name: '미니멀', desc: '깔끔한 텍스트 중심 레이아웃', color: 'bg-gray-100 border-gray-200', accent: 'text-gray-600' },
+  { id: 'visual', name: '비주얼', desc: '이미지와 갤러리 강조 레이아웃', color: 'bg-brand-50 border-brand-200', accent: 'text-brand-600' },
+  { id: 'corporate', name: '기업형', desc: 'FAQ/자료 다운로드 중심 레이아웃', color: 'bg-emerald-50 border-emerald-200', accent: 'text-emerald-600' },
+  { id: 'event', name: '이벤트', desc: '프로모션/이벤트 중심 레이아웃', color: 'bg-amber-50 border-amber-200', accent: 'text-amber-600' },
+];
+
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
     <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
@@ -77,6 +84,7 @@ export default function AdminBoothNewPage() {
   // AI auto-fill state
   const [aiExtracting, setAiExtracting] = useState(false);
   const [aiFileName, setAiFileName] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
   const handleAiExtract = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -169,6 +177,33 @@ export default function AdminBoothNewPage() {
         </div>
 
         <div className="space-y-4 sm:space-y-6">
+          {/* Template Selection */}
+          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Layout className="w-4 h-4 text-gray-500" />
+              <h2 className="text-sm font-semibold text-gray-900">페이지 템플릿</h2>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">부스 페이지의 스타일을 선택하세요. 나중에 변경할 수 있어요.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+              {BOOTH_TEMPLATES.map((tpl) => (
+                <button
+                  key={tpl.id}
+                  onClick={() => setSelectedTemplate(tpl.id)}
+                  className={`text-left p-3 rounded-xl border-2 transition-all duration-150 ${
+                    selectedTemplate === tpl.id
+                      ? `${tpl.color} border-current ring-2 ring-offset-1 ring-gray-300`
+                      : 'bg-white border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className={`text-sm font-semibold mb-0.5 ${selectedTemplate === tpl.id ? tpl.accent : 'text-gray-900'}`}>
+                    {tpl.name}
+                  </div>
+                  <p className="text-xs text-gray-500 leading-relaxed">{tpl.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* AI Auto-fill */}
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-3">

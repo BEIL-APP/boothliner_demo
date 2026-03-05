@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  ArrowLeft, Users, Crown, UserCheck, UserPlus, Trash2, Clock, Mail,
+  ArrowLeft, Users, Crown, UserCheck, UserPlus, Trash2, Clock, Mail, Shield,
 } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { useBooth } from '../../hooks/useBooths';
@@ -290,8 +290,20 @@ export default function AdminBoothTeamPage() {
           </div>
         )}
 
+        {/* Permission Enforcement Notice */}
+        <div className="mt-6 bg-amber-50 border border-amber-100 rounded-xl p-4 sm:p-5 flex items-start gap-3">
+          <Shield className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-amber-800">권한 제어가 적용되고 있어요</p>
+            <p className="text-xs text-amber-600 mt-1 leading-relaxed">
+              스태프는 문의 응답과 리드 조회만 가능하며, 부스 설정·팀원 관리·데이터 내보내기는 오너만 접근할 수 있습니다. 
+              현재 데모에서는 모든 기능에 접근 가능하지만, 실제 환경에서는 역할에 따라 메뉴가 제한됩니다.
+            </p>
+          </div>
+        </div>
+
         {/* Role Description */}
-        <div className="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6">
+        <div className="mt-4 bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6">
           <p className="text-[13px] font-medium text-gray-500 uppercase tracking-wider mb-3">권한 안내</p>
           <div className="space-y-2.5">
             <div className="flex items-start gap-2">

@@ -9,6 +9,7 @@ import {
   Search,
   Trash2,
   Dice5,
+  FileDown,
   Filter,
   PhoneCall,
   ArrowRight,
@@ -17,6 +18,7 @@ import { AdminLayout } from '../../components/AdminLayout';
 import { useBooths } from '../../hooks/useBooths';
 import { useToast } from '../../contexts/ToastContext';
 import { getLeads, deleteLead, saveLead } from '../../utils/localStorage';
+import { exportLeadsCSV } from '../../utils/csv';
 import type { Lead, LeadStatus } from '../../types';
 
 const SOURCE_LABELS: Record<Lead['source'], string> = {
@@ -129,6 +131,13 @@ export default function AdminLeadsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => { exportLeadsCSV(filtered); showToast('리드 CSV가 다운로드됐어요!', 'success'); }}
+              className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 flex-1 sm:flex-none"
+            >
+              <FileDown className="w-4 h-4" />
+              CSV 내보내기
+            </button>
             <button
               onClick={handleLottery}
               className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 flex-1 sm:flex-none"

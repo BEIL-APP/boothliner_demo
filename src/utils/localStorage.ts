@@ -2,6 +2,7 @@ import type {
   Booth, Visit, Favorite, Thread, Analytics,
   Lead, BoothPolicy, Attachment, SurveyResponse,
   AppNotification, StaffMember, RateLimit, ReplyTemplate, Collection,
+  ConsentWithdrawal,
 } from '../types';
 import {
   SEED_BOOTHS, SEED_ANALYTICS, SEED_THREADS, SEED_LEADS,
@@ -24,6 +25,7 @@ const KEYS = {
   rateLimits: `${PREFIX}rate_limits`,
   templates: `${PREFIX}reply_templates`,
   collections: `${PREFIX}collections`,
+  consentWithdrawals: `${PREFIX}consent_withdrawals`,
   isLoggedIn: `${PREFIX}isLoggedIn`,
   isAdmin: `${PREFIX}isAdmin`,
   userEmail: `${PREFIX}userEmail`,
@@ -628,4 +630,72 @@ export function getUserEmail(): string {
 
 export function setUserEmail(email: string): void {
   localStorage.setItem(KEYS.userEmail, email);
+}
+
+// ─── Notification Retry (A-3) ────────────────────────────────────────────────
+export function retryFailedNotifications(): number {
+  const notifications = getAllNotifications();
+  let retried = 0;
+  const updated = notifications.map((n) => {
+    if (n.status === 'FAILED' && (n.retryCount ?? 0) < 3) {
+      retried++;
+      const success = Math.random() > 0.3;
+      return {
+        ...n,
+        status: success ? 'SENT' as const : 'FAILED' as const,
+        retryCount: (n.retryCount ?? 0) + 1,
+        sentAt: success ? new Date().toISOString() : n.sentAt,
+      };
+    }
+    return n;
+  });
+  localStorage.setItem(KEYS.notifications, JSON.stringify(updated));
+  return retried;
+}
+
+export function getFailedNotificationCount(): number {
+  const notifications = getAllNotifications();
+  return notifications.filter((n) => n.status === 'FAILED').length;
+}
+
+// ─── Consent Withdrawal (A-1) ───────────────────────────────────────────────
+export function getConsentWithdrawals(): ConsentWithdrawal[] {
+  try {
+    const raw = localStorage.getItem(KEYS.consentWithdrawals);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function requestConsentWithdrawal(type: ConsentWithdrawal['type'], reason?: string): ConsentWithdrawal {
+  const withdrawals = getConsentWithdrawals();
+  const withdrawal: ConsentWithdrawal = {
+    id: `cw-${Date.now()}`,
+    type,
+    status: 'REQUESTED',
+    requestedAt: new Date().toISOString(),
+    reason,
+  };
+  withdrawals.push(withdrawal);
+  localStorage.setItem(KEYS.consentWithdrawals, JSON.stringify(withdrawals));
+
+  // Mock: auto-process after creation (simulate async processing)
+  setTimeout(() => {
+    const current = getConsentWithdrawals();
+    const updated = current.map((w) =>
+      w.id === withdrawal.id ? { ...w, status: 'PROCESSING' as const } : w
+    );
+    localStorage.setItem(KEYS.consentWithdrawals, JSON.stringify(updated));
+  }, 0);
+
+  return withdrawal;
+}
+
+export function completeConsentWithdrawal(id: string): void {
+  const withdrawals = getConsentWithdrawals();
+  const updated = withdrawals.map((w) =>
+    w.id === id ? { ...w, status: 'COMPLETED' as const, completedAt: new Date().toISOString() } : w
+  );
+  localStorage.setItem(KEYS.consentWithdrawals, JSON.stringify(updated));
 }

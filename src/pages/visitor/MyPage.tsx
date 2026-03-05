@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Clock, Heart, QrCode, ChevronRight, Info, Share2, Trash2, AlertTriangle,
-  FolderPlus, Folder, FolderOpen, Plus, X, Sparkles, TrendingUp,
+  FolderPlus, Folder, FolderOpen, Plus, X, Sparkles, TrendingUp, Wand2,
 } from 'lucide-react';
 import { VisitorHeader } from '../../components/VisitorHeader';
 import { useAuth } from '../../contexts/AuthContext';
@@ -548,6 +548,25 @@ export default function MyPage() {
         {/* ─── Recent Tab ──────────────────────────────────────────────────── */}
         {activeTab === 'recent' && (
           <div>
+            {/* AI Auto-Organize */}
+            {recentBooths.length > 3 && (
+              <div className="mb-4 bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center gap-3">
+                <div className="w-9 h-9 bg-gray-200 rounded-lg flex items-center justify-center shrink-0">
+                  <Wand2 className="w-4 h-4 text-gray-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-gray-800">자동 정리 제안</p>
+                  <p className="text-xs text-gray-500">방문 기록을 카테고리별로 자동 정리할까요?</p>
+                </div>
+                <button
+                  onClick={() => showToast('방문 기록이 카테고리별로 정리됐어요 (데모)', 'success')}
+                  className="shrink-0 text-xs font-medium text-brand-600 hover:text-brand-700 bg-white border border-gray-200 rounded-lg px-3 h-8 transition-all duration-150"
+                >
+                  정리하기
+                </button>
+              </div>
+            )}
+
             <AiInsights
               visitedBooths={recentBooths.map((r) => r.booth)}
               favoriteBooths={favoriteBooths.map((f) => f.booth)}

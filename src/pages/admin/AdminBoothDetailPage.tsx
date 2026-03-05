@@ -4,7 +4,7 @@ import {
   ArrowLeft, Download, Eye, Heart, MessageSquare, ExternalLink, FileDown,
   Upload, Trash2, Calendar, ToggleLeft, ToggleRight, Paperclip,
   ClipboardList, Users, Link2, Plus, X, Instagram, ShoppingBag, Globe,
-  Edit3, ImagePlus, HelpCircle,
+  Edit3, ImagePlus, HelpCircle, Settings2,
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { AdminLayout } from '../../components/AdminLayout';
@@ -82,6 +82,17 @@ export default function AdminBoothDetailPage() {
   const topPurposes = Object.entries(surveyAgg.purposes)
     .sort((a, b) => b[1] - a[1]);
   const maxInterest = topInterests[0]?.[1] ?? 1;
+
+  const [surveyFields, setSurveyFields] = useState<Array<{ id: string; label: string; type: 'text' | 'select' | 'checkbox'; options?: string[]; required: boolean }>>(() => {
+    try {
+      const raw = localStorage.getItem(`bep_survey_fields_${boothId}`);
+      return raw ? JSON.parse(raw) : [
+        { id: 'interests', label: '관심 분야', type: 'checkbox', options: ['구매검토', '파트너십', 'B2B 납품', '정보수집'], required: false },
+        { id: 'purpose', label: '방문 목적', type: 'select', options: ['구매/계약 검토', '제품 정보 수집', '파트너십/협력', '견적 요청'], required: false },
+      ];
+    } catch { return []; }
+  });
+  const [surveyFieldsSaved, setSurveyFieldsSaved] = useState(false);
 
   useEffect(() => {
     if (boothId) {
@@ -608,6 +619,111 @@ export default function AdminBoothDetailPage() {
           <p className="text-xs text-gray-400 mt-3">
             데모: 파일 메타데이터만 저장됩니다. 관람객 페이지에서 다운로드 버튼이 표시됩니다.
           </p>
+        </div>
+
+        {/* ─── 정보 수집 폼 관리 (B-12) ─── */}
+        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Settings2 className="w-4 h-4 text-gray-500" />
+              <h2 className="text-sm font-semibold text-gray-900">설문 폼 관리</h2>
+            </div>
+            <span className="text-xs text-gray-400">{surveyFields.length}개 항목</span>
+          </div>
+
+          <p className="text-xs text-gray-500 mb-4">관람객이 부스 페이지에서 작성하는 설문 항목을 편집하세요.</p>
+
+          <div className="space-y-3 mb-4">
+            {surveyFields.map((field, i) => (
+              <div key={field.id} className="bg-gray-50 border border-gray-200/60 rounded-lg p-3 sm:p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <input
+                    type="text"
+                    value={field.label}
+                    onChange={(e) => {
+                      const next = [...surveyFields];
+                      next[i] = { ...next[i], label: e.target.value };
+                      setSurveyFields(next);
+                    }}
+                    className="flex-1 text-sm font-medium bg-white border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                  />
+                  <select
+                    value={field.type}
+                    onChange={(e) => {
+                      const next = [...surveyFields];
+                      next[i] = { ...next[i], type: e.target.value as 'text' | 'select' | 'checkbox' };
+                      setSurveyFields(next);
+                    }}
+                    className="h-8 text-xs bg-white border border-gray-200 rounded-lg px-2 outline-none focus:ring-2 focus:ring-brand-200 text-gray-600"
+                  >
+                    <option value="text">텍스트</option>
+                    <option value="select">선택</option>
+                    <option value="checkbox">체크박스</option>
+                  </select>
+                  <label className="flex items-center gap-1 text-xs text-gray-500 shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={field.required}
+                      onChange={(e) => {
+                        const next = [...surveyFields];
+                        next[i] = { ...next[i], required: e.target.checked };
+                        setSurveyFields(next);
+                      }}
+                      className="w-3.5 h-3.5 rounded accent-brand-600"
+                    />
+                    필수
+                  </label>
+                  <button
+                    onClick={() => setSurveyFields((prev) => prev.filter((_, idx) => idx !== i))}
+                    className="p-1 text-gray-300 hover:text-red-400 rounded-md hover:bg-red-50 transition-all duration-150 shrink-0"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                {(field.type === 'select' || field.type === 'checkbox') && field.options && (
+                  <div className="mt-2">
+                    <p className="text-xs text-gray-500 mb-1.5">옵션 (쉼표로 구분)</p>
+                    <input
+                      type="text"
+                      value={field.options.join(', ')}
+                      onChange={(e) => {
+                        const next = [...surveyFields];
+                        next[i] = { ...next[i], options: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) };
+                        setSurveyFields(next);
+                      }}
+                      className="w-full text-xs bg-white border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                      placeholder="옵션1, 옵션2, 옵션3"
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={() => setSurveyFields((prev) => [...prev, { id: `field-${Date.now()}`, label: '새 항목', type: 'text', required: false }])}
+              className="flex items-center gap-1.5 text-xs text-brand-600 hover:text-brand-700 font-medium transition-all duration-150"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              항목 추가
+            </button>
+            <button
+              onClick={() => {
+                localStorage.setItem(`bep_survey_fields_${boothId}`, JSON.stringify(surveyFields));
+                setSurveyFieldsSaved(true);
+                setTimeout(() => setSurveyFieldsSaved(false), 2000);
+                showToast('설문 항목이 저장됐어요!', 'success');
+              }}
+              className={`sm:ml-auto h-9 px-4 text-sm font-medium rounded-lg transition-all duration-150 ${
+                surveyFieldsSaved
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-brand-600 text-white hover:bg-brand-500'
+              }`}
+            >
+              {surveyFieldsSaved ? '저장됐어요 ✓' : '설문 저장'}
+            </button>
+          </div>
         </div>
 
         {/* ─── 설문 집계 결과 ─── */}

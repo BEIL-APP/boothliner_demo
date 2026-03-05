@@ -63,3 +63,36 @@ export function exportBoothThreadsCSV(boothId: string, threads: import('../types
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+export function exportLeadsCSV(leads: import('../types').Lead[]): void {
+  const booths = getBooths();
+  const boothMap = Object.fromEntries(booths.map((b) => [b.id, b.name]));
+
+  const rows: string[][] = [
+    ['리드 ID', '이름', '회사', '전화', '이메일', '유형', '상태', '부스', '메모', '수집일'],
+    ...leads.map((l) => [
+      l.id,
+      l.name ?? '-',
+      l.company ?? '-',
+      l.phone ?? '-',
+      l.email ?? '-',
+      l.source,
+      l.status ?? 'NEW',
+      boothMap[l.boothId] ?? l.boothId,
+      l.memo,
+      l.createdAt,
+    ]),
+  ];
+
+  const csv = rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}

@@ -155,3 +155,12 @@ export interface RateLimit {
   count: number;
   resetAt: string;
 }
+
+export interface ConsentWithdrawal {
+  id: string;
+  type: 'data_delete' | 'marketing_opt_out';
+  status: 'REQUESTED' | 'PROCESSING' | 'COMPLETED';
+  requestedAt: string;
+  completedAt?: string;
+  reason?: string;
+}

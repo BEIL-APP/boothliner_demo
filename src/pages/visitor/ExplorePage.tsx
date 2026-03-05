@@ -8,6 +8,7 @@ import {
   Clock,
   MapPin,
   X,
+  Calendar,
 } from 'lucide-react';
 import { VisitorHeader } from '../../components/VisitorHeader';
 import { useBooths } from '../../hooks/useBooths';
@@ -41,6 +42,14 @@ export default function ExplorePage() {
   const [sort, setSort] = useState<SortOption>('latest');
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [onlyActive, setOnlyActive] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<string>('all');
+
+  const MOCK_EVENTS = [
+    { id: 'all', name: '전체 행사' },
+    { id: 'event-1', name: '2026 서울 B2B 박람회', date: '2026-03-10 ~ 03-12' },
+    { id: 'event-2', name: '스타트업 네트워킹 데이', date: '2026-03-15' },
+    { id: 'event-3', name: '그린 비즈니스 엑스포', date: '2026-03-20 ~ 03-22' },
+  ];
 
   const analytics = useMemo(() => getAnalytics(), []);
   const analyticsMap = useMemo(() => {
@@ -112,7 +121,25 @@ export default function ExplorePage() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">부스 둘러보기</h1>
-          <p className="text-sm text-gray-500 mb-5">관심 있는 부스를 찾아 문의하고 자료를 받아보세요</p>
+          <p className="text-sm text-gray-500 mb-4">관심 있는 부스를 찾아 문의하고 자료를 받아보세요</p>
+
+          {/* Event selector */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 mb-3 scrollbar-hide">
+            <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+            {MOCK_EVENTS.map((ev) => (
+              <button
+                key={ev.id}
+                onClick={() => setSelectedEvent(ev.id)}
+                className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg border transition-all duration-150 ${
+                  selectedEvent === ev.id
+                    ? 'bg-brand-600 text-white border-brand-600'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                {ev.name}
+              </button>
+            ))}
+          </div>
 
           <div className="relative max-w-xl">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
