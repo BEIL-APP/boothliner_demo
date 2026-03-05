@@ -344,94 +344,6 @@ export default function AdminBoothNewPage() {
             </div>
           </div>
 
-          {/* Images */}
-          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
-            <h2 className="text-sm font-semibold text-gray-900 mb-4">이미지 URL</h2>
-            <div className="space-y-3">
-              {images.map((img, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <TextInput
-                    value={img}
-                    onChange={(v) => {
-                      const next = [...images];
-                      next[i] = v;
-                      setImages(next);
-                    }}
-                    placeholder={`이미지 ${i + 1} URL (예: https://...)`}
-                  />
-                  {images.length > 1 && (
-                    <button
-                      onClick={() => setImages(images.filter((_, idx) => idx !== i))}
-                      className="p-2 text-gray-400 hover:text-red-500 transition-all duration-150"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
-              {images.length < 4 && (
-                <button
-                  onClick={() => setImages([...images, ''])}
-                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-all duration-150"
-                >
-                  <Plus className="w-3.5 h-3.5" /> 이미지 추가
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Links */}
-          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
-            <h2 className="text-sm font-semibold text-gray-900 mb-4">링크</h2>
-            <div className="space-y-3">
-              <div>
-                <FieldLabel>인스타그램</FieldLabel>
-                <TextInput value={instagram} onChange={setInstagram} placeholder="https://instagram.com/..." />
-              </div>
-              <div>
-                <FieldLabel>스토어</FieldLabel>
-                <TextInput value={store} onChange={setStore} placeholder="https://..." />
-              </div>
-              <div>
-                <FieldLabel>홈페이지</FieldLabel>
-                <TextInput value={site} onChange={setSite} placeholder="https://..." />
-              </div>
-            </div>
-          </div>
-
-          {/* FAQ */}
-          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
-            <h2 className="text-sm font-semibold text-gray-900 mb-4">자주 묻는 질문 (최대 3개)</h2>
-            <div className="space-y-4">
-              {faq.map((item, i) => (
-                <div key={i} className="bg-gray-50 border border-gray-200/60 rounded-lg p-3 sm:p-4">
-                  <p className="text-xs font-medium text-gray-500 mb-2">Q{i + 1}</p>
-                  <TextInput
-                    value={item.question}
-                    onChange={(v) => {
-                      const next = [...faq];
-                      next[i] = { ...next[i], question: v };
-                      setFaq(next);
-                    }}
-                    placeholder="질문을 입력하세요"
-                    className="mb-2"
-                  />
-                  <textarea
-                    value={item.answer}
-                    onChange={(e) => {
-                      const next = [...faq];
-                      next[i] = { ...next[i], answer: e.target.value };
-                      setFaq(next);
-                    }}
-                    placeholder="답변을 입력하세요"
-                    rows={2}
-                    className="w-full min-h-[60px] text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 resize-none outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Event Participation */}
           <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
@@ -584,6 +496,94 @@ export default function AdminBoothNewPage() {
                       />
                     </div>
                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Images */}
+          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
+            <h2 className="text-sm font-semibold text-gray-900 mb-4">이미지 URL</h2>
+            <div className="space-y-3">
+              {images.map((img, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <TextInput
+                    value={img}
+                    onChange={(v) => {
+                      const next = [...images];
+                      next[i] = v;
+                      setImages(next);
+                    }}
+                    placeholder={`이미지 ${i + 1} URL (예: https://...)`}
+                  />
+                  {images.length > 1 && (
+                    <button
+                      onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                      className="p-2 text-gray-400 hover:text-red-500 transition-all duration-150"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              {images.length < 4 && (
+                <button
+                  onClick={() => setImages([...images, ''])}
+                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-all duration-150"
+                >
+                  <Plus className="w-3.5 h-3.5" /> 이미지 추가
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Links */}
+          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
+            <h2 className="text-sm font-semibold text-gray-900 mb-4">링크</h2>
+            <div className="space-y-3">
+              <div>
+                <FieldLabel>인스타그램</FieldLabel>
+                <TextInput value={instagram} onChange={setInstagram} placeholder="https://instagram.com/..." />
+              </div>
+              <div>
+                <FieldLabel>스토어</FieldLabel>
+                <TextInput value={store} onChange={setStore} placeholder="https://..." />
+              </div>
+              <div>
+                <FieldLabel>홈페이지</FieldLabel>
+                <TextInput value={site} onChange={setSite} placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+
+          {/* FAQ */}
+          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
+            <h2 className="text-sm font-semibold text-gray-900 mb-4">자주 묻는 질문 (최대 3개)</h2>
+            <div className="space-y-4">
+              {faq.map((item, i) => (
+                <div key={i} className="bg-gray-50 border border-gray-200/60 rounded-lg p-3 sm:p-4">
+                  <p className="text-xs font-medium text-gray-500 mb-2">Q{i + 1}</p>
+                  <TextInput
+                    value={item.question}
+                    onChange={(v) => {
+                      const next = [...faq];
+                      next[i] = { ...next[i], question: v };
+                      setFaq(next);
+                    }}
+                    placeholder="질문을 입력하세요"
+                    className="mb-2"
+                  />
+                  <textarea
+                    value={item.answer}
+                    onChange={(e) => {
+                      const next = [...faq];
+                      next[i] = { ...next[i], answer: e.target.value };
+                      setFaq(next);
+                    }}
+                    placeholder="답변을 입력하세요"
+                    rows={2}
+                    className="w-full min-h-[60px] text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 resize-none outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                  />
                 </div>
               ))}
             </div>
