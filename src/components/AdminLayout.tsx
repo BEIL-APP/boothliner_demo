@@ -11,6 +11,7 @@ import {
   ExternalLink,
   Menu,
   X,
+  Settings,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -88,6 +89,17 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </nav>
 
       <div className="px-2 py-3 border-t border-white/[0.06] space-y-0.5">
+        <Link
+          to="/admin/settings"
+          className={`flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-[13px] transition-colors ${
+            location.pathname === '/admin/settings'
+              ? 'bg-white/10 text-white font-medium'
+              : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.05]'
+          }`}
+        >
+          <Settings className="w-3.5 h-3.5" />
+          설정
+        </Link>
         <Link
           to="/auth"
           className="flex items-center gap-2.5 w-full px-2.5 h-8 rounded-lg text-[13px] text-gray-500 hover:text-gray-300 hover:bg-white/[0.05] transition-colors"

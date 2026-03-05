@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { QrCode, Heart, MessageSquare, User, LogIn, Bell } from 'lucide-react';
+import { QrCode, Heart, MessageSquare, User, LogIn, Bell, Settings } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getGuestId, getUnreadNotificationCount } from '../utils/localStorage';
 
@@ -53,6 +53,18 @@ export function VisitorHeader() {
               </Link>
             );
           })}
+
+          <Link
+            to="/settings"
+            className={`relative flex items-center gap-1.5 h-9 px-2 md:px-3 rounded-lg transition-colors ${
+              location.pathname === '/settings'
+                ? 'text-brand-600 bg-brand-50'
+                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <Settings className="w-[18px] h-[18px]" />
+            <span className="hidden md:inline text-[13px] font-medium">설정</span>
+          </Link>
 
           <div className="w-px h-5 bg-gray-200 mx-1.5 hidden md:block" />
 
