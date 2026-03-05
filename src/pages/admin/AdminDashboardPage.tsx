@@ -18,11 +18,10 @@ import { exportAnalyticsCSV } from '../../utils/csv';
 import { useToast } from '../../contexts/ToastContext';
 import { getVisits, getLeads, getSurveys } from '../../utils/localStorage';
 
-// Simulated hourly visit distribution (mock)
 const HOUR_LABELS = ['9', '10', '11', '12', '13', '14', '15', '16', '17', '18'];
 const MOCK_HOURLY = [8, 22, 35, 28, 18, 42, 56, 38, 25, 14];
 
-export default function OrganizerPreviewPage() {
+export default function AdminDashboardPage() {
   const { analytics } = useAnalytics();
   const { booths } = useBooths();
   const { showToast } = useToast();
@@ -37,7 +36,6 @@ export default function OrganizerPreviewPage() {
   const allLeads = getLeads();
   const allSurveys = getSurveys();
 
-  // Aggregate all survey interests across all booths
   const globalInterests: Record<string, number> = {};
   const globalPurposes: Record<string, number> = {};
   let globalWantsContact = 0;
@@ -78,8 +76,8 @@ export default function OrganizerPreviewPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 lg:mb-8">
           <div>
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">주최자 프리뷰</h1>
-            <p className="text-sm text-gray-500 mt-1">이벤트 전체 통계와 부스 현황을 한눈에 파악하세요</p>
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">대시보드</h1>
+            <p className="text-sm text-gray-500 mt-1">내 부스의 전체 성과를 한눈에 확인하세요</p>
           </div>
           <button
             onClick={handleExportAll}
@@ -90,7 +88,7 @@ export default function OrganizerPreviewPage() {
           </button>
         </div>
 
-        {/* KPI Cards — row 1 */}
+        {/* KPI Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
           {[
             {
@@ -103,7 +101,7 @@ export default function OrganizerPreviewPage() {
               label: '고유 방문자',
               value: uniqueVisitors.toLocaleString(),
               icon: <UserCheck className="w-4 h-4" />,
-              trend: '이 기기 기준',
+              trend: '전체 부스 기준',
             },
             {
               label: '관심 저장',
@@ -127,7 +125,7 @@ export default function OrganizerPreviewPage() {
           ))}
         </div>
 
-        {/* Lead source + Survey count — row 2 */}
+        {/* Lead source + Survey count */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
             { label: '명함 스캔 리드', value: leadsBySource.bizcard, icon: <CreditCard className="w-4 h-4" /> },
@@ -144,12 +142,12 @@ export default function OrganizerPreviewPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
-          {/* Top Booths Table */}
+          {/* Top Booths */}
           <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-gray-400" />
-                <h2 className="text-sm font-semibold text-gray-900">부스별 성과 (스캔 기준)</h2>
+                <h2 className="text-sm font-semibold text-gray-900">부스별 성과</h2>
               </div>
               <Link
                 to="/admin/booths"
@@ -220,16 +218,15 @@ export default function OrganizerPreviewPage() {
           <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-6">
             <div className="flex items-center gap-2 mb-5">
               <ClipboardList className="w-4 h-4 text-gray-400" />
-              <h2 className="text-sm font-semibold text-gray-900">전체 설문 집계</h2>
+              <h2 className="text-sm font-semibold text-gray-900">설문 집계</h2>
               <span className="text-xs text-gray-500 bg-gray-100 rounded-md px-2 h-5 flex items-center ml-auto">
                 총 {allSurveys.length}건
               </span>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Interest bar chart */}
               {topGlobalInterests.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-gray-500 mb-3">관심 분야 (전체)</p>
+                  <p className="text-xs font-medium text-gray-500 mb-3">관심 분야</p>
                   <div className="space-y-2">
                     {topGlobalInterests.map(([tag, count]) => (
                       <div key={tag}>
@@ -249,7 +246,6 @@ export default function OrganizerPreviewPage() {
                 </div>
               )}
 
-              {/* Purpose + wantsContact */}
               <div>
                 {topGlobalPurposes.length > 0 && (
                   <div className="mb-4">
@@ -282,7 +278,7 @@ export default function OrganizerPreviewPage() {
           </div>
         )}
 
-        {/* Lead list quick view */}
+        {/* Recent Leads */}
         <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
@@ -336,7 +332,7 @@ export default function OrganizerPreviewPage() {
         {/* All booths stats table */}
         <div className="bg-white border border-gray-200/60 rounded-xl overflow-hidden">
           <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-            <h2 className="text-sm font-semibold text-gray-900">전체 부스 통계</h2>
+            <h2 className="text-sm font-semibold text-gray-900">부스별 상세 통계</h2>
             <button
               onClick={handleExportAll}
               className="w-full sm:w-auto flex items-center justify-center gap-1.5 bg-white border border-gray-200 text-gray-700 h-9 rounded-lg px-3 text-[13px] font-medium hover:bg-gray-50 transition-all duration-150"

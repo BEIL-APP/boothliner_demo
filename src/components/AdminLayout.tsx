@@ -19,7 +19,7 @@ const navItems = [
   { to: '/admin/booths', icon: LayoutGrid, label: '내 부스' },
   { to: '/admin/inbox', icon: Inbox, label: '문의 인박스' },
   { to: '/admin/leads', icon: Users, label: '리드 목록' },
-  { to: '/organizer/preview', icon: BarChart3, label: '주최자 프리뷰' },
+  { to: '/admin/dashboard', icon: BarChart3, label: '대시보드' },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {

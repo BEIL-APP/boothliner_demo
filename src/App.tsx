@@ -29,8 +29,8 @@ import AdminLeadsScanPage from './pages/admin/AdminLeadsScanPage';
 import AdminBoothTeamPage from './pages/admin/AdminBoothTeamPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 
-// Organizer
-import OrganizerPreviewPage from './pages/organizer/OrganizerPreviewPage';
+// Dashboard
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
   const { isAdmin } = useAuth();
@@ -69,9 +69,7 @@ function AppRoutes() {
       <Route path="/admin/leads/scan" element={<AdminGuard><AdminLeadsScanPage /></AdminGuard>} />
       <Route path="/admin/booths/:boothId/team" element={<AdminGuard><AdminBoothTeamPage /></AdminGuard>} />
       <Route path="/admin/settings" element={<AdminGuard><AdminSettingsPage /></AdminGuard>} />
-
-      {/* Organizer */}
-      <Route path="/organizer/preview" element={<AdminGuard><OrganizerPreviewPage /></AdminGuard>} />
+      <Route path="/admin/dashboard" element={<AdminGuard><AdminDashboardPage /></AdminGuard>} />
 
       {/* 404 fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
