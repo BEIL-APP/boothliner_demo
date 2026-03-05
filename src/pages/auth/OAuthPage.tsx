@@ -62,7 +62,7 @@ export default function OAuthPage() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:p-8">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8">
         <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
@@ -71,7 +71,7 @@ export default function OAuthPage() {
         <span className="text-sm font-semibold text-gray-900">BoothLiner</span>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-8 w-full max-w-sm">
+      <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-6 sm:p-8 w-full max-w-sm">
         <Link
           to="/auth"
           className="inline-flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-700 mb-6 transition-colors"

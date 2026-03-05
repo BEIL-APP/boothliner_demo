@@ -5,7 +5,7 @@ export default function AuthPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:p-8">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8">
         <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
@@ -15,7 +15,7 @@ export default function AuthPage() {
       </div>
 
       {/* Card */}
-      <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-8 w-full max-w-sm">
+      <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-6 sm:p-8 w-full max-w-sm">
         <h1 className="text-xl font-semibold text-gray-900 mb-1.5">로그인 / 가입</h1>
         <p className="text-sm text-gray-500 mb-7">어떻게 참여하시나요?</p>
 

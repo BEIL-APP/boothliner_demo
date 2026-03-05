@@ -153,9 +153,9 @@ export default function AdminBoothNewPage() {
 
   return (
     <AdminLayout>
-      <div className="p-8 max-w-2xl">
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-3xl">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-6 lg:mb-8">
           <button
             onClick={() => navigate(-1)}
             className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-150"
@@ -163,14 +163,14 @@ export default function AdminBoothNewPage() {
             <ArrowLeft className="w-4 h-4 text-gray-500" />
           </button>
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">새 부스 만들기</h1>
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">새 부스 만들기</h1>
             <p className="text-sm text-gray-500 mt-0.5">부스 정보를 입력하고 QR을 발급받으세요</p>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* AI Auto-fill */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-4 h-4 text-gray-500" />
               <h2 className="text-sm font-semibold text-gray-900">AI 부스 자동 생성</h2>
@@ -211,7 +211,7 @@ export default function AdminBoothNewPage() {
           </div>
 
           {/* Basic Info */}
-          <div className="bg-white rounded-xl border border-gray-200/60 p-6">
+          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
             <h2 className="text-sm font-semibold text-gray-900 mb-4">기본 정보</h2>
             <div className="space-y-4">
               <div>
@@ -252,7 +252,7 @@ export default function AdminBoothNewPage() {
           </div>
 
           {/* Images */}
-          <div className="bg-white rounded-xl border border-gray-200/60 p-6">
+          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
             <h2 className="text-sm font-semibold text-gray-900 mb-4">이미지 URL</h2>
             <div className="space-y-3">
               {images.map((img, i) => (
@@ -288,7 +288,7 @@ export default function AdminBoothNewPage() {
           </div>
 
           {/* Links */}
-          <div className="bg-white rounded-xl border border-gray-200/60 p-6">
+          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
             <h2 className="text-sm font-semibold text-gray-900 mb-4">링크</h2>
             <div className="space-y-3">
               <div>
@@ -307,11 +307,11 @@ export default function AdminBoothNewPage() {
           </div>
 
           {/* FAQ */}
-          <div className="bg-white rounded-xl border border-gray-200/60 p-6">
+          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
             <h2 className="text-sm font-semibold text-gray-900 mb-4">자주 묻는 질문 (최대 3개)</h2>
             <div className="space-y-4">
               {faq.map((item, i) => (
-                <div key={i} className="bg-gray-50 border border-gray-200/60 rounded-lg p-4">
+                <div key={i} className="bg-gray-50 border border-gray-200/60 rounded-lg p-3 sm:p-4">
                   <p className="text-xs font-medium text-gray-500 mb-2">Q{i + 1}</p>
                   <TextInput
                     value={item.question}
@@ -340,7 +340,7 @@ export default function AdminBoothNewPage() {
           </div>
 
           {/* Current Event */}
-          <div className="bg-white rounded-xl border border-gray-200/60 p-6">
+          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
             <div className="mb-6">
               <h2 className="text-sm font-semibold text-gray-900">이번 행사 정보</h2>
               <p className="text-xs text-gray-400 mt-1">현재 참가 중인 행사의 일정과 부스 위치를 입력하세요</p>
@@ -350,7 +350,7 @@ export default function AdminBoothNewPage() {
                 <FieldLabel>행사명</FieldLabel>
                 <TextInput value={eventTitle} onChange={setEventTitle} placeholder="예: 2026 서울 B2B 박람회" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <FieldLabel>날짜</FieldLabel>
                   <input
@@ -369,16 +369,16 @@ export default function AdminBoothNewPage() {
           </div>
 
           {/* Save Button */}
-          <div className="flex justify-end gap-3 pb-4">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pb-4">
             <button
               onClick={() => navigate(-1)}
-              className="h-9 px-4 text-[13px] font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-150"
+              className="h-9 px-4 text-[13px] font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-150 w-full sm:w-auto"
             >
               취소
             </button>
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-500 transition-all duration-150"
+              className="flex items-center justify-center gap-2 h-9 px-4 text-[13px] font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-500 transition-all duration-150 w-full sm:w-auto"
             >
               <Save className="w-4 h-4" />
               부스 생성 & QR 발급

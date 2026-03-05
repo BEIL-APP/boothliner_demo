@@ -103,7 +103,7 @@ export default function AdminBoothTeamPage() {
   if (!booth) {
     return (
       <AdminLayout>
-        <div className="p-8 text-center">
+        <div className="px-4 py-5 sm:p-6 lg:p-8 text-center">
           <p className="text-sm text-gray-500">부스를 찾을 수 없어요</p>
           <Link to="/admin/booths" className="text-sm text-gray-500 hover:text-gray-700 mt-2 inline-block transition-all duration-150">
             ← 목록으로
@@ -118,22 +118,24 @@ export default function AdminBoothTeamPage() {
 
   return (
     <AdminLayout>
-      <div className="p-8 max-w-2xl">
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-2xl">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <Link
-            to={`/admin/booths/${boothId}`}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-150"
-          >
-            <ArrowLeft className="w-4 h-4 text-gray-500" />
-          </Link>
-          <div className="flex-1">
-            <h1 className="text-xl font-semibold text-gray-900">팀 관리</h1>
-            <p className="text-sm text-gray-500 mt-0.5">{booth.name} 부스의 운영 팀</p>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 lg:mb-8">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <Link
+              to={`/admin/booths/${boothId}`}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-150 shrink-0"
+            >
+              <ArrowLeft className="w-4 h-4 text-gray-500" />
+            </Link>
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">팀 관리</h1>
+              <p className="text-sm text-gray-500 mt-0.5 truncate">{booth.name} 부스의 운영 팀</p>
+            </div>
           </div>
           <button
             onClick={() => setShowInvite(!showInvite)}
-            className="flex items-center gap-2 h-9 text-[13px] font-medium text-white bg-brand-600 rounded-lg px-4 hover:bg-brand-500 transition-all duration-150"
+            className="flex items-center justify-center gap-2 h-9 text-[13px] font-medium text-white bg-brand-600 rounded-lg px-4 hover:bg-brand-500 transition-all duration-150 w-full sm:w-auto shrink-0"
           >
             <UserPlus className="w-4 h-4" />
             팀원 초대
@@ -142,10 +144,10 @@ export default function AdminBoothTeamPage() {
 
         {/* Invite Form */}
         {showInvite && (
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6 mb-6">
             <h2 className="text-sm font-semibold text-gray-900 mb-4">새 팀원 초대</h2>
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[13px] font-medium text-gray-700 mb-1.5">이름</label>
                   <input
@@ -178,7 +180,7 @@ export default function AdminBoothTeamPage() {
                   className="w-full h-9 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
                 />
               </div>
-              <div className="flex gap-2 pt-1">
+              <div className="flex flex-col sm:flex-row gap-2 pt-1">
                 <button
                   onClick={handleInvite}
                   className="flex-1 h-9 text-[13px] font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-500 transition-all duration-150"
@@ -197,8 +199,8 @@ export default function AdminBoothTeamPage() {
         )}
 
         {/* Active Members */}
-        <div className="bg-white rounded-xl border border-gray-200/60 p-6 mb-6">
-          <div className="flex items-center gap-2 mb-6">
+        <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4 sm:mb-6">
             <Users className="w-4 h-4 text-gray-400" />
             <h2 className="text-sm font-semibold text-gray-900">활성 팀원</h2>
             <span className="inline-flex items-center h-5 px-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-md ml-auto">
@@ -222,12 +224,12 @@ export default function AdminBoothTeamPage() {
                       <p className="text-xs text-gray-400 truncate">{m.email}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap justify-end">
                     <RoleBadge role={m.role} />
                     <select
                       value={m.role}
                       onChange={(e) => handleRoleChange(m, e.target.value as 'owner' | 'staff')}
-                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none text-gray-600 bg-white h-7 transition-all"
+                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none text-gray-600 bg-white h-7 transition-all hidden sm:block"
                     >
                       <option value="staff">스태프</option>
                       <option value="owner">오너</option>
@@ -247,8 +249,8 @@ export default function AdminBoothTeamPage() {
 
         {/* Pending Invites */}
         {pendingMembers.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200/60 p-6">
-            <div className="flex items-center gap-2 mb-6">
+          <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
               <Clock className="w-4 h-4 text-gray-400" />
               <h2 className="text-sm font-semibold text-gray-900">초대 대기 중</h2>
               <span className="inline-flex items-center h-5 px-2 text-xs font-medium text-amber-700 bg-amber-50 rounded-md ml-auto">
@@ -266,7 +268,7 @@ export default function AdminBoothTeamPage() {
                     <p className="text-sm font-medium text-gray-900">{m.name}</p>
                     <p className="text-xs text-gray-400 truncate">{m.email}</p>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap justify-end">
                     <StatusBadge status={m.status} />
                     <RoleBadge role={m.role} />
                     <button
@@ -289,7 +291,7 @@ export default function AdminBoothTeamPage() {
         )}
 
         {/* Role Description */}
-        <div className="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-6">
+        <div className="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6">
           <p className="text-[13px] font-medium text-gray-500 uppercase tracking-wider mb-3">권한 안내</p>
           <div className="space-y-2.5">
             <div className="flex items-start gap-2">

@@ -85,11 +85,11 @@ export default function AdminLeadsPage() {
 
   return (
     <AdminLayout>
-      <div className="p-8">
+      <div className="px-4 py-5 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 lg:mb-8">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">리드 목록</h1>
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">리드 목록</h1>
             <p className="text-sm text-gray-500 mt-1">
               문의 동의 · 명함 스캔 · 이메일 수신 신청 · 설문 응답 기반
             </p>
@@ -97,14 +97,14 @@ export default function AdminLeadsPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleLottery}
-              className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150"
+              className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 flex-1 sm:flex-none"
             >
               <Dice5 className="w-4 h-4" />
               명함 추첨
             </button>
             <Link
               to="/admin/leads/scan"
-              className="flex items-center gap-1.5 bg-brand-600 text-white hover:bg-brand-500 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150"
+              className="flex items-center justify-center gap-1.5 bg-brand-600 text-white hover:bg-brand-500 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 flex-1 sm:flex-none"
             >
               <ScanLine className="w-4 h-4" />
               명함 스캔
@@ -113,14 +113,14 @@ export default function AdminLeadsPage() {
         </div>
 
         {/* Source stat chips */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          <div className="flex items-center gap-1.5 text-xs bg-white border border-gray-200/60 rounded-xl px-4 py-3">
+        <div className="flex overflow-x-auto gap-2 pb-2 mb-4 sm:mb-6 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible sm:pb-0">
+          <div className="flex items-center gap-1.5 text-xs bg-white border border-gray-200/60 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 shrink-0">
             <Users className="w-3.5 h-3.5 text-gray-400" />
             <span className="text-gray-600 font-medium">전체</span>
             <span className="font-semibold text-gray-900">{leads.length}</span>
           </div>
           {(['bizcard', 'inquiry', 'email_info', 'survey'] as Lead['source'][]).map((src) => (
-            <div key={src} className="flex items-center gap-1.5 text-xs bg-white border border-gray-200/60 rounded-xl px-4 py-3">
+            <div key={src} className="flex items-center gap-1.5 text-xs bg-white border border-gray-200/60 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 shrink-0">
               <span className="text-gray-400">{SOURCE_ICONS[src]}</span>
               <span className="text-gray-600">{SOURCE_LABELS[src]}</span>
               <span className="font-semibold text-gray-900">{countBySource(src)}</span>
@@ -129,8 +129,8 @@ export default function AdminLeadsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-6">
-          <div className="relative flex-1 min-w-48">
+        <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:mb-6">
+          <div className="relative flex-1 min-w-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               value={search}
@@ -141,11 +141,11 @@ export default function AdminLeadsPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
+            <Filter className="w-4 h-4 text-gray-400 shrink-0 hidden sm:block" />
             <select
               value={filterSource}
               onChange={(e) => setFilterSource(e.target.value as Lead['source'] | 'all')}
-              className="h-9 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+              className="h-9 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all flex-1 sm:flex-none"
             >
               <option value="all">전체 유형</option>
               <option value="bizcard">명함 스캔</option>
@@ -156,7 +156,7 @@ export default function AdminLeadsPage() {
             <select
               value={filterBooth}
               onChange={(e) => setFilterBooth(e.target.value)}
-              className="h-9 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+              className="h-9 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all flex-1 sm:flex-none"
             >
               <option value="all">전체 부스</option>
               {booths.map((b) => (
@@ -175,44 +175,44 @@ export default function AdminLeadsPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[700px]">
                 <thead>
                   <tr className="bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <th className="text-left px-5 py-3">이름 / 이메일</th>
-                    <th className="text-left px-4 py-3">회사</th>
-                    <th className="text-left px-4 py-3">전화</th>
-                    <th className="text-left px-4 py-3">유형</th>
-                    <th className="text-left px-4 py-3">부스</th>
-                    <th className="text-left px-4 py-3">메모</th>
-                    <th className="text-left px-4 py-3">수집일</th>
-                    <th className="px-4 py-3" />
+                    <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3">이름 / 이메일</th>
+                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">회사</th>
+                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">전화</th>
+                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">유형</th>
+                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">부스</th>
+                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">메모</th>
+                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">수집일</th>
+                    <th className="px-3 py-2.5 sm:px-4 sm:py-3" />
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((lead) => (
                     <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                      <td className="px-5 py-3.5">
+                      <td className="px-3 py-2.5 sm:px-5 sm:py-3.5">
                         <p className="text-sm font-medium text-gray-800">{lead.name ?? '-'}</p>
                         <p className="text-xs text-gray-400">{lead.email ?? '-'}</p>
                       </td>
-                      <td className="px-4 py-3.5 text-sm text-gray-600">{lead.company ?? '-'}</td>
-                      <td className="px-4 py-3.5 text-xs text-gray-500 font-mono">{lead.phone ?? '-'}</td>
-                      <td className="px-4 py-3.5">
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5 text-sm text-gray-600">{lead.company ?? '-'}</td>
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5 text-xs text-gray-500 font-mono">{lead.phone ?? '-'}</td>
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5">
                         <span className={`h-6 px-2 rounded-md text-xs font-medium inline-flex items-center gap-1 ${SOURCE_COLORS[lead.source]}`}>
                           {SOURCE_ICONS[lead.source]}
                           {SOURCE_LABELS[lead.source]}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 text-sm text-gray-600">
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5 text-sm text-gray-600">
                         {boothMap[lead.boothId] ?? lead.boothId}
                       </td>
-                      <td className="px-4 py-3.5 text-xs text-gray-500 max-w-[180px] truncate">
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5 text-xs text-gray-500 max-w-[180px] truncate">
                         {lead.memo || '-'}
                       </td>
-                      <td className="px-4 py-3.5 text-xs text-gray-400">
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5 text-xs text-gray-400">
                         {new Date(lead.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
                       </td>
-                      <td className="px-4 py-3.5">
+                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5">
                         <button
                           onClick={() => handleDelete(lead.id)}
                           className="p-1.5 text-gray-300 hover:text-red-400 rounded-md hover:bg-red-50 transition-all duration-150"
@@ -231,14 +231,14 @@ export default function AdminLeadsPage() {
 
       {/* Lottery modal */}
       {showLottery && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-5">
-          <div className="bg-white rounded-xl p-6 max-w-sm w-full text-center shadow-xl animate-in fade-in zoom-in-95 duration-150">
-            <h2 className="text-xl font-semibold text-gray-900 mb-1">추첨 결과</h2>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 sm:p-5">
+          <div className="bg-white rounded-xl p-5 sm:p-6 max-w-sm w-full text-center shadow-xl animate-in fade-in zoom-in-95 duration-150">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">추첨 결과</h2>
             <p className="text-sm text-gray-500 mb-6">
               {filtered.length}명 중 1명이 선택됐어요
             </p>
             {lotteryWinner && (
-              <div className="bg-gray-50 border border-gray-200/60 rounded-xl p-5 mb-6 text-left">
+              <div className="bg-gray-50 border border-gray-200/60 rounded-xl p-4 sm:p-5 mb-6 text-left">
                 <p className="text-base font-semibold text-gray-900 mb-1">
                   {lotteryWinner.name ?? '이름 미상'}
                 </p>

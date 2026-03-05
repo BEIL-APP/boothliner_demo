@@ -96,14 +96,14 @@ function TemplateModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-100">
           <h2 className="text-sm font-semibold text-gray-900">템플릿 답변 관리</h2>
           <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-lg transition-all duration-150">
             <X className="w-4 h-4 text-gray-500" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+        <div className="flex-1 overflow-y-auto px-4 py-3 sm:px-6 sm:py-4 space-y-2">
           {templates.map((t) => (
             <div key={t.id} className="border border-gray-200/60 rounded-xl p-3">
               {editingId === t.id ? (
@@ -197,7 +197,7 @@ function TemplateModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {!isEditing && (
-          <div className="px-6 pb-4">
+          <div className="px-4 pb-3 sm:px-6 sm:pb-4">
             <button
               onClick={startAdd}
               className="w-full h-9 flex items-center justify-center gap-2 text-xs font-medium border border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-gray-400 hover:text-gray-700 transition-all duration-150"
@@ -311,10 +311,10 @@ export default function AdminInboxPage() {
 
       <div className="flex h-screen overflow-hidden">
         {/* Left: Thread List */}
-        <div className={`flex flex-col border-r border-gray-100 ${selectedThread ? 'hidden lg:flex w-80 shrink-0' : 'flex-1'}`}>
+        <div className={`flex flex-col border-gray-100 ${selectedThread ? 'hidden md:flex' : 'flex'} w-full md:w-[340px] md:border-r md:shrink-0`}>
           {/* Inbox header */}
-          <div className="p-6 border-b border-gray-100">
-            <h1 className="text-base font-semibold text-gray-900 mb-4">문의 인박스</h1>
+          <div className="px-4 py-4 sm:p-6 border-b border-gray-100">
+            <h1 className="text-base font-semibold text-gray-900 mb-3 sm:mb-4">문의 인박스</h1>
 
             {/* Search */}
             <div className="relative mb-3">
@@ -365,11 +365,11 @@ export default function AdminInboxPage() {
                   <button
                     key={t.id}
                     onClick={() => setSelected(t)}
-                    className={`w-full text-left px-4 py-3 border-b border-gray-100 transition-colors ${
+                    className={`w-full text-left px-3 py-2.5 sm:px-4 sm:py-3 border-b border-gray-100 transition-colors ${
                       isActive ? 'bg-gray-50' : 'hover:bg-gray-50/50'
                     }`}
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-2.5 sm:gap-3">
                       <div className="w-9 h-9 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                         {booth?.images[0] ? (
                           <img src={booth.images[0]} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
@@ -383,7 +383,7 @@ export default function AdminInboxPage() {
                           <span className="text-xs text-gray-400 shrink-0 ml-2">{formatTime(t.lastUpdated)}</span>
                         </div>
                         <p className="text-xs text-gray-500 truncate mb-1.5">{lastMsg?.text}</p>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <StatusBadge status={t.status} />
                           {t.blocked && (
                             <span className="h-6 px-2 rounded-md text-xs font-medium inline-flex items-center gap-0.5 bg-red-50 text-red-600">
@@ -409,15 +409,15 @@ export default function AdminInboxPage() {
         {selectedThread ? (
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Detail Header */}
-            <div className="bg-white px-6 py-4 border-b border-gray-100 flex items-center gap-4">
+            <div className="bg-white px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-100 flex items-center gap-3 sm:gap-4">
               <button
                 onClick={() => setSelected(null)}
-                className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-all duration-150"
+                className="md:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-all duration-150 shrink-0"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-semibold text-gray-900">{boothMap[selectedThread.boothId]?.name}</p>
                   <span className="text-xs text-gray-400">
                     {selectedThread.visitorId === 'user'
@@ -425,7 +425,7 @@ export default function AdminInboxPage() {
                       : '비로그인'}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-1.5 sm:gap-2 mt-1 flex-wrap">
                   <StatusBadge status={selectedThread.status} />
                   {selectedThread.tags.map((tag) => (
                     <span key={tag} className="flex items-center gap-0.5 h-6 px-2 rounded-md text-xs bg-gray-100 text-gray-500">
@@ -445,7 +445,7 @@ export default function AdminInboxPage() {
               </div>
 
               {/* Status actions */}
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <button
                   onClick={handleToggleBlock}
                   title={selectedThread.blocked ? '차단 해제' : '스팸 차단'}
@@ -467,7 +467,7 @@ export default function AdminInboxPage() {
                     updateStatus(selectedThread.id, e.target.value as Thread['status']);
                     showToast(`상태가 "${e.target.value}"으로 변경됐어요`, 'info');
                   }}
-                  className="h-9 text-xs bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 text-gray-700 transition-all"
+                  className="h-8 sm:h-9 text-xs bg-white border border-gray-200 rounded-lg px-2 sm:px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 text-gray-700 transition-all"
                 >
                   <option value="미처리">미처리</option>
                   <option value="처리">처리</option>
@@ -478,7 +478,7 @@ export default function AdminInboxPage() {
 
             {/* Tag input row */}
             {showTagInput && (
-              <div className="bg-gray-50 px-6 py-3 border-b border-gray-100 flex items-center gap-2 flex-wrap">
+              <div className="bg-gray-50 px-4 py-2.5 sm:px-6 sm:py-3 border-b border-gray-100 flex items-center gap-2 flex-wrap">
                 <span className="text-xs text-gray-500">빠른 태그:</span>
                 {TAG_SUGGESTIONS.map((s) => (
                   <button
@@ -495,13 +495,13 @@ export default function AdminInboxPage() {
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleAddTag(newTag); }}
                   placeholder="직접 입력 후 Enter"
-                  className="h-9 text-xs bg-white border border-gray-200 rounded-lg px-2.5 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                  className="h-8 sm:h-9 text-xs bg-white border border-gray-200 rounded-lg px-2.5 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400 flex-1 min-w-[120px]"
                 />
               </div>
             )}
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+            <div className="flex-1 overflow-y-auto px-3 py-3 sm:px-6 sm:py-4 space-y-3">
               {selectedThread.messages.map((msg, i) => (
                 <div
                   key={i}
@@ -513,7 +513,7 @@ export default function AdminInboxPage() {
                     </div>
                   )}
                   <div
-                    className={`max-w-[70%] px-4 py-3 ${
+                    className={`max-w-[85%] sm:max-w-[70%] px-3 py-2.5 sm:px-4 sm:py-3 ${
                       msg.from === 'booth'
                         ? 'bg-brand-600 text-white rounded-xl rounded-br-sm'
                         : 'bg-gray-100 text-gray-800 rounded-xl rounded-bl-sm'
@@ -530,7 +530,7 @@ export default function AdminInboxPage() {
             </div>
 
             {/* Memo */}
-            <div className="px-6 py-3 bg-amber-50/50 border-t border-amber-100">
+            <div className="px-4 py-2.5 sm:px-6 sm:py-3 bg-amber-50/50 border-t border-amber-100">
               <textarea
                 value={selectedThread.memo}
                 onChange={(e) => updateMemo(selectedThread.id, e.target.value)}
@@ -541,7 +541,7 @@ export default function AdminInboxPage() {
             </div>
 
             {/* Template replies */}
-            <div className="px-6 py-3 border-t border-gray-100 bg-gray-50">
+            <div className="px-4 py-2.5 sm:px-6 sm:py-3 border-t border-gray-100 bg-gray-50">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-gray-400 flex items-center gap-1">
                   <ChevronDown className="w-3 h-3" /> 템플릿 답변
@@ -567,13 +567,13 @@ export default function AdminInboxPage() {
             </div>
 
             {/* Reply input */}
-            <div className="px-6 py-4 border-t border-gray-100 bg-white flex items-end gap-3">
+            <div className="px-3 py-3 sm:px-6 sm:py-4 border-t border-gray-100 bg-white flex items-end gap-2 sm:gap-3">
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder="관람객에게 답변을 작성하세요…"
                 rows={2}
-                className="flex-1 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-4 py-3 resize-none outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                className="flex-1 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 resize-none outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -584,15 +584,15 @@ export default function AdminInboxPage() {
               <button
                 onClick={handleSendReply}
                 disabled={!replyText.trim()}
-                className="h-9 px-4 bg-brand-600 text-white text-[13px] font-medium rounded-lg flex items-center gap-2 hover:bg-brand-500 transition-all duration-150 disabled:opacity-40 shrink-0"
+                className="h-9 px-3 sm:px-4 bg-brand-600 text-white text-[13px] font-medium rounded-lg flex items-center gap-1.5 sm:gap-2 hover:bg-brand-500 transition-all duration-150 disabled:opacity-40 shrink-0"
               >
                 <Send className="w-4 h-4" />
-                답변 전송
+                <span className="hidden sm:inline">답변 전송</span>
               </button>
             </div>
           </div>
         ) : (
-          <div className="hidden lg:flex flex-1 items-center justify-center text-center">
+          <div className="hidden md:flex flex-1 items-center justify-center text-center">
             <div>
               <MessageSquare className="w-12 h-12 text-gray-200 mx-auto mb-3" />
               <p className="text-sm text-gray-400">왼쪽에서 문의를 선택하세요</p>

@@ -31,7 +31,7 @@ export default function AdminLoginPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-8">
+        <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-6 sm:p-8">
           <h1 className="text-xl font-semibold text-gray-900 mb-1.5">운영자 로그인</h1>
           <p className="text-sm text-gray-500 mb-8">
             데모 환경입니다. 버튼 하나로 로그인하세요.

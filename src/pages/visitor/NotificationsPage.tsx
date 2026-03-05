@@ -28,9 +28,9 @@ export default function NotificationsPage() {
     <div className="min-h-screen bg-gray-50">
       <VisitorHeader />
 
-      <div className="max-w-sm mx-auto px-4 pt-6 pb-20">
-        <h1 className="text-base font-semibold text-gray-900 mb-1">알림</h1>
-        <p className="text-[13px] text-gray-500 mb-5">이 기기에서 받은 알림 내역이에요</p>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-20">
+        <h1 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">알림</h1>
+        <p className="text-[13px] sm:text-sm text-gray-500 mb-5">이 기기에서 받은 알림 내역이에요</p>
 
         {notifications.length === 0 ? (
           <div className="text-center py-16">
@@ -41,7 +41,7 @@ export default function NotificationsPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="max-w-2xl space-y-2">
             {notifications.map((n) => (
               <Link
                 key={n.id}

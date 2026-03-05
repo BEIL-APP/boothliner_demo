@@ -229,7 +229,7 @@ export default function AdminBoothDetailPage() {
   if (!booth) {
     return (
       <AdminLayout>
-        <div className="p-8 text-center">
+        <div className="px-4 py-5 sm:p-6 lg:p-8 text-center">
           <p className="text-gray-500">부스를 찾을 수 없어요</p>
           <Link to="/admin/booths" className="text-brand-600 text-sm mt-2 inline-block">
             ← 목록으로
@@ -265,35 +265,37 @@ export default function AdminBoothDetailPage() {
 
   return (
     <AdminLayout>
-      <div className="p-8 max-w-3xl">
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-5xl">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <Link to="/admin/booths" className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-150">
-            <ArrowLeft className="w-5 h-5 text-gray-600" />
-          </Link>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold text-gray-900">{booth.name}</h1>
-              <span className="h-6 px-2 rounded-md text-xs font-medium inline-flex items-center bg-gray-100 text-gray-600">
-                {booth.category}
-              </span>
-              {isPolicyExpired && (
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 lg:mb-8">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <Link to="/admin/booths" className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-150 shrink-0">
+              <ArrowLeft className="w-5 h-5 text-gray-600" />
+            </Link>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900">{booth.name}</h1>
                 <span className="h-6 px-2 rounded-md text-xs font-medium inline-flex items-center bg-gray-100 text-gray-600">
-                  운영 종료
+                  {booth.category}
                 </span>
-              )}
-              {isPolicyActive && (
-                <span className="h-6 px-2 rounded-md text-xs font-medium inline-flex items-center bg-emerald-50 text-emerald-700">
-                  운영중
-                </span>
-              )}
+                {isPolicyExpired && (
+                  <span className="h-6 px-2 rounded-md text-xs font-medium inline-flex items-center bg-gray-100 text-gray-600">
+                    운영 종료
+                  </span>
+                )}
+                {isPolicyActive && (
+                  <span className="h-6 px-2 rounded-md text-xs font-medium inline-flex items-center bg-emerald-50 text-emerald-700">
+                    운영중
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-500 mt-0.5 truncate">{booth.tagline}</p>
             </div>
-            <p className="text-sm text-gray-500 mt-0.5">{booth.tagline}</p>
           </div>
           <Link
             to={`/scan/${boothId}`}
             target="_blank"
-            className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150"
+            className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 w-full sm:w-auto shrink-0"
           >
             <ExternalLink className="w-4 h-4" />
             관람객 보기
@@ -301,9 +303,9 @@ export default function AdminBoothDetailPage() {
         </div>
 
         {/* Two column: QR + Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 mb-4 sm:mb-6">
           {/* QR Code Card */}
-          <div className="bg-white border border-gray-200/60 rounded-xl p-6">
+          <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-gray-900">QR 코드</h2>
               <button
@@ -316,7 +318,7 @@ export default function AdminBoothDetailPage() {
             </div>
 
             <div ref={qrRef} className="flex justify-center mb-4">
-              <div className="p-4 bg-white border border-gray-200/60 rounded-xl inline-block">
+              <div className="p-3 sm:p-4 bg-white border border-gray-200/60 rounded-xl inline-block">
                 <QRCodeCanvas
                   id="booth-qr-canvas"
                   value={boothUrl}
@@ -336,7 +338,7 @@ export default function AdminBoothDetailPage() {
           </div>
 
           {/* Stats */}
-          <div className="bg-white border border-gray-200/60 rounded-xl p-6">
+          <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-gray-900">통계</h2>
               <button
@@ -354,7 +356,7 @@ export default function AdminBoothDetailPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-500">{s.desc}</p>
-                    <p className="text-2xl font-semibold text-gray-900">{s.value.toLocaleString()}</p>
+                    <p className="text-xl sm:text-2xl font-semibold text-gray-900">{s.value.toLocaleString()}</p>
                   </div>
                 </div>
               ))}
@@ -363,13 +365,13 @@ export default function AdminBoothDetailPage() {
         </div>
 
         {/* ─── 운영 기간 설정 ─── */}
-        <div className="bg-white border border-gray-200/60 rounded-xl p-6 mb-6">
+        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="w-4 h-4 text-gray-500" />
             <h2 className="text-sm font-semibold text-gray-900">운영 기간 설정</h2>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1.5">운영 시작</label>
               <input
@@ -392,14 +394,14 @@ export default function AdminBoothDetailPage() {
 
           <p className="text-xs font-medium text-gray-600 mb-3">종료 후 정책</p>
           <div className="space-y-3 mb-6">
-            <div className="flex items-center justify-between p-3.5 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 sm:p-3.5 bg-gray-50 rounded-lg">
               <div>
                 <p className="text-sm font-medium text-gray-800">부스 열람 유지</p>
                 <p className="text-xs text-gray-400">종료 후에도 부스 페이지에 접근 가능</p>
               </div>
               <button
                 onClick={() => setPolicy((p) => ({ ...p, allowViewAfterEnd: !p.allowViewAfterEnd }))}
-                className={`transition-all duration-150 ${policy.allowViewAfterEnd ? 'text-brand-600' : 'text-gray-300'}`}
+                className={`transition-all duration-150 shrink-0 ml-3 ${policy.allowViewAfterEnd ? 'text-brand-600' : 'text-gray-300'}`}
               >
                 {policy.allowViewAfterEnd
                   ? <ToggleRight className="w-8 h-8" />
@@ -407,14 +409,14 @@ export default function AdminBoothDetailPage() {
                 }
               </button>
             </div>
-            <div className="flex items-center justify-between p-3.5 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 sm:p-3.5 bg-gray-50 rounded-lg">
               <div>
                 <p className="text-sm font-medium text-gray-800">문의 허용</p>
                 <p className="text-xs text-gray-400">종료 후에도 관람객 문의 가능</p>
               </div>
               <button
                 onClick={() => setPolicy((p) => ({ ...p, allowInquiryAfterEnd: !p.allowInquiryAfterEnd }))}
-                className={`transition-all duration-150 ${policy.allowInquiryAfterEnd ? 'text-brand-600' : 'text-gray-300'}`}
+                className={`transition-all duration-150 shrink-0 ml-3 ${policy.allowInquiryAfterEnd ? 'text-brand-600' : 'text-gray-300'}`}
               >
                 {policy.allowInquiryAfterEnd
                   ? <ToggleRight className="w-8 h-8" />
@@ -426,7 +428,7 @@ export default function AdminBoothDetailPage() {
 
           <button
             onClick={handleSavePolicy}
-            className={`w-full h-10 text-sm font-medium rounded-lg flex items-center justify-center transition-all duration-150 ${
+            className={`w-full sm:w-auto sm:px-6 h-10 text-sm font-medium rounded-lg flex items-center justify-center transition-all duration-150 ${
               policySaved
                 ? 'bg-emerald-600 text-white'
                 : 'bg-brand-600 text-white hover:bg-brand-500'
@@ -437,7 +439,7 @@ export default function AdminBoothDetailPage() {
         </div>
 
         {/* ─── 링크 관리 (A-5) ─── */}
-        <div className="bg-white border border-gray-200/60 rounded-xl p-6 mb-6">
+        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Link2 className="w-4 h-4 text-gray-500" />
             <h2 className="text-sm font-semibold text-gray-900">외부 링크 관리</h2>
@@ -499,7 +501,7 @@ export default function AdminBoothDetailPage() {
                 </button>
               </div>
             ))}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 type="text"
                 value={newCustomLabel}
@@ -518,7 +520,7 @@ export default function AdminBoothDetailPage() {
               <button
                 onClick={handleAddCustomLink}
                 disabled={!newCustomLabel.trim() || !newCustomUrl.trim()}
-                className="p-2 bg-white border border-gray-200 text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-all duration-150 disabled:opacity-40"
+                className="p-2 bg-white border border-gray-200 text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-all duration-150 disabled:opacity-40 self-end sm:self-auto"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
@@ -527,7 +529,7 @@ export default function AdminBoothDetailPage() {
 
           <button
             onClick={handleSaveLinks}
-            className={`w-full h-10 text-sm font-medium rounded-lg flex items-center justify-center transition-all duration-150 ${
+            className={`w-full sm:w-auto sm:px-6 h-10 text-sm font-medium rounded-lg flex items-center justify-center transition-all duration-150 ${
               linksSaved
                 ? 'bg-emerald-600 text-white'
                 : 'bg-brand-600 text-white hover:bg-brand-500'
@@ -538,7 +540,7 @@ export default function AdminBoothDetailPage() {
         </div>
 
         {/* ─── 파일 첨부 (브로셔) ─── */}
-        <div className="bg-white border border-gray-200/60 rounded-xl p-6 mb-6">
+        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Paperclip className="w-4 h-4 text-gray-500" />
@@ -564,7 +566,7 @@ export default function AdminBoothDetailPage() {
           {attachments.length === 0 ? (
             <button
               onClick={() => fileRef.current?.click()}
-              className="w-full border border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center gap-2 hover:border-gray-400 hover:bg-gray-50 transition-all duration-150 group"
+              className="w-full border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 flex flex-col items-center gap-2 hover:border-gray-400 hover:bg-gray-50 transition-all duration-150 group"
             >
               <Upload className="w-6 h-6 text-gray-300 group-hover:text-gray-500 transition-colors" />
               <p className="text-sm text-gray-400 group-hover:text-gray-600 transition-colors">
@@ -577,7 +579,7 @@ export default function AdminBoothDetailPage() {
               {attachments.map((att) => (
                 <div
                   key={att.id}
-                  className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-lg px-4 py-3"
+                  className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2.5 sm:px-4 sm:py-3"
                 >
                   <span className="text-base">{getFileIcon(att.filename)}</span>
                   <div className="flex-1 min-w-0">
@@ -609,8 +611,8 @@ export default function AdminBoothDetailPage() {
         </div>
 
         {/* ─── 설문 집계 결과 ─── */}
-        <div className="bg-white border border-gray-200/60 rounded-xl p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <ClipboardList className="w-4 h-4 text-gray-500" />
               <h2 className="text-sm font-semibold text-gray-900">설문 집계 결과</h2>
@@ -630,7 +632,7 @@ export default function AdminBoothDetailPage() {
           {surveyAgg.total === 0 ? (
             <p className="text-sm text-gray-400 text-center py-6">아직 설문 응답이 없어요</p>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {/* Interests bar chart */}
               {topInterests.length > 0 && (
                 <div>
@@ -671,9 +673,9 @@ export default function AdminBoothDetailPage() {
                     </div>
                   </div>
                 )}
-                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 sm:p-4">
                   <p className="text-xs text-gray-500 mb-0.5">연락 희망 응답</p>
-                  <p className="text-2xl font-semibold text-emerald-700">
+                  <p className="text-xl sm:text-2xl font-semibold text-emerald-700">
                     {surveyAgg.wantsContact}명
                     <span className="text-sm font-normal text-emerald-600 ml-1">
                       ({surveyAgg.total > 0 ? Math.round((surveyAgg.wantsContact / surveyAgg.total) * 100) : 0}%)
@@ -686,19 +688,19 @@ export default function AdminBoothDetailPage() {
         </div>
 
         {/* Export */}
-        <div className="bg-white border border-gray-200/60 rounded-xl p-6 mb-6">
+        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
           <h2 className="text-sm font-semibold text-gray-900 mb-4">데이터 내보내기</h2>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3">
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150"
+              className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 w-full sm:w-auto"
             >
               <FileDown className="w-4 h-4 text-gray-500" />
               통계 CSV Export
             </button>
             <button
               onClick={handleExportThreadsCSV}
-              className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150"
+              className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 w-full sm:w-auto"
             >
               <FileDown className="w-4 h-4 text-gray-500" />
               문의 CSV Export
@@ -710,7 +712,7 @@ export default function AdminBoothDetailPage() {
         </div>
 
         {/* ─── 부스 정보 편집 (B-2) ─── */}
-        <div className="bg-white border border-gray-200/60 rounded-xl p-6">
+        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
           <div className="flex items-center gap-2 mb-4">
             <Edit3 className="w-4 h-4 text-gray-500" />
             <h2 className="text-sm font-semibold text-gray-900">부스 정보 편집</h2>
@@ -718,7 +720,7 @@ export default function AdminBoothDetailPage() {
 
           {/* Basic info */}
           <div className="space-y-4 mb-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1.5">부스명</label>
                 <input
@@ -807,7 +809,7 @@ export default function AdminBoothDetailPage() {
             </div>
             <div className="space-y-3 mb-2">
               {editFaq.map((item, i) => (
-                <div key={i} className="bg-gray-50 rounded-lg p-3 space-y-2">
+                <div key={i} className="bg-gray-50 rounded-lg p-2.5 sm:p-3 space-y-2">
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
@@ -850,7 +852,7 @@ export default function AdminBoothDetailPage() {
             </div>
             <div className="space-y-3 mb-2">
               {editNextEvents.map((ev, i) => (
-                <div key={i} className="bg-gray-50 rounded-lg p-3">
+                <div key={i} className="bg-gray-50 rounded-lg p-2.5 sm:p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <input
                       type="text"
@@ -866,7 +868,7 @@ export default function AdminBoothDetailPage() {
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
                       type="date"
                       value={ev.date}
@@ -895,7 +897,7 @@ export default function AdminBoothDetailPage() {
 
           <button
             onClick={handleSaveContent}
-            className={`w-full h-10 text-sm font-medium rounded-lg flex items-center justify-center transition-all duration-150 ${
+            className={`w-full sm:w-auto sm:px-6 h-10 text-sm font-medium rounded-lg flex items-center justify-center transition-all duration-150 ${
               contentSaved
                 ? 'bg-emerald-600 text-white'
                 : 'bg-brand-600 text-white hover:bg-brand-500'

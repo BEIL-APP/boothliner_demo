@@ -57,7 +57,7 @@ export default function SignupPage() {
 
   if (done) {
     return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+      <div className="bg-gray-50 min-h-screen flex items-center justify-center px-4 py-8 sm:p-8">
         <div className="text-center">
           <div className="bg-emerald-50 rounded-xl w-14 h-14 flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-7 h-7 text-emerald-600" />
@@ -70,7 +70,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:p-8">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8">
         <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
@@ -79,7 +79,7 @@ export default function SignupPage() {
         <span className="text-sm font-semibold text-gray-900">BoothLiner</span>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-8 w-full max-w-sm">
+      <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-6 sm:p-8 w-full max-w-sm">
         {/* Back */}
         <Link
           to="/auth"

@@ -104,7 +104,7 @@ export default function AdminLeadsScanPage() {
   if (saved) {
     return (
       <AdminLayout>
-        <div className="p-8 flex items-center justify-center min-h-[60vh]">
+        <div className="px-4 py-5 sm:p-6 lg:p-8 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-7 h-7 text-emerald-600" />
@@ -119,9 +119,9 @@ export default function AdminLeadsScanPage() {
 
   return (
     <AdminLayout>
-      <div className="p-8 max-w-2xl">
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-2xl">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-6 lg:mb-8">
           <Link
             to="/admin/leads"
             className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-150"
@@ -129,15 +129,15 @@ export default function AdminLeadsScanPage() {
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </Link>
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">명함 스캔</h1>
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">명함 스캔</h1>
             <p className="text-sm text-gray-500 mt-0.5">이미지 업로드 → 정보 추출 → 리드 저장</p>
           </div>
         </div>
 
         {/* Step 1: Upload */}
         {step === 'upload' && (
-          <div className="bg-white border border-gray-200/60 rounded-xl p-6">
-            <div className="flex items-center gap-2 mb-6">
+          <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
               <div className="w-6 h-6 bg-gray-900 rounded-md flex items-center justify-center">
                 <span className="text-xs font-medium text-white">1</span>
               </div>
@@ -153,10 +153,10 @@ export default function AdminLeadsScanPage() {
             />
             <button
               onClick={() => fileRef.current?.click()}
-              className="w-full border border-dashed border-gray-300 rounded-xl p-10 flex flex-col items-center gap-4 hover:border-gray-400 hover:bg-gray-50 transition-all duration-150 group"
+              className="w-full border border-dashed border-gray-300 rounded-xl p-8 sm:p-10 flex flex-col items-center gap-3 sm:gap-4 hover:border-gray-400 hover:bg-gray-50 transition-all duration-150 group"
             >
-              <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center group-hover:bg-gray-200 transition-colors">
-                <Upload className="w-6 h-6 text-gray-400 group-hover:text-gray-600 transition-colors" />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-100 rounded-xl flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-gray-600 transition-colors" />
               </div>
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
@@ -166,7 +166,7 @@ export default function AdminLeadsScanPage() {
               </div>
             </button>
 
-            <div className="mt-6 p-4 bg-amber-50 rounded-xl border border-amber-100">
+            <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-amber-50 rounded-xl border border-amber-100">
               <p className="text-xs text-amber-700">
                 <span className="font-semibold">데모 안내:</span> 실제 OCR 대신 무작위 샘플
                 데이터를 추출합니다. 업로드 후 내용을 직접 수정할 수 있습니다.
@@ -177,10 +177,10 @@ export default function AdminLeadsScanPage() {
 
         {/* Step 2: Extracting / Edit */}
         {step === 'extract' && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Image preview */}
             {imagePreview && (
-              <div className="bg-white border border-gray-200/60 rounded-xl p-6">
+              <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <ScanLine className="w-4 h-4 text-gray-500" />
                   <h2 className="text-sm font-semibold text-gray-900">업로드된 명함</h2>
@@ -194,8 +194,8 @@ export default function AdminLeadsScanPage() {
             )}
 
             {/* Extraction status */}
-            <div className="bg-white border border-gray-200/60 rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-5">
+            <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
+              <div className="flex items-center gap-2 mb-4 sm:mb-5">
                 <div className="w-6 h-6 bg-gray-900 rounded-md flex items-center justify-center">
                   <span className="text-xs font-medium text-white">2</span>
                 </div>
@@ -244,8 +244,8 @@ export default function AdminLeadsScanPage() {
 
             {/* Memo + Booth + Save */}
             {!extracting && (
-              <div className="bg-white border border-gray-200/60 rounded-xl p-6">
-                <div className="flex items-center gap-2 mb-5">
+              <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
+                <div className="flex items-center gap-2 mb-4 sm:mb-5">
                   <div className="w-6 h-6 bg-gray-900 rounded-md flex items-center justify-center">
                     <span className="text-xs font-medium text-white">3</span>
                   </div>
@@ -290,7 +290,7 @@ export default function AdminLeadsScanPage() {
                   </p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <button
                     onClick={() => { setStep('upload'); setImagePreview(null); setForm({ name: '', company: '', phone: '', email: '' }); }}
                     className="flex-1 h-10 bg-white border border-gray-200 text-gray-700 text-[13px] font-medium rounded-lg flex items-center justify-center hover:bg-gray-50 transition-all duration-150"

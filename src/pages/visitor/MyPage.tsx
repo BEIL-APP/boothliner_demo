@@ -28,7 +28,7 @@ function BoothCard({
   return (
     <div className="flex items-center gap-3 bg-white border border-gray-200/60 rounded-xl p-3 hover:border-gray-300 transition-all duration-150">
       <Link to={`/scan/${booth.id}`} className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
           {booth.images[0] ? (
             <img
               src={booth.images[0]}
@@ -288,7 +288,7 @@ function CollectionsTab({ favoriteBooths }: { favoriteBooths: Array<{ booth: Boo
           <p className="text-xs text-gray-300 mt-1">관심 부스를 컬렉션으로 묶어보세요</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {collections.map((col) => {
             const isOpen = openId === col.id;
             const colBooths = col.boothIds.map((id) => boothMap[id]).filter(Boolean) as Booth[];
@@ -477,10 +477,10 @@ export default function MyPage() {
     <div className="min-h-screen bg-gray-50">
       <VisitorHeader />
 
-      <div className="max-w-sm mx-auto px-4 pt-6 pb-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-20">
         {/* Page title */}
-        <h1 className="text-base font-semibold text-gray-900 mb-1">내 부스</h1>
-        <p className="text-[13px] text-gray-500 mb-5">방문 기록과 관심 부스를 모아볼 수 있어요</p>
+        <h1 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">내 부스</h1>
+        <p className="text-[13px] sm:text-sm text-gray-500 mb-5">방문 기록과 관심 부스를 모아볼 수 있어요</p>
 
         {/* Login banner */}
         <div className="flex items-start gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3 mb-5">
@@ -499,7 +499,7 @@ export default function MyPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex bg-gray-100 rounded-lg p-1 mb-5">
+        <div className="flex bg-gray-100 rounded-lg p-1 mb-5 sm:max-w-md">
           <button
             onClick={() => setActiveTab('recent')}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all duration-150 ${
@@ -559,7 +559,7 @@ export default function MyPage() {
                 <p className="text-xs text-gray-300 mt-1">QR을 스캔하면 자동으로 기록돼요</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {recentBooths.map(({ booth, visitedAt }) => (
                   <BoothCard
                     key={booth.id}
@@ -583,7 +583,7 @@ export default function MyPage() {
                 <p className="text-xs text-gray-300 mt-1">부스 페이지에서 하트를 눌러보세요</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {favoriteBooths.map(({ booth }) => (
                   <BoothCard
                     key={booth.id}
@@ -624,7 +624,7 @@ export default function MyPage() {
                   방문 기록, 관심 부스, 문의 내역, 알림 등 이 기기에 저장된 모든 데이터가 삭제됩니다. 이 작업은 되돌릴 수 없어요.
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   onClick={handleDeleteMyData}
                   className="flex-1 text-xs font-medium text-white bg-red-500 rounded-lg h-10 hover:bg-red-600 transition-all duration-150"

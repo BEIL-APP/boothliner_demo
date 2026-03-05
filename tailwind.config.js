@@ -35,6 +35,7 @@ export default {
         md: '8px',
         lg: '8px',
         xl: '12px',
+        '2xl': '16px',
       },
       boxShadow: {
         card: '0 1px 2px rgba(0,0,0,0.05)',
@@ -54,11 +55,16 @@ export default {
           from: { opacity: '0', transform: 'scale(0.96)' },
           to: { opacity: '1', transform: 'scale(1)' },
         },
+        'slide-in-left': {
+          from: { transform: 'translateX(-100%)' },
+          to: { transform: 'translateX(0)' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 150ms ease-out',
         'slide-up': 'slide-up 200ms ease-out',
         'scale-in': 'scale-in 150ms ease-out',
+        'slide-in-left': 'slide-in-left 200ms ease-out',
       },
     },
   },

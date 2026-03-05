@@ -74,16 +74,16 @@ export default function OrganizerPreviewPage() {
 
   return (
     <AdminLayout>
-      <div className="p-8">
+      <div className="px-4 py-5 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 lg:mb-8">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">주최자 프리뷰</h1>
+            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">주최자 프리뷰</h1>
             <p className="text-sm text-gray-500 mt-1">이벤트 전체 통계와 부스 현황을 한눈에 파악하세요</p>
           </div>
           <button
             onClick={handleExportAll}
-            className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 h-9 rounded-lg px-4 text-[13px] font-medium hover:bg-gray-50 transition-all duration-150"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 h-9 rounded-lg px-4 text-[13px] font-medium hover:bg-gray-50 transition-all duration-150"
           >
             <Download className="w-4 h-4" />
             전체 CSV Export
@@ -91,7 +91,7 @@ export default function OrganizerPreviewPage() {
         </div>
 
         {/* KPI Cards — row 1 */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
           {[
             {
               label: '총 스캔 수',
@@ -118,34 +118,34 @@ export default function OrganizerPreviewPage() {
               trend: '+22% 전주 대비',
             },
           ].map((kpi) => (
-            <div key={kpi.label} className="bg-white border border-gray-200/60 rounded-xl p-6">
+            <div key={kpi.label} className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
               <div className="text-gray-400 mb-3">{kpi.icon}</div>
-              <p className="text-2xl font-semibold text-gray-900">{kpi.value}</p>
-              <p className="text-sm text-gray-500 mt-1">{kpi.label}</p>
+              <p className="text-xl sm:text-2xl font-semibold text-gray-900">{kpi.value}</p>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">{kpi.label}</p>
               <p className="text-xs text-gray-400 mt-1">{kpi.trend}</p>
             </div>
           ))}
         </div>
 
         {/* Lead source + Survey count — row 2 */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
             { label: '명함 스캔 리드', value: leadsBySource.bizcard, icon: <CreditCard className="w-4 h-4" /> },
             { label: '문의 동의 리드', value: leadsBySource.inquiry, icon: <UserCheck className="w-4 h-4" /> },
             { label: '이메일 수신 신청', value: leadsBySource.email_info, icon: <TrendingUp className="w-4 h-4" /> },
             { label: '설문 응답 수', value: allSurveys.length, icon: <ClipboardList className="w-4 h-4" /> },
           ].map((item) => (
-            <div key={item.label} className="bg-white border border-gray-200/60 rounded-xl p-4">
+            <div key={item.label} className="bg-white border border-gray-200/60 rounded-xl p-3 sm:p-4">
               <div className="text-gray-400 mb-2">{item.icon}</div>
-              <p className="text-xl font-semibold text-gray-900">{item.value}</p>
+              <p className="text-lg sm:text-xl font-semibold text-gray-900">{item.value}</p>
               <p className="text-xs text-gray-500 mt-1">{item.label}</p>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
           {/* Top Booths Table */}
-          <div className="bg-white border border-gray-200/60 rounded-xl p-6">
+          <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-gray-400" />
@@ -192,7 +192,7 @@ export default function OrganizerPreviewPage() {
           </div>
 
           {/* Hourly visit bar chart (mock) */}
-          <div className="bg-white border border-gray-200/60 rounded-xl p-6">
+          <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
             <div className="flex items-center gap-2 mb-5">
               <Clock className="w-4 h-4 text-gray-400" />
               <h2 className="text-sm font-semibold text-gray-900">시간대별 방문 (오늘)</h2>
@@ -217,7 +217,7 @@ export default function OrganizerPreviewPage() {
 
         {/* Survey Aggregate */}
         {allSurveys.length > 0 && (
-          <div className="bg-white border border-gray-200/60 rounded-xl p-6 mb-6">
+          <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-6">
             <div className="flex items-center gap-2 mb-5">
               <ClipboardList className="w-4 h-4 text-gray-400" />
               <h2 className="text-sm font-semibold text-gray-900">전체 설문 집계</h2>
@@ -283,7 +283,7 @@ export default function OrganizerPreviewPage() {
         )}
 
         {/* Lead list quick view */}
-        <div className="bg-white border border-gray-200/60 rounded-xl p-6 mb-6">
+        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <UserCheck className="w-4 h-4 text-gray-400" />
@@ -315,15 +315,15 @@ export default function OrganizerPreviewPage() {
                   survey: '설문',
                 } as const;
                 return (
-                  <div key={lead.id} className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-0">
-                    <span className={`text-xs font-medium rounded-md px-2 py-0.5 ${sourceColors[lead.source]}`}>
+                  <div key={lead.id} className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 py-3 border-b border-gray-100 last:border-0">
+                    <span className={`text-xs font-medium rounded-md px-2 py-0.5 shrink-0 ${sourceColors[lead.source]}`}>
                       {sourceLabels[lead.source]}
                     </span>
-                    <span className="text-sm font-medium text-gray-900">{lead.name ?? lead.email ?? '이름 없음'}</span>
+                    <span className="text-sm font-medium text-gray-900 truncate">{lead.name ?? lead.email ?? '이름 없음'}</span>
                     {lead.company && (
-                      <span className="text-xs text-gray-400">{lead.company}</span>
+                      <span className="text-xs text-gray-400 hidden sm:inline">{lead.company}</span>
                     )}
-                    <span className="text-xs text-gray-400 ml-auto">
+                    <span className="text-xs text-gray-400 ml-auto shrink-0 truncate max-w-[120px] sm:max-w-none">
                       {boothMap[lead.boothId]?.name ?? lead.boothId}
                     </span>
                   </div>
@@ -335,17 +335,17 @@ export default function OrganizerPreviewPage() {
 
         {/* All booths stats table */}
         <div className="bg-white border border-gray-200/60 rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
             <h2 className="text-sm font-semibold text-gray-900">전체 부스 통계</h2>
             <button
               onClick={handleExportAll}
-              className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 h-9 rounded-lg px-3 text-[13px] font-medium hover:bg-gray-50 transition-all duration-150"
+              className="w-full sm:w-auto flex items-center justify-center gap-1.5 bg-white border border-gray-200 text-gray-700 h-9 rounded-lg px-3 text-[13px] font-medium hover:bg-gray-50 transition-all duration-150"
             >
               <Download className="w-3.5 h-3.5" /> CSV 다운로드
             </button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[600px]">
               <thead>
                 <tr className="bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <th className="text-left px-6 py-3">부스</th>

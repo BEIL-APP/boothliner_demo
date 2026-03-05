@@ -22,7 +22,7 @@ export function VisitorHeader() {
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-100">
-      <div className="max-w-sm mx-auto px-4 h-12 flex items-center justify-between">
+      <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <div className="w-6 h-6 bg-brand-600 rounded-md flex items-center justify-center">
             <QrCode className="w-3 h-3 text-white" />
@@ -39,23 +39,26 @@ export function VisitorHeader() {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`relative flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
+                className={`relative flex items-center gap-1.5 h-9 px-2 md:px-3 rounded-lg transition-colors ${
                   isActive
                     ? 'text-brand-600 bg-brand-50'
                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
                 }`}
               >
                 <Icon className="w-[18px] h-[18px]" />
+                <span className="hidden md:inline text-[13px] font-medium">{item.label}</span>
                 {isBell && unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                  <span className="absolute top-1 right-1 md:top-1 md:right-auto md:left-[18px] w-2 h-2 bg-red-500 rounded-full" />
                 )}
               </Link>
             );
           })}
 
+          <div className="w-px h-5 bg-gray-200 mx-1.5 hidden md:block" />
+
           <button
             onClick={toggleLogin}
-            className={`flex items-center justify-center w-9 h-9 rounded-lg transition-colors ml-0.5 ${
+            className={`flex items-center gap-1.5 h-9 px-2 md:px-3 rounded-lg transition-colors ${
               isLoggedIn
                 ? 'text-brand-600 bg-brand-50'
                 : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
@@ -63,9 +66,15 @@ export function VisitorHeader() {
             title={isLoggedIn ? '로그아웃' : '로그인'}
           >
             {isLoggedIn ? (
-              <User className="w-[18px] h-[18px]" />
+              <>
+                <User className="w-[18px] h-[18px]" />
+                <span className="hidden md:inline text-[13px] font-medium">마이</span>
+              </>
             ) : (
-              <LogIn className="w-[18px] h-[18px]" />
+              <>
+                <LogIn className="w-[18px] h-[18px]" />
+                <span className="hidden md:inline text-[13px] font-medium">로그인</span>
+              </>
             )}
           </button>
         </div>

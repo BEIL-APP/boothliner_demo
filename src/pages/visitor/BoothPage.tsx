@@ -18,6 +18,7 @@ import {
   AlertCircle,
   LogIn,
   Share2,
+  ExternalLink,
 } from 'lucide-react';
 import { VisitorHeader } from '../../components/VisitorHeader';
 import { Modal } from '../../components/Modal';
@@ -77,7 +78,6 @@ export default function BoothPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [showLoginNudge, setShowLoginNudge] = useState(false);
 
-  // Inquiry modal
   const [showInquiry, setShowInquiry] = useState(false);
   const [inquiryText, setInquiryText] = useState('');
   const [inquiryEmail, setInquiryEmail] = useState('');
@@ -87,20 +87,17 @@ export default function BoothPage() {
   const [inquirySent, setInquirySent] = useState(false);
   const [inquiryRateLimited, setInquiryRateLimited] = useState(false);
 
-  // Email info modal
   const [showEmailInfo, setShowEmailInfo] = useState(false);
   const [emailInfoAddr, setEmailInfoAddr] = useState('');
   const [emailInfoConsent, setEmailInfoConsent] = useState(false);
   const [emailInfoSent, setEmailInfoSent] = useState(false);
 
-  // Survey modal
   const [showSurvey, setShowSurvey] = useState(false);
   const [surveyInterests, setSurveyInterests] = useState<string[]>([]);
   const [surveyPurpose, setSurveyPurpose] = useState('');
   const [surveyWantsContact, setSurveyWantsContact] = useState(false);
   const [surveySent, setSurveySent] = useState(false);
 
-  // Policy & data
   const [policy, setPolicy] = useState<BoothPolicy | undefined>();
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [surveyDone, setSurveyDone] = useState(false);
@@ -141,8 +138,6 @@ export default function BoothPage() {
   const active = policy ? isPolicyActive(policy) : true;
   const inquiryAllowed = !expired || (policy?.allowInquiryAfterEnd ?? true);
 
-  // ─── Handlers ─────────────────────────────────────────────────────────────
-
   const handleToggleFav = () => {
     if (!boothId) return;
     if (!isLoggedIn) {
@@ -157,7 +152,6 @@ export default function BoothPage() {
   const handleSendInquiry = () => {
     if (!inquiryText.trim() || !boothId) return;
     if (!isLoggedIn && (!inquiryEmail.includes('@') || !inquiryAbuseCheck)) return;
-
     const guestId = getGuestId();
     const rateLimitKey = `${guestId}:${boothId}:inquiry`;
     if (checkRateLimit(rateLimitKey, 3)) {
@@ -165,7 +159,6 @@ export default function BoothPage() {
       showToast('하루 3건까지 문의할 수 있어요. 내일 다시 시도해주세요.', 'error');
       return;
     }
-
     createInquiry(boothId, inquiryText.trim(), isLoggedIn, {
       email: isLoggedIn ? undefined : inquiryEmail,
       consent: inquiryConsent,
@@ -192,18 +185,12 @@ export default function BoothPage() {
     const url = window.location.href;
     const shareData = { title: booth?.name ?? '', text: booth?.tagline ?? '', url };
     if (navigator.share && navigator.canShare?.(shareData)) {
-      try {
-        await navigator.share(shareData);
-      } catch {
-        // user cancelled — ignore
-      }
+      try { await navigator.share(shareData); } catch { /* cancelled */ }
     } else {
       try {
         await navigator.clipboard.writeText(url);
         showToast('링크가 복사됐어요!', 'success');
-      } catch {
-        showToast('링크 복사에 실패했어요', 'error');
-      }
+      } catch { showToast('링크 복사에 실패했어요', 'error'); }
     }
   };
 
@@ -244,7 +231,6 @@ export default function BoothPage() {
       createdAt: new Date().toISOString(),
     };
     saveSurvey(response);
-
     if (surveyWantsContact) {
       saveLead({
         id: `lead-survey-${Date.now()}`,
@@ -255,7 +241,6 @@ export default function BoothPage() {
         createdAt: new Date().toISOString(),
       });
     }
-
     setSurveySent(true);
     setSurveyDone(true);
     showToast('설문 완료! 소중한 의견 감사해요.', 'success');
@@ -271,322 +256,376 @@ export default function BoothPage() {
     : inquiryText.trim().length > 0 && inquiryEmail.includes('@') && inquiryAbuseCheck;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
       <VisitorHeader />
 
-      <div className="max-w-sm mx-auto pb-20">
-        {/* Hero image */}
-        <div className="relative overflow-hidden bg-gray-100">
+      {/* ═══ Hero Section ═══ */}
+      <div className="max-w-5xl mx-auto md:px-6 md:pt-6">
+        <div className="relative overflow-hidden md:rounded-2xl bg-gray-900">
           {booth.images.length > 0 ? (
             <img
               src={booth.images[imgIndex]}
               alt={booth.name}
-              className="w-full aspect-[4/3] object-cover"
+              className="w-full aspect-[4/3] md:aspect-[2.2/1] object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).src =
                   'https://images.unsplash.com/photo-1560472355-536de3962603?w=800&q=80';
               }}
             />
           ) : (
-            <div className="w-full aspect-[4/3] bg-gray-100 flex items-center justify-center">
-              <span className="text-5xl">🏪</span>
+            <div className="w-full aspect-[4/3] md:aspect-[2.2/1] bg-gray-800 flex items-center justify-center">
+              <span className="text-6xl opacity-50">🏪</span>
             </div>
           )}
 
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
           {/* Image dots */}
           {booth.images.length > 1 && (
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+            <div className="absolute bottom-20 md:bottom-24 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
               {booth.images.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setImgIndex(i)}
                   className={`w-1.5 h-1.5 rounded-full transition-all duration-150 ${
-                    i === imgIndex ? 'bg-white' : 'bg-white/50'
+                    i === imgIndex ? 'bg-white w-4' : 'bg-white/50'
                   }`}
                 />
               ))}
             </div>
           )}
 
-          {/* Image nav */}
+          {/* Image nav arrows */}
           {booth.images.length > 1 && (
             <>
               <button
                 onClick={() => setImgIndex((p) => (p - 1 + booth.images.length) % booth.images.length)}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center hover:bg-white transition-all duration-150"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/50 transition-all duration-150 z-10"
               >
-                <ArrowLeft className="w-4 h-4 text-gray-700" />
+                <ArrowLeft className="w-4 h-4 text-white" />
               </button>
               <button
                 onClick={() => setImgIndex((p) => (p + 1) % booth.images.length)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center hover:bg-white transition-all duration-150"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/50 transition-all duration-150 z-10"
               >
-                <ArrowLeft className="w-4 h-4 text-gray-700 rotate-180" />
+                <ArrowLeft className="w-4 h-4 text-white rotate-180" />
               </button>
             </>
           )}
 
-          {/* Expired overlay badge */}
+          {/* Status badge */}
           {expired && (
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-gray-900/80 text-white text-xs font-medium px-2.5 py-1 rounded-md backdrop-blur-sm">
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-lg">
               <Clock className="w-3.5 h-3.5" />
               운영 종료
             </div>
           )}
-
-          {/* Active badge */}
           {!expired && active && policy && (
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-emerald-500 text-white text-xs font-medium px-2.5 py-1 rounded-md backdrop-blur-sm">
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-lg">
               <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
               운영중
             </div>
           )}
+
+          {/* Hero text overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8">
+            <div className="max-w-3xl">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded-md px-2 py-0.5">
+                  {booth.category}
+                </span>
+                {expired && policy && (
+                  <span className="flex items-center gap-1 bg-white/15 backdrop-blur-sm text-white/80 text-xs rounded-md px-2 py-0.5">
+                    <AlertCircle className="w-3 h-3" />
+                    {new Date(policy.endAt).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })} 종료
+                  </span>
+                )}
+              </div>
+              <h1 className="text-white text-xl md:text-3xl font-bold mb-1 md:mb-2">{booth.name}</h1>
+              <p className="text-white/75 text-sm md:text-base leading-relaxed">{booth.tagline}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ Content Area ═══ */}
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-5 md:py-8">
+
+        {/* Login nudge (temporary) */}
+        {showLoginNudge && (
+          <div className="mb-4 bg-brand-50 border border-brand-100 rounded-lg px-3 py-2.5 flex items-center gap-2 animate-slide-up">
+            <LogIn className="w-4 h-4 text-brand-500 shrink-0" />
+            <p className="text-xs text-brand-700">
+              <Link to="/auth" className="font-semibold underline">로그인</Link>하면 기기가 바뀌어도 저장 목록이 유지돼요
+            </p>
+          </div>
+        )}
+
+        {/* Mobile action buttons */}
+        <div className="flex gap-2 mb-5 md:hidden">
+          <button
+            onClick={handleToggleFav}
+            className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium transition-all duration-150 ${
+              fav ? 'bg-brand-600 text-white' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${fav ? 'fill-current' : ''}`} />
+            {fav ? '저장됨' : '저장'}
+          </button>
+          <button
+            onClick={() => setShowInquiry(true)}
+            disabled={!inquiryAllowed}
+            className="flex-1 flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium bg-brand-600 text-white hover:bg-brand-500 transition-all duration-150 disabled:opacity-40"
+          >
+            <MessageSquare className="w-4 h-4" />
+            {!inquiryAllowed ? '문의 마감' : '문의하기'}
+          </button>
+          <button
+            onClick={handleShare}
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Content */}
-        <div className="bg-white px-4 pt-4 pb-6">
-          {/* Category + policy */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className="inline-flex items-center text-xs font-medium text-gray-600 bg-gray-100 rounded-md px-2 h-5">
-              {booth.category}
-            </span>
-            {expired && (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-100 rounded-md px-2 h-5">
-                <AlertCircle className="w-3 h-3" />
-                {new Date(policy!.endAt).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })} 종료
-              </span>
+        {/* Two-column layout on md+ */}
+        <div className="md:flex md:gap-8">
+          {/* ─── Main column ─── */}
+          <div className="flex-1 min-w-0 space-y-5 md:space-y-6">
+            {/* Description */}
+            <div className="bg-white border border-gray-200/60 rounded-xl p-5 md:p-6">
+              <h2 className="text-sm font-semibold text-gray-900 mb-3">소개</h2>
+              <p className="text-sm text-gray-600 leading-relaxed">{booth.description}</p>
+            </div>
+
+            {/* FAQ */}
+            {booth.faq.length > 0 && (
+              <div className="bg-white border border-gray-200/60 rounded-xl p-5 md:p-6">
+                <h2 className="text-sm font-semibold text-gray-900 mb-3">자주 묻는 질문</h2>
+                <div className="space-y-2">
+                  {booth.faq.map((item, i) => (
+                    <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <button
+                        onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-all duration-150"
+                      >
+                        <span className="text-sm font-medium text-gray-800 pr-4">{item.question}</span>
+                        <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
+                      </button>
+                      {openFaq === i && (
+                        <div className="px-4 pb-4 bg-gray-50 animate-fade-in">
+                          <p className="text-sm text-gray-600 leading-relaxed">{item.answer}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Next Events */}
+            {booth.nextEvents.length > 0 && (
+              <div className="bg-white border border-gray-200/60 rounded-xl p-5 md:p-6">
+                <h2 className="text-sm font-semibold text-gray-900 mb-3">다음 이벤트</h2>
+                <div className="space-y-2.5">
+                  {booth.nextEvents.map((ev, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-9 h-9 bg-gray-200 rounded-lg flex items-center justify-center shrink-0">
+                        <Calendar className="w-4 h-4 text-gray-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{ev.title}</p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="flex items-center gap-1 text-xs text-gray-500">
+                            <Clock className="w-3 h-3" /> {ev.date}
+                          </span>
+                          <span className="flex items-center gap-1 text-xs text-gray-500">
+                            <MapPin className="w-3 h-3" /> {ev.location}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Name + Tagline */}
-          <h1 className="text-lg font-semibold text-gray-900 mb-1">{booth.name}</h1>
-          <p className="text-[13px] text-gray-500 mb-4 leading-relaxed">{booth.tagline}</p>
-
-          {/* Login nudge (temporary banner) */}
-          {showLoginNudge && (
-            <div className="mb-4 bg-brand-50 border border-brand-100 rounded-lg px-3 py-2.5 flex items-center gap-2">
-              <LogIn className="w-4 h-4 text-brand-500 shrink-0" />
-              <p className="text-xs text-brand-700">
-                <Link to="/auth" className="font-semibold underline">로그인</Link>하면 기기가 바뀌어도 저장 목록이 유지돼요
-              </p>
-            </div>
-          )}
-
-          {/* CTA Buttons */}
-          <div className="flex gap-2 mb-3">
-            <button
-              onClick={handleToggleFav}
-              className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium transition-all duration-150 ${
-                fav
-                  ? 'bg-brand-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              <Heart className={`w-4 h-4 ${fav ? 'fill-current' : ''}`} />
-              {fav ? '저장됨' : '저장하기'}
-            </button>
-            <button
-              onClick={() => setShowInquiry(true)}
-              disabled={!inquiryAllowed}
-              title={!inquiryAllowed ? '운영 종료 후 문의가 닫혔습니다' : undefined}
-              className="flex-1 flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium bg-brand-600 text-white hover:bg-brand-500 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <MessageSquare className="w-4 h-4" />
-              {!inquiryAllowed ? '문의 마감' : '문의하기'}
-            </button>
-            <button
-              onClick={handleShare}
-              className="w-12 flex items-center justify-center h-10 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-150"
-              title="공유하기"
-            >
-              <Share2 className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Email info CTA */}
-          <button
-            onClick={() => setShowEmailInfo(true)}
-            className="w-full flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-150 mb-6"
-          >
-            <Mail className="w-4 h-4" />
-            이메일로 자료 받기
-          </button>
-
-          {/* Description */}
-          <div className="mb-6">
-            <h2 className="text-[13px] font-semibold text-gray-900 mb-3">소개</h2>
-            <p className="text-sm text-gray-600 leading-relaxed">{booth.description}</p>
-          </div>
-
-          {/* Attachments / Brochure */}
-          {attachments.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-[13px] font-semibold text-gray-900 mb-3">첨부 자료</h2>
-              <div className="space-y-2">
-                {attachments.map((att) => (
-                  <div
-                    key={att.id}
-                    className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5"
+          {/* ─── Sidebar column ─── */}
+          <div className="w-full md:w-[320px] md:shrink-0 space-y-5 md:space-y-6 mt-5 md:mt-0">
+            {/* Desktop action buttons */}
+            <div className="hidden md:block bg-white border border-gray-200/60 rounded-xl p-5">
+              <div className="space-y-2.5">
+                <button
+                  onClick={() => setShowInquiry(true)}
+                  disabled={!inquiryAllowed}
+                  className="w-full flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium bg-brand-600 text-white hover:bg-brand-500 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  {!inquiryAllowed ? '문의 마감' : '문의하기'}
+                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleToggleFav}
+                    className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium transition-all duration-150 ${
+                      fav ? 'bg-brand-600 text-white' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
-                    <span className="text-xl">{getFileIcon(att.filename)}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800 truncate">{att.filename}</p>
-                      {att.size && <p className="text-xs text-gray-400">{att.size}</p>}
-                    </div>
-                    <button
-                      onClick={() => showToast('다운로드 기능은 실제 연동 시 제공됩니다 (데모)', 'info')}
-                      className="flex items-center gap-1 text-xs text-brand-600 font-medium hover:text-brand-700 transition-all duration-150"
-                    >
-                      <FileDown className="w-3.5 h-3.5" />
-                      다운로드
-                    </button>
-                  </div>
-                ))}
+                    <Heart className={`w-4 h-4 ${fav ? 'fill-current' : ''}`} />
+                    {fav ? '저장됨' : '저장'}
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                </div>
+                <button
+                  onClick={() => setShowEmailInfo(true)}
+                  className="w-full flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-150"
+                >
+                  <Mail className="w-4 h-4" />
+                  이메일로 자료 받기
+                </button>
               </div>
             </div>
-          )}
 
-          {/* Links */}
-          {(booth.links.instagram || booth.links.store || booth.links.site) && (
-            <div className="mb-6">
-              <h2 className="text-[13px] font-semibold text-gray-900 mb-3">링크</h2>
-              <div className="flex flex-wrap gap-2">
-                {booth.links.instagram && (
-                  <a
-                    href={booth.links.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs text-gray-600 bg-gray-50 hover:bg-gray-100 transition-all duration-150 rounded-lg px-3 py-2"
-                  >
-                    <Instagram className="w-3.5 h-3.5 text-gray-500" />
-                    인스타그램
-                  </a>
-                )}
-                {booth.links.store && (
-                  <a
-                    href={booth.links.store}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs text-gray-600 bg-gray-50 hover:bg-gray-100 transition-all duration-150 rounded-lg px-3 py-2"
-                  >
-                    <ShoppingBag className="w-3.5 h-3.5 text-gray-500" />
-                    스토어
-                  </a>
-                )}
-                {booth.links.site && (
-                  <a
-                    href={booth.links.site}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-xs text-gray-600 bg-gray-50 hover:bg-gray-100 transition-all duration-150 rounded-lg px-3 py-2"
-                  >
-                    <Globe className="w-3.5 h-3.5 text-gray-500" />
-                    홈페이지
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
+            {/* Mobile email CTA */}
+            <button
+              onClick={() => setShowEmailInfo(true)}
+              className="md:hidden w-full flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-150"
+            >
+              <Mail className="w-4 h-4" />
+              이메일로 자료 받기
+            </button>
 
-          {/* FAQ */}
-          {booth.faq.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-[13px] font-semibold text-gray-900 mb-3">자주 묻는 질문</h2>
-              <div className="space-y-2">
-                {booth.faq.map((item, i) => (
-                  <div key={i} className="border border-gray-200 rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                      className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-all duration-150"
-                    >
-                      <span className="text-sm font-medium text-gray-800 pr-4">
-                        {item.question}
-                      </span>
-                      <ChevronDown
-                        className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${
-                          openFaq === i ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-                    {openFaq === i && (
-                      <div className="px-4 pb-4 bg-gray-50">
-                        <p className="text-sm text-gray-600 leading-relaxed">{item.answer}</p>
+            {/* Attachments */}
+            {attachments.length > 0 && (
+              <div className="bg-white border border-gray-200/60 rounded-xl p-5">
+                <h2 className="text-sm font-semibold text-gray-900 mb-3">첨부 자료</h2>
+                <div className="space-y-2">
+                  {attachments.map((att) => (
+                    <div key={att.id} className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2.5">
+                      <span className="text-lg">{getFileIcon(att.filename)}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">{att.filename}</p>
+                        {att.size && <p className="text-xs text-gray-400">{att.size}</p>}
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Next Events */}
-          {booth.nextEvents.length > 0 && (
-            <div className="mb-6">
-              <h2 className="text-[13px] font-semibold text-gray-900 mb-3">다음 이벤트</h2>
-              <div className="space-y-2">
-                {booth.nextEvents.map((ev, i) => (
-                  <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                    <p className="text-sm font-medium text-gray-900">{ev.title}</p>
-                    <div className="flex items-center gap-3 mt-1.5">
-                      <span className="flex items-center gap-1 text-xs text-gray-500">
-                        <Calendar className="w-3 h-3" /> {ev.date}
-                      </span>
-                      <span className="flex items-center gap-1 text-xs text-gray-500">
-                        <MapPin className="w-3 h-3" /> {ev.location}
-                      </span>
+                      <button
+                        onClick={() => showToast('다운로드 기능은 실제 연동 시 제공됩니다 (데모)', 'info')}
+                        className="flex items-center gap-1 text-xs text-brand-600 font-medium hover:text-brand-700 transition-colors shrink-0"
+                      >
+                        <FileDown className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Survey CTA */}
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-1.5">
-              <ClipboardList className="w-4 h-4 text-gray-500" />
-              <span className="text-[13px] font-semibold text-gray-900">1분 설문에 참여해보세요</span>
+            {/* Links */}
+            {(booth.links.instagram || booth.links.store || booth.links.site) && (
+              <div className="bg-white border border-gray-200/60 rounded-xl p-5">
+                <h2 className="text-sm font-semibold text-gray-900 mb-3">링크</h2>
+                <div className="space-y-1.5">
+                  {booth.links.instagram && (
+                    <a href={booth.links.instagram} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 text-sm text-gray-600 hover:text-gray-900 transition-colors px-2 py-2 rounded-lg hover:bg-gray-50">
+                      <Instagram className="w-4 h-4 text-gray-400" /> 인스타그램
+                      <ExternalLink className="w-3 h-3 text-gray-300 ml-auto" />
+                    </a>
+                  )}
+                  {booth.links.store && (
+                    <a href={booth.links.store} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 text-sm text-gray-600 hover:text-gray-900 transition-colors px-2 py-2 rounded-lg hover:bg-gray-50">
+                      <ShoppingBag className="w-4 h-4 text-gray-400" /> 스토어
+                      <ExternalLink className="w-3 h-3 text-gray-300 ml-auto" />
+                    </a>
+                  )}
+                  {booth.links.site && (
+                    <a href={booth.links.site} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 text-sm text-gray-600 hover:text-gray-900 transition-colors px-2 py-2 rounded-lg hover:bg-gray-50">
+                      <Globe className="w-4 h-4 text-gray-400" /> 홈페이지
+                      <ExternalLink className="w-3 h-3 text-gray-300 ml-auto" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Survey CTA */}
+            <div className="bg-white border border-gray-200/60 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-1.5">
+                <ClipboardList className="w-4 h-4 text-gray-500" />
+                <span className="text-sm font-semibold text-gray-900">1분 설문 참여</span>
+              </div>
+              <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+                관심 분야와 방문 목적을 알려주시면 더 좋은 정보를 드릴 수 있어요
+              </p>
+              <button
+                onClick={() => setShowSurvey(true)}
+                disabled={surveyDone}
+                className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {surveyDone ? '설문 완료 ✓' : '설문 참여하기'}
+              </button>
             </div>
-            <p className="text-xs text-gray-500 mb-3">
-              관심 분야와 방문 목적을 알려주시면 더 좋은 정보를 드릴 수 있어요
-            </p>
-            <button
-              onClick={() => setShowSurvey(true)}
-              disabled={surveyDone}
-              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {surveyDone ? '설문 완료 ✓' : '설문 참여하기'}
-            </button>
           </div>
         </div>
 
-        {/* Login nudge banner (bottom) */}
+        {/* Login nudge banner */}
         {!isLoggedIn && (
-          <div className="mx-4 mt-3 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+          <div className="mt-6 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
             <p className="text-xs text-gray-600 leading-relaxed">
-              <span className="font-medium">로그인하면</span> 문의 답변 알림과 저장 목록을 어디서든
-              확인할 수 있어요.{' '}
+              <span className="font-medium">로그인하면</span> 문의 답변 알림과 저장 목록을 어디서든 확인할 수 있어요.{' '}
               <Link to="/auth" className="underline font-medium text-brand-600">지금 가입하기 →</Link>
             </p>
           </div>
         )}
       </div>
 
-      {/* ─── Inquiry Modal ─────────────────────────────────────────────────────── */}
-      <Modal open={showInquiry} onClose={handleCloseInquiry} title="문의 남기기">
+      {/* ═══ Mobile Sticky Bottom Bar ═══ */}
+      <div className="fixed bottom-0 left-0 right-0 md:hidden z-30 bg-white/95 backdrop-blur-lg border-t border-gray-200 px-4 py-2.5">
+        <div className="max-w-5xl mx-auto flex gap-2">
+          <button
+            onClick={handleToggleFav}
+            className={`h-10 px-4 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-all duration-150 ${
+              fav ? 'bg-brand-100 text-brand-700' : 'bg-gray-100 text-gray-700'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${fav ? 'fill-current' : ''}`} />
+            {fav ? '저장됨' : '저장'}
+          </button>
+          <button
+            onClick={() => setShowInquiry(true)}
+            disabled={!inquiryAllowed}
+            className="flex-1 h-10 rounded-lg text-sm font-medium bg-brand-600 text-white hover:bg-brand-500 transition-all duration-150 disabled:opacity-40"
+          >
+            {!inquiryAllowed ? '문의 마감' : '문의하기'}
+          </button>
+          <button
+            onClick={handleShare}
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-100 text-gray-600 transition-all duration-150"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* ═══ Inquiry Modal ═══ */}
+      <Modal open={showInquiry} onClose={handleCloseInquiry} title="문의 남기기" size="md">
         {inquirySent ? (
           <div className="text-center py-4">
-            <div className="text-4xl mb-3">✉️</div>
+            <div className="w-14 h-14 bg-brand-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <CheckCircle className="w-7 h-7 text-brand-600" />
+            </div>
             <p className="font-medium text-gray-900 mb-1">문의가 전달됐어요!</p>
             <p className="text-sm text-gray-500 mb-5">
-              {isLoggedIn
-                ? '답변이 오면 /messages에서 알려드릴게요.'
-                : '답변은 /messages 탭에서 확인하세요. 로그인하면 알림을 받을 수 있어요.'}
+              {isLoggedIn ? '답변이 오면 알려드릴게요.' : '답변은 문의 탭에서 확인하세요.'}
             </p>
-            <button
-              onClick={handleCloseInquiry}
-              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150"
-            >
+            <button onClick={handleCloseInquiry} className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150">
               확인
             </button>
           </div>
@@ -597,214 +636,122 @@ export default function BoothPage() {
                 로그인 상태로 문의합니다. 답변 알림을 받을 수 있어요.
               </p>
             ) : (
-              <p className="text-xs text-gray-500 mb-3">
-                비로그인 문의 — 이메일 주소를 남기면 답변을 받을 수 있어요.
-              </p>
+              <p className="text-xs text-gray-500 mb-3">비로그인 문의 — 이메일을 남기면 답변을 받을 수 있어요.</p>
             )}
-
             <textarea
               value={inquiryText}
               onChange={(e) => setInquiryText(e.target.value)}
               placeholder={`${booth.name}에 궁금한 점을 남겨주세요.`}
               className="w-full h-28 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-3 resize-none outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400 mb-3"
             />
-
-            {/* Rate limit warning */}
             {inquiryRateLimited && (
-              <div className="mb-3 bg-red-50 border border-red-100 rounded-lg px-3 py-3">
-                <p className="text-xs text-red-700">
-                  하루 3건까지 문의할 수 있어요. 내일 다시 시도해주세요.
-                </p>
+              <div className="mb-3 bg-red-50 border border-red-100 rounded-lg px-3 py-2.5">
+                <p className="text-xs text-red-700">하루 3건까지 문의할 수 있어요.</p>
               </div>
             )}
-
-            {/* Non-login: email + checks */}
             {!isLoggedIn && (
               <div className="space-y-3 mb-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1.5">이메일 주소</label>
-                  <input
-                    type="email"
-                    value={inquiryEmail}
-                    onChange={(e) => setInquiryEmail(e.target.value)}
+                  <input type="email" value={inquiryEmail} onChange={(e) => setInquiryEmail(e.target.value)}
                     placeholder="답변을 받을 이메일"
-                    className="w-full h-10 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
-                  />
+                    className="w-full h-10 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400" />
                 </div>
-
                 <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={inquiryAbuseCheck}
-                    onChange={(e) => setInquiryAbuseCheck(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded accent-brand-600"
-                  />
-                  <span className="text-xs text-gray-500">
-                    부적절한 문의(스팸, 광고 등)는 이용이 제한될 수 있음을 확인했습니다
-                  </span>
+                  <input type="checkbox" checked={inquiryAbuseCheck} onChange={(e) => setInquiryAbuseCheck(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
+                  <span className="text-xs text-gray-500">부적절한 문의(스팸, 광고 등)는 이용이 제한될 수 있음을 확인했습니다</span>
                 </label>
-
                 <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={inquiryConsent}
-                    onChange={(e) => setInquiryConsent(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded accent-brand-600"
-                  />
-                  <span className="text-xs text-gray-500">
-                    (선택) 운영자에게 이메일 제공에 동의합니다
-                    <span className="text-gray-400 block">동의 시 운영자가 리드로 저장합니다</span>
-                  </span>
+                  <input type="checkbox" checked={inquiryConsent} onChange={(e) => setInquiryConsent(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
+                  <span className="text-xs text-gray-500">(선택) 운영자에게 이메일 제공에 동의합니다<span className="text-gray-400 block">동의 시 운영자가 리드로 저장합니다</span></span>
                 </label>
-
                 {inquiryConsent && (
                   <label className="flex items-start gap-2 cursor-pointer pl-6">
-                    <input
-                      type="checkbox"
-                      checked={inquiryConsentMarketing}
-                      onChange={(e) => setInquiryConsentMarketing(e.target.checked)}
-                      className="mt-0.5 w-4 h-4 rounded accent-brand-600"
-                    />
-                    <span className="text-xs text-gray-400">
-                      (선택) 마케팅 정보 수신에 동의합니다
-                      <span className="block">언제든 철회할 수 있어요</span>
-                    </span>
+                    <input type="checkbox" checked={inquiryConsentMarketing} onChange={(e) => setInquiryConsentMarketing(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
+                    <span className="text-xs text-gray-400">(선택) 마케팅 정보 수신에 동의합니다<span className="block">언제든 철회할 수 있어요</span></span>
                   </label>
                 )}
               </div>
             )}
-
-            <button
-              onClick={handleSendInquiry}
-              disabled={!inquiryFormValid}
-              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button onClick={handleSendInquiry} disabled={!inquiryFormValid}
+              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
               문의 보내기
             </button>
-
-            {/* Public Q&A placeholder */}
-            {/* TODO: "공개 질문" 기능 — 이번 MVP 제외, 향후 추가 예정 */}
           </>
         )}
       </Modal>
 
-      {/* ─── Email Info Modal ──────────────────────────────────────────────────── */}
+      {/* ═══ Email Info Modal ═══ */}
       <Modal open={showEmailInfo} onClose={handleCloseEmailInfo} title="이메일로 자료 받기">
         {emailInfoSent ? (
           <div className="text-center py-4">
-            <div className="w-14 h-14 bg-emerald-50 rounded-lg flex items-center justify-center mx-auto mb-3">
+            <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center mx-auto mb-3">
               <CheckCircle className="w-7 h-7 text-emerald-600" />
             </div>
             <p className="font-medium text-gray-900 mb-1">발송 완료!</p>
-            <p className="text-sm text-gray-500 mb-5">
-              {emailInfoAddr}으로 카탈로그를 보내드렸어요. (데모: 실제 발송 없음)
-            </p>
-            <button
-              onClick={handleCloseEmailInfo}
-              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150"
-            >
-              확인
-            </button>
+            <p className="text-sm text-gray-500 mb-5">{emailInfoAddr}으로 카탈로그를 보내드렸어요. (데모)</p>
+            <button onClick={handleCloseEmailInfo} className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150">확인</button>
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-500 mb-4">
-              {booth.name}의 카탈로그와 제품 소개 자료를 이메일로 보내드릴게요.
-            </p>
+            <p className="text-sm text-gray-500 mb-4">{booth.name}의 카탈로그와 제품 소개 자료를 이메일로 보내드릴게요.</p>
             <div className="mb-4">
               <label className="block text-xs font-medium text-gray-600 mb-1.5">이메일 주소</label>
-              <input
-                type="email"
-                value={emailInfoAddr}
-                onChange={(e) => setEmailInfoAddr(e.target.value)}
+              <input type="email" value={emailInfoAddr} onChange={(e) => setEmailInfoAddr(e.target.value)}
                 placeholder="name@company.com"
-                className="w-full h-10 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
-              />
+                className="w-full h-10 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400" />
             </div>
             <label className="flex items-start gap-2 mb-5 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={emailInfoConsent}
-                onChange={(e) => setEmailInfoConsent(e.target.checked)}
-                className="mt-0.5 w-4 h-4 rounded accent-brand-600"
-              />
-              <span className="text-xs text-gray-500">
-                <span className="font-medium text-gray-700">[필수]</span> 이메일 수신 및
-                부스 운영자에게 정보 제공에 동의합니다
-              </span>
+              <input type="checkbox" checked={emailInfoConsent} onChange={(e) => setEmailInfoConsent(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
+              <span className="text-xs text-gray-500"><span className="font-medium text-gray-700">[필수]</span> 이메일 수신 및 부스 운영자에게 정보 제공에 동의합니다</span>
             </label>
-            <button
-              onClick={handleSendEmailInfo}
-              disabled={!emailInfoAddr.includes('@') || !emailInfoConsent}
-              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button onClick={handleSendEmailInfo} disabled={!emailInfoAddr.includes('@') || !emailInfoConsent}
+              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
               자료 받기
             </button>
           </>
         )}
       </Modal>
 
-      {/* ─── Survey Modal ─────────────────────────────────────────────────────── */}
-      <Modal open={showSurvey} onClose={handleCloseSurvey} title="1분 설문">
+      {/* ═══ Survey Modal ═══ */}
+      <Modal open={showSurvey} onClose={handleCloseSurvey} title="1분 설문" size="md">
         {surveySent ? (
           <div className="text-center py-4">
-            <div className="text-4xl mb-3">🙌</div>
+            <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <CheckCircle className="w-7 h-7 text-emerald-600" />
+            </div>
             <p className="font-medium text-gray-900 mb-1">설문 완료!</p>
             <p className="text-sm text-gray-500 mb-5">소중한 의견 감사해요.</p>
-            <button
-              onClick={handleCloseSurvey}
-              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150"
-            >
-              확인
-            </button>
+            <button onClick={handleCloseSurvey} className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150">확인</button>
           </div>
         ) : (
           <div className="space-y-5">
-            {/* Interests */}
             <div>
               <p className="text-[13px] font-semibold text-gray-900 mb-2.5">관심 분야를 선택해주세요</p>
               <div className="flex flex-wrap gap-2">
                 {INTEREST_CHIPS.map((chip) => (
-                  <button
-                    key={chip}
-                    onClick={() =>
-                      setSurveyInterests((prev) =>
-                        prev.includes(chip) ? prev.filter((c) => c !== chip) : [...prev, chip]
-                      )
-                    }
+                  <button key={chip}
+                    onClick={() => setSurveyInterests((prev) => prev.includes(chip) ? prev.filter((c) => c !== chip) : [...prev, chip])}
                     className={`text-xs font-medium rounded-lg px-3 py-1.5 border transition-all duration-150 ${
-                      surveyInterests.includes(chip)
-                        ? 'bg-brand-600 text-white border-brand-600'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
+                      surveyInterests.includes(chip) ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                    }`}>
                     {chip}
                   </button>
                 ))}
               </div>
             </div>
-
-            {/* Purpose */}
             <div>
               <p className="text-[13px] font-semibold text-gray-900 mb-2.5">방문 목적</p>
               <div className="space-y-2">
                 {PURPOSE_OPTIONS.map((opt) => (
                   <label key={opt.value} className="flex items-center gap-2.5 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="purpose"
-                      value={opt.value}
-                      checked={surveyPurpose === opt.value}
-                      onChange={() => setSurveyPurpose(opt.value)}
-                      className="w-4 h-4 accent-brand-600"
-                    />
+                    <input type="radio" name="purpose" value={opt.value} checked={surveyPurpose === opt.value}
+                      onChange={() => setSurveyPurpose(opt.value)} className="w-4 h-4 accent-brand-600" />
                     <span className="text-sm text-gray-700">{opt.label}</span>
                   </label>
                 ))}
               </div>
             </div>
-
-            {/* Contact toggle */}
             <div className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg">
               <div>
                 <p className="text-sm font-medium text-gray-800">연락 받기를 원해요</p>
@@ -812,22 +759,12 @@ export default function BoothPage() {
               </div>
               <button
                 onClick={() => setSurveyWantsContact((v) => !v)}
-                className={`relative w-11 h-6 rounded-full transition-all duration-150 ${
-                  surveyWantsContact ? 'bg-brand-600' : 'bg-gray-200'
-                }`}
-              >
-                <span
-                  className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${
-                    surveyWantsContact ? 'left-6' : 'left-1'
-                  }`}
-                />
+                className={`relative w-11 h-6 rounded-full transition-all duration-150 ${surveyWantsContact ? 'bg-brand-600' : 'bg-gray-200'}`}>
+                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${surveyWantsContact ? 'left-6' : 'left-1'}`} />
               </button>
             </div>
-
-            <button
-              onClick={handleSendSurvey}
-              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150"
-            >
+            <button onClick={handleSendSurvey}
+              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150">
               제출하기
             </button>
           </div>
