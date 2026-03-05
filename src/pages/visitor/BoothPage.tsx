@@ -20,6 +20,9 @@ import {
   Share2,
   ExternalLink,
   Sparkles,
+  Copy,
+  Link2,
+  QrCode,
 } from 'lucide-react';
 import { VisitorHeader } from '../../components/VisitorHeader';
 import { Modal } from '../../components/Modal';
@@ -90,6 +93,8 @@ export default function BoothPage() {
   const [inquirySent, setInquirySent] = useState(false);
   const [inquiryRateLimited, setInquiryRateLimited] = useState(false);
 
+  const [showShare, setShowShare] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const [showEmailInfo, setShowEmailInfo] = useState(false);
   const [emailInfoAddr, setEmailInfoAddr] = useState('');
   const [emailInfoConsent, setEmailInfoConsent] = useState(false);
@@ -187,17 +192,31 @@ export default function BoothPage() {
     setIpTrackingConsent(false);
   };
 
-  const handleShare = async () => {
+  const handleShare = () => {
+    setShowShare(true);
+    setShareCopied(false);
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch {
+      showToast('링크 복사에 실패했어요', 'error');
+    }
+  };
+
+  const handleNativeShare = async () => {
     const url = window.location.href;
     const shareData = { title: booth?.name ?? '', text: booth?.tagline ?? '', url };
     if (navigator.share && navigator.canShare?.(shareData)) {
-      try { await navigator.share(shareData); } catch { /* cancelled */ }
-    } else {
-      try {
-        await navigator.clipboard.writeText(url);
-        showToast('링크가 복사됐어요!', 'success');
-      } catch { showToast('링크 복사에 실패했어요', 'error'); }
+      try { await navigator.share(shareData); setShowShare(false); } catch { /* cancelled */ }
     }
+  };
+
+  const handleShareKakao = () => {
+    showToast('카카오톡 공유는 준비 중이에요', 'info');
   };
 
   const handleSendEmailInfo = () => {
@@ -677,6 +696,73 @@ export default function BoothPage() {
           </button>
         </div>
       </div>
+
+      {/* ═══ Share Modal ═══ */}
+      <Modal open={showShare} onClose={() => setShowShare(false)} title="공유하기">
+        <div className="space-y-3">
+          {/* URL copy */}
+          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+            <Link2 className="w-4 h-4 text-gray-400 shrink-0" />
+            <p className="flex-1 text-xs text-gray-600 font-mono truncate">{typeof window !== 'undefined' ? window.location.href : ''}</p>
+            <button
+              onClick={handleCopyLink}
+              className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                shareCopied
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {shareCopied ? <><CheckCircle className="w-3.5 h-3.5" /> 복사됨</> : <><Copy className="w-3.5 h-3.5" /> 복사</>}
+            </button>
+          </div>
+
+          {/* Share options */}
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={handleShareKakao}
+              className="flex flex-col items-center gap-2 p-4 rounded-xl bg-[#FEE500]/10 hover:bg-[#FEE500]/20 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full bg-[#FEE500] flex items-center justify-center">
+                <span className="text-[#3C1E1E] text-sm font-bold">K</span>
+              </div>
+              <span className="text-xs text-gray-700 font-medium">카카오톡</span>
+            </button>
+            <button
+              onClick={() => {
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(booth?.name + ' - ' + booth?.tagline)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
+              }}
+              className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center">
+                <span className="text-white text-sm font-bold">𝕏</span>
+              </div>
+              <span className="text-xs text-gray-700 font-medium">X (트위터)</span>
+            </button>
+            {typeof navigator !== 'undefined' && 'share' in navigator && (
+              <button
+                onClick={handleNativeShare}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center">
+                  <Share2 className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-xs text-gray-700 font-medium">더보기</span>
+              </button>
+            )}
+          </div>
+
+          {/* QR hint */}
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div className="w-9 h-9 bg-gray-200 rounded-lg flex items-center justify-center shrink-0">
+              <QrCode className="w-4 h-4 text-gray-500" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-gray-700">QR 코드로 공유</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">이 부스 페이지의 QR은 운영자가 제공합니다</p>
+            </div>
+          </div>
+        </div>
+      </Modal>
 
       {/* ═══ Inquiry Modal ═══ */}
       <Modal open={showInquiry} onClose={handleCloseInquiry} title="문의 남기기" size="md">
