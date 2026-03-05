@@ -22,8 +22,14 @@ import {
   deleteAttachment,
   getSurveyAggregate,
   saveBooth,
+  getBoothParticipations,
+  getEvents,
+  saveEvent,
+  saveParticipation,
+  deleteParticipation,
+  getBoothAnalyticsByEvent,
 } from '../../utils/localStorage';
-import type { BoothPolicy, Attachment } from '../../types';
+import type { BoothPolicy, Attachment, BoothEvent, BoothEventParticipation } from '../../types';
 
 export default function AdminBoothDetailPage() {
   const { boothId } = useParams<{ boothId: string }>();
@@ -68,7 +74,7 @@ export default function AdminBoothDetailPage() {
   const [editDescription, setEditDescription] = useState('');
   const [editImages, setEditImages] = useState<string[]>([]);
   const [editFaq, setEditFaq] = useState<Array<{ question: string; answer: string }>>([]);
-  const [editNextEvents, setEditNextEvents] = useState<Array<{ title: string; date: string; location: string }>>([]);
+  // editNextEvents removed — managed via participation editing
   const [contentSaved, setContentSaved] = useState(false);
 
   // Attachments state
@@ -94,9 +100,46 @@ export default function AdminBoothDetailPage() {
   });
   const [surveyFieldsSaved, setSurveyFieldsSaved] = useState(false);
 
+  // Event filter for analytics
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [boothParticipations, setBoothParticipations] = useState<BoothEventParticipation[]>([]);
+  const [allEvents, setAllEvents] = useState<BoothEvent[]>([]);
+
+  // Event participation editing
+  const [editParticipations, setEditParticipations] = useState<Array<{
+    id: string;
+    mode: 'existing' | 'new';
+    eventId: string;
+    newEventName: string;
+    newEventStartDate: string;
+    newEventEndDate: string;
+    newEventLocation: string;
+    startAt: string;
+    endAt: string;
+    boothLocation: string;
+  }>>([]);
+  const [participationsSaved, setParticipationsSaved] = useState(false);
+
   useEffect(() => {
     if (boothId) {
       setAttachments(getBoothAttachments(boothId));
+      const parts = getBoothParticipations(boothId);
+      setBoothParticipations(parts);
+      setAllEvents(getEvents());
+      setEditParticipations(parts.map((p) => {
+        return {
+          id: p.id,
+          mode: 'existing' as const,
+          eventId: p.eventId,
+          newEventName: '',
+          newEventStartDate: '',
+          newEventEndDate: '',
+          newEventLocation: '',
+          startAt: p.startAt,
+          endAt: p.endAt,
+          boothLocation: p.boothLocation ?? '',
+        };
+      }));
     }
   }, [boothId]);
 
@@ -114,7 +157,6 @@ export default function AdminBoothDetailPage() {
       setEditDescription(booth.description);
       setEditImages([...booth.images]);
       setEditFaq(booth.faq.map((f) => ({ ...f })));
-      setEditNextEvents(booth.nextEvents.map((e) => ({ ...e })));
     }
   }, [booth?.id]);
 
@@ -156,7 +198,6 @@ export default function AdminBoothDetailPage() {
       description: editDescription.trim(),
       images: editImages.filter((img) => img.trim()),
       faq: editFaq.filter((f) => f.question.trim()),
-      nextEvents: editNextEvents.filter((e) => e.title.trim()),
     };
     saveBooth(updated);
     setContentSaved(true);
@@ -182,7 +223,10 @@ export default function AdminBoothDetailPage() {
 
   const handleExportCSV = () => {
     const all = getAnalytics();
-    exportAnalyticsCSV(all.filter((a) => a.boothId === boothId));
+    const filtered = selectedEventId
+      ? all.filter((a) => a.boothId === boothId && a.eventId === selectedEventId)
+      : all.filter((a) => a.boothId === boothId);
+    exportAnalyticsCSV(filtered);
     showToast('CSV 파일이 다운로드됐어요!', 'success');
   };
 
@@ -250,22 +294,26 @@ export default function AdminBoothDetailPage() {
     );
   }
 
+  const displayStats = selectedEventId && boothId
+    ? getBoothAnalyticsByEvent(boothId, selectedEventId)
+    : stats;
+
   const statCards = [
     {
       label: '총 스캔',
-      value: stats.scans,
+      value: displayStats.scans,
       icon: <Eye className="w-5 h-5" />,
       desc: 'QR 스캔 횟수',
     },
     {
       label: '관심 저장',
-      value: stats.favorites,
+      value: displayStats.favorites,
       icon: <Heart className="w-5 h-5" />,
       desc: '하트 누른 관람객',
     },
     {
       label: '문의 건수',
-      value: stats.inquiries,
+      value: displayStats.inquiries,
       icon: <MessageSquare className="w-5 h-5" />,
       desc: '접수된 문의',
     },
@@ -350,7 +398,7 @@ export default function AdminBoothDetailPage() {
 
           {/* Stats */}
           <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-gray-900">통계</h2>
               <button
                 onClick={() => { refreshStats(); showToast('통계를 새로고침했어요', 'info'); }}
@@ -359,6 +407,33 @@ export default function AdminBoothDetailPage() {
                 새로고침
               </button>
             </div>
+            {boothParticipations.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-4 pb-3 border-b border-gray-100">
+                <button
+                  onClick={() => setSelectedEventId(null)}
+                  className={`text-xs px-3 h-7 rounded-full font-medium transition-all ${
+                    !selectedEventId ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  전체
+                </button>
+                {boothParticipations.map((p) => {
+                  const ev = allEvents.find((e) => e.id === p.eventId);
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => setSelectedEventId(p.eventId)}
+                      className={`text-xs px-3 h-7 rounded-full font-medium transition-all truncate max-w-[180px] ${
+                        selectedEventId === p.eventId ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                      title={ev?.name}
+                    >
+                      {ev?.name ?? p.eventId}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
             <div className="divide-y divide-gray-100">
               {statCards.map((s) => (
                 <div key={s.label} className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
@@ -960,57 +1035,6 @@ export default function AdminBoothDetailPage() {
             </button>
           </div>
 
-          {/* Next Events */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Calendar className="w-3.5 h-3.5 text-gray-500" />
-              <p className="text-xs font-medium text-gray-600">다음 이벤트</p>
-            </div>
-            <div className="space-y-3 mb-2">
-              {editNextEvents.map((ev, i) => (
-                <div key={i} className="bg-gray-50 rounded-lg p-2.5 sm:p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={ev.title}
-                      onChange={(e) => setEditNextEvents((prev) => prev.map((v, idx) => idx === i ? { ...v, title: e.target.value } : v))}
-                      placeholder="이벤트 제목"
-                      className="flex-1 text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
-                    />
-                    <button
-                      onClick={() => setEditNextEvents((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="p-1.5 text-gray-300 hover:text-red-400 rounded-md hover:bg-red-50 transition-all duration-150 shrink-0"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <input
-                      type="date"
-                      value={ev.date}
-                      onChange={(e) => setEditNextEvents((prev) => prev.map((v, idx) => idx === i ? { ...v, date: e.target.value } : v))}
-                      className="text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
-                    />
-                    <input
-                      type="text"
-                      value={ev.location}
-                      onChange={(e) => setEditNextEvents((prev) => prev.map((v, idx) => idx === i ? { ...v, location: e.target.value } : v))}
-                      placeholder="장소"
-                      className="text-xs bg-white border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => setEditNextEvents((prev) => [...prev, { title: '', date: '', location: '' }])}
-              className="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1 transition-all duration-150"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              이벤트 추가
-            </button>
-          </div>
-
           <button
             onClick={handleSaveContent}
             className={`w-full sm:w-auto sm:px-6 h-10 text-sm font-medium rounded-lg flex items-center justify-center transition-all duration-150 ${
@@ -1020,6 +1044,201 @@ export default function AdminBoothDetailPage() {
             }`}
           >
             {contentSaved ? '저장됐어요 ✓' : '부스 정보 저장'}
+          </button>
+        </div>
+
+        {/* ─── 행사 참여 관리 ─── */}
+        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-gray-500" />
+              <h2 className="text-sm font-semibold text-gray-900">행사 참여 관리</h2>
+            </div>
+            {editParticipations.length < 5 && (
+              <button
+                onClick={() => setEditParticipations((prev) => [...prev, {
+                  id: `ep-new-${Date.now()}`,
+                  mode: 'existing',
+                  eventId: '',
+                  newEventName: '',
+                  newEventStartDate: '',
+                  newEventEndDate: '',
+                  newEventLocation: '',
+                  startAt: '',
+                  endAt: '',
+                  boothLocation: '',
+                }])}
+                className="flex items-center gap-1 text-xs text-brand-600 hover:text-brand-500 font-medium transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> 행사 추가
+              </button>
+            )}
+          </div>
+          <div className="space-y-3">
+            {editParticipations.map((p, idx) => {
+              return (
+                <div key={p.id} className="bg-gray-50 border border-gray-200/60 rounded-lg p-3 sm:p-4 relative">
+                  {editParticipations.length > 0 && (
+                    <button
+                      onClick={() => setEditParticipations((prev) => prev.filter((_, i) => i !== idx))}
+                      className="absolute top-3 right-3 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <p className="text-xs font-medium text-gray-500 mb-3">행사 {idx + 1}</p>
+
+                  <div className="mb-3">
+                    <div className="flex gap-2 mb-3">
+                      <button
+                        onClick={() => { const next = [...editParticipations]; next[idx] = { ...next[idx], mode: 'existing' }; setEditParticipations(next); }}
+                        className={`text-xs px-3 h-7 rounded-md font-medium transition-all ${p.mode === 'existing' ? 'bg-brand-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        기존 행사
+                      </button>
+                      <button
+                        onClick={() => { const next = [...editParticipations]; next[idx] = { ...next[idx], mode: 'new', eventId: '' }; setEditParticipations(next); }}
+                        className={`text-xs px-3 h-7 rounded-md font-medium transition-all ${p.mode === 'new' ? 'bg-brand-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        새 행사
+                      </button>
+                    </div>
+                    {p.mode === 'existing' ? (
+                      <select
+                        value={p.eventId}
+                        onChange={(e) => {
+                          const next = [...editParticipations];
+                          const selEv = allEvents.find((ev) => ev.id === e.target.value);
+                          next[idx] = {
+                            ...next[idx],
+                            eventId: e.target.value,
+                            startAt: next[idx].startAt || selEv?.startDate || '',
+                            endAt: next[idx].endAt || selEv?.endDate || '',
+                          };
+                          setEditParticipations(next);
+                        }}
+                        className="w-full h-9 text-xs bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                      >
+                        <option value="">행사 선택</option>
+                        {allEvents.map((ev) => (
+                          <option key={ev.id} value={ev.id}>
+                            {ev.name} ({ev.startDate} ~ {ev.endDate})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="space-y-2">
+                        <input
+                          type="text"
+                          value={p.newEventName}
+                          onChange={(e) => { const next = [...editParticipations]; next[idx] = { ...next[idx], newEventName: e.target.value }; setEditParticipations(next); }}
+                          placeholder="행사명"
+                          className="w-full h-9 text-xs bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <input type="date" value={p.newEventStartDate} onChange={(e) => { const next = [...editParticipations]; next[idx] = { ...next[idx], newEventStartDate: e.target.value, startAt: next[idx].startAt || e.target.value }; setEditParticipations(next); }} className="h-9 text-xs bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all" />
+                          <input type="date" value={p.newEventEndDate} onChange={(e) => { const next = [...editParticipations]; next[idx] = { ...next[idx], newEventEndDate: e.target.value, endAt: next[idx].endAt || e.target.value }; setEditParticipations(next); }} className="h-9 text-xs bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all" />
+                        </div>
+                        <input
+                          type="text"
+                          value={p.newEventLocation}
+                          onChange={(e) => { const next = [...editParticipations]; next[idx] = { ...next[idx], newEventLocation: e.target.value }; setEditParticipations(next); }}
+                          placeholder="행사 장소"
+                          className="w-full h-9 text-xs bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-200/60">
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-500 mb-1">참여 시작</label>
+                      <input type="date" value={p.startAt} onChange={(e) => { const next = [...editParticipations]; next[idx] = { ...next[idx], startAt: e.target.value }; setEditParticipations(next); }} className="w-full h-9 text-xs bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-500 mb-1">참여 종료</label>
+                      <input type="date" value={p.endAt} onChange={(e) => { const next = [...editParticipations]; next[idx] = { ...next[idx], endAt: e.target.value }; setEditParticipations(next); }} className="w-full h-9 text-xs bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-500 mb-1">부스 위치</label>
+                      <input type="text" value={p.boothLocation} onChange={(e) => { const next = [...editParticipations]; next[idx] = { ...next[idx], boothLocation: e.target.value }; setEditParticipations(next); }} placeholder="예: A-12" className="w-full h-9 text-xs bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all" />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {editParticipations.length === 0 && (
+              <p className="text-xs text-gray-400 text-center py-4">참여 중인 행사가 없어요.</p>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              if (!booth || !boothId) return;
+              const oldPartIds = boothParticipations.map((p) => p.id);
+              const newPartIds = editParticipations.map((p) => p.id);
+              for (const oldId of oldPartIds) {
+                if (!newPartIds.includes(oldId)) {
+                  deleteParticipation(oldId);
+                }
+              }
+              const nextEventsArr: Array<{ title: string; date: string; location: string }> = [];
+              for (const p of editParticipations) {
+                if (p.mode === 'new' && p.newEventName.trim()) {
+                  const newEv: BoothEvent = {
+                    id: `event-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                    name: p.newEventName.trim(),
+                    startDate: p.newEventStartDate,
+                    endDate: p.newEventEndDate,
+                    location: p.newEventLocation.trim(),
+                    createdAt: new Date().toISOString(),
+                  };
+                  saveEvent(newEv);
+                  saveParticipation({
+                    id: p.id.startsWith('ep-new-') ? `bp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}` : p.id,
+                    boothId,
+                    eventId: newEv.id,
+                    boothLocation: p.boothLocation || undefined,
+                    startAt: p.startAt,
+                    endAt: p.endAt,
+                  });
+                  nextEventsArr.push({
+                    title: newEv.name,
+                    date: newEv.startDate === newEv.endDate ? newEv.startDate : `${newEv.startDate} ~ ${newEv.endDate}`,
+                    location: p.boothLocation || newEv.location,
+                  });
+                } else if (p.mode === 'existing' && p.eventId) {
+                  saveParticipation({
+                    id: p.id.startsWith('ep-new-') ? `bp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}` : p.id,
+                    boothId,
+                    eventId: p.eventId,
+                    boothLocation: p.boothLocation || undefined,
+                    startAt: p.startAt,
+                    endAt: p.endAt,
+                  });
+                  const ev = allEvents.find((e) => e.id === p.eventId);
+                  if (ev) {
+                    nextEventsArr.push({
+                      title: ev.name,
+                      date: ev.startDate === ev.endDate ? ev.startDate : `${ev.startDate} ~ ${ev.endDate}`,
+                      location: p.boothLocation || ev.location,
+                    });
+                  }
+                }
+              }
+              saveBooth({ ...booth, nextEvents: nextEventsArr });
+              const updatedParts = getBoothParticipations(boothId);
+              setBoothParticipations(updatedParts);
+              setAllEvents(getEvents());
+              setParticipationsSaved(true);
+              setTimeout(() => setParticipationsSaved(false), 2000);
+              showToast('행사 참여 정보가 저장됐어요!', 'success');
+            }}
+            className={`mt-4 w-full sm:w-auto sm:px-6 h-10 text-sm font-medium rounded-lg flex items-center justify-center transition-all duration-150 ${
+              participationsSaved
+                ? 'bg-emerald-600 text-white'
+                : 'bg-brand-600 text-white hover:bg-brand-500'
+            }`}
+          >
+            {participationsSaved ? '저장됐어요 ✓' : '행사 참여 저장'}
           </button>
         </div>
       </div>

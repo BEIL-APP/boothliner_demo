@@ -18,6 +18,7 @@ export interface Booth {
 
 export interface Visit {
   boothId: string;
+  eventId?: string;
   visitedAt: string;
   visitorId?: string;
 }
@@ -52,6 +53,7 @@ export interface Thread {
 
 export interface Analytics {
   boothId: string;
+  eventId?: string;
   scans: number;
   favorites: number;
   inquiries: number;
@@ -154,6 +156,25 @@ export interface RateLimit {
   key: string;
   count: number;
   resetAt: string;
+}
+
+// ─── Event & Participation ───────────────────────────────────────────────────
+export interface BoothEvent {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  createdAt: string;
+}
+
+export interface BoothEventParticipation {
+  id: string;
+  boothId: string;
+  eventId: string;
+  boothLocation?: string;
+  startAt: string;
+  endAt: string;
 }
 
 export interface ConsentWithdrawal {

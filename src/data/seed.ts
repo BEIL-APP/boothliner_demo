@@ -1,4 +1,4 @@
-import type { Booth, Thread, Analytics, Lead, BoothPolicy, Attachment, SurveyResponse, StaffMember } from '../types';
+import type { Booth, Thread, Analytics, Lead, BoothPolicy, Attachment, SurveyResponse, StaffMember, BoothEvent, BoothEventParticipation } from '../types';
 
 export const SEED_BOOTHS: Booth[] = [
   {
@@ -230,12 +230,26 @@ export const SEED_BOOTHS: Booth[] = [
   },
 ];
 
-export const SEED_ANALYTICS: Analytics[] = SEED_BOOTHS.map((b, i) => ({
-  boothId: b.id,
-  scans: [124, 87, 203, 156, 63, 98][i],
-  favorites: [42, 31, 78, 54, 19, 37][i],
-  inquiries: [18, 12, 29, 22, 8, 15][i],
-}));
+export const SEED_ANALYTICS: Analytics[] = [
+  // Total per booth (no eventId)
+  ...SEED_BOOTHS.map((b, i) => ({
+    boothId: b.id,
+    scans: [124, 87, 203, 156, 63, 98][i],
+    favorites: [42, 31, 78, 54, 19, 37][i],
+    inquiries: [18, 12, 29, 22, 8, 15][i],
+  })),
+  // Event-level breakdown
+  { boothId: 'booth-001', eventId: 'event-001', scans: 80, favorites: 28, inquiries: 12 },
+  { boothId: 'booth-001', eventId: 'event-002', scans: 44, favorites: 14, inquiries: 6 },
+  { boothId: 'booth-002', eventId: 'event-001', scans: 87, favorites: 31, inquiries: 12 },
+  { boothId: 'booth-003', eventId: 'event-001', scans: 120, favorites: 45, inquiries: 16 },
+  { boothId: 'booth-003', eventId: 'event-003', scans: 83, favorites: 33, inquiries: 13 },
+  { boothId: 'booth-004', eventId: 'event-001', scans: 95, favorites: 32, inquiries: 14 },
+  { boothId: 'booth-004', eventId: 'event-002', scans: 61, favorites: 22, inquiries: 8 },
+  { boothId: 'booth-005', eventId: 'event-003', scans: 63, favorites: 19, inquiries: 8 },
+  { boothId: 'booth-006', eventId: 'event-001', scans: 55, favorites: 20, inquiries: 8 },
+  { boothId: 'booth-006', eventId: 'event-003', scans: 43, favorites: 17, inquiries: 7 },
+];
 
 export const SEED_THREADS: Thread[] = [
   {
@@ -544,4 +558,46 @@ export const SEED_STAFF: StaffMember[] = [
     status: 'active',
     invitedAt: '2026-01-18T11:00:00Z',
   },
+];
+
+// ─── Seed Events ─────────────────────────────────────────────────────────────
+
+export const SEED_EVENTS: BoothEvent[] = [
+  {
+    id: 'event-001',
+    name: '2026 서울 B2B 박람회',
+    startDate: '2026-03-10',
+    endDate: '2026-03-12',
+    location: '코엑스 A홀',
+    createdAt: '2026-01-15T09:00:00Z',
+  },
+  {
+    id: 'event-002',
+    name: '스타트업 네트워킹 데이',
+    startDate: '2026-03-15',
+    endDate: '2026-03-15',
+    location: '성수 S-Factory',
+    createdAt: '2026-02-01T10:00:00Z',
+  },
+  {
+    id: 'event-003',
+    name: '그린 비즈니스 엑스포',
+    startDate: '2026-03-20',
+    endDate: '2026-03-22',
+    location: '킨텍스 제2전시장',
+    createdAt: '2026-02-10T08:00:00Z',
+  },
+];
+
+export const SEED_PARTICIPATIONS: BoothEventParticipation[] = [
+  { id: 'bp-001', boothId: 'booth-001', eventId: 'event-001', boothLocation: 'A-12', startAt: '2026-03-10', endAt: '2026-03-12' },
+  { id: 'bp-002', boothId: 'booth-001', eventId: 'event-002', boothLocation: '2F-03', startAt: '2026-03-15', endAt: '2026-03-15' },
+  { id: 'bp-003', boothId: 'booth-002', eventId: 'event-001', boothLocation: 'A-15', startAt: '2026-03-10', endAt: '2026-03-12' },
+  { id: 'bp-004', boothId: 'booth-003', eventId: 'event-001', boothLocation: 'B-01', startAt: '2026-03-10', endAt: '2026-03-12' },
+  { id: 'bp-005', boothId: 'booth-003', eventId: 'event-003', boothLocation: 'C-08', startAt: '2026-03-20', endAt: '2026-03-22' },
+  { id: 'bp-006', boothId: 'booth-004', eventId: 'event-001', boothLocation: 'B-05', startAt: '2026-03-10', endAt: '2026-03-12' },
+  { id: 'bp-007', boothId: 'booth-004', eventId: 'event-002', boothLocation: '1F-07', startAt: '2026-03-15', endAt: '2026-03-15' },
+  { id: 'bp-008', boothId: 'booth-005', eventId: 'event-003', boothLocation: 'D-02', startAt: '2026-03-20', endAt: '2026-03-22' },
+  { id: 'bp-009', boothId: 'booth-006', eventId: 'event-001', boothLocation: 'A-20', startAt: '2026-03-10', endAt: '2026-03-12' },
+  { id: 'bp-010', boothId: 'booth-006', eventId: 'event-003', boothLocation: 'C-15', startAt: '2026-03-20', endAt: '2026-03-22' },
 ];

@@ -2,11 +2,12 @@ import type {
   Booth, Visit, Favorite, Thread, Analytics,
   Lead, BoothPolicy, Attachment, SurveyResponse,
   AppNotification, StaffMember, RateLimit, ReplyTemplate, Collection,
-  ConsentWithdrawal,
+  ConsentWithdrawal, BoothEvent, BoothEventParticipation,
 } from '../types';
 import {
   SEED_BOOTHS, SEED_ANALYTICS, SEED_THREADS, SEED_LEADS,
   SEED_POLICIES, SEED_ATTACHMENTS, SEED_SURVEYS, SEED_STAFF,
+  SEED_EVENTS, SEED_PARTICIPATIONS,
 } from '../data/seed';
 
 const PREFIX = 'bep_';
@@ -26,6 +27,8 @@ const KEYS = {
   templates: `${PREFIX}reply_templates`,
   collections: `${PREFIX}collections`,
   consentWithdrawals: `${PREFIX}consent_withdrawals`,
+  events: `${PREFIX}events`,
+  boothEvents: `${PREFIX}booth_events`,
   isLoggedIn: `${PREFIX}isLoggedIn`,
   isAdmin: `${PREFIX}isAdmin`,
   userEmail: `${PREFIX}userEmail`,
@@ -92,6 +95,8 @@ export function initSeedData(): void {
   set(KEYS.attachments, SEED_ATTACHMENTS);
   set(KEYS.surveys, SEED_SURVEYS);
   set(KEYS.staff, SEED_STAFF);
+  set(KEYS.events, SEED_EVENTS);
+  set(KEYS.boothEvents, SEED_PARTICIPATIONS);
   set(KEYS.visits, []);
   set(KEYS.favorites, []);
   localStorage.setItem(KEYS.seeded, '1');
@@ -134,11 +139,11 @@ export function getVisits(): Visit[] {
 
 export function addVisit(boothId: string): void {
   const visitorId = getGuestId();
+  const eventId = getActiveEventForBooth(boothId);
   const visits = getVisits();
-  visits.unshift({ boothId, visitedAt: new Date().toISOString(), visitorId });
-  // keep last 100
+  visits.unshift({ boothId, eventId, visitedAt: new Date().toISOString(), visitorId });
   set(KEYS.visits, visits.slice(0, 100));
-  incrementScan(boothId);
+  incrementScan(boothId, eventId);
 }
 
 export function getUniqueVisitorCount(boothId: string): number {
@@ -272,9 +277,21 @@ export function getAnalytics(): Analytics[] {
 }
 
 export function getBoothAnalytics(boothId: string): Analytics {
+  const all = getAnalytics().filter((a) => a.boothId === boothId);
+  if (all.length === 0) return { boothId, scans: 0, favorites: 0, inquiries: 0 };
+  return {
+    boothId,
+    scans: all.reduce((s, a) => s + a.scans, 0),
+    favorites: all.reduce((s, a) => s + a.favorites, 0),
+    inquiries: all.reduce((s, a) => s + a.inquiries, 0),
+  };
+}
+
+export function getBoothAnalyticsByEvent(boothId: string, eventId: string): Analytics {
   return (
-    getAnalytics().find((a) => a.boothId === boothId) ?? {
+    getAnalytics().find((a) => a.boothId === boothId && a.eventId === eventId) ?? {
       boothId,
+      eventId,
       scans: 0,
       favorites: 0,
       inquiries: 0,
@@ -282,27 +299,48 @@ export function getBoothAnalytics(boothId: string): Analytics {
   );
 }
 
-function updateAnalytics(boothId: string, updater: (a: Analytics) => void): void {
+function ensureEventAnalytics(boothId: string, eventId?: string): void {
+  if (!eventId) return;
   const all = getAnalytics();
-  const idx = all.findIndex((a) => a.boothId === boothId);
-  if (idx >= 0) {
-    updater(all[idx]);
+  const exists = all.some((a) => a.boothId === boothId && a.eventId === eventId);
+  if (!exists) {
+    all.push({ boothId, eventId, scans: 0, favorites: 0, inquiries: 0 });
     set(KEYS.analytics, all);
   }
 }
 
-function incrementScan(boothId: string) {
-  updateAnalytics(boothId, (a) => { a.scans += 1; });
+function updateAnalytics(boothId: string, updater: (a: Analytics) => void, eventId?: string): void {
+  if (eventId) {
+    ensureEventAnalytics(boothId, eventId);
+    const eventAll = getAnalytics();
+    const idx = eventAll.findIndex((a) => a.boothId === boothId && a.eventId === eventId);
+    if (idx >= 0) {
+      updater(eventAll[idx]);
+      set(KEYS.analytics, eventAll);
+    }
+  }
+  const totalAll = getAnalytics();
+  const totalIdx = totalAll.findIndex((a) => a.boothId === boothId && !a.eventId);
+  if (totalIdx >= 0) {
+    updater(totalAll[totalIdx]);
+    set(KEYS.analytics, totalAll);
+  }
+}
+
+function incrementScan(boothId: string, eventId?: string) {
+  updateAnalytics(boothId, (a) => { a.scans += 1; }, eventId);
 }
 
 function incrementInquiry(boothId: string) {
-  updateAnalytics(boothId, (a) => { a.inquiries += 1; });
+  const eventId = getActiveEventForBooth(boothId);
+  updateAnalytics(boothId, (a) => { a.inquiries += 1; }, eventId);
 }
 
 function syncFavoriteAnalytics(boothId: string, added: boolean) {
+  const eventId = getActiveEventForBooth(boothId);
   updateAnalytics(boothId, (a) => {
     a.favorites = added ? a.favorites + 1 : Math.max(0, a.favorites - 1);
-  });
+  }, eventId);
 }
 
 // ─── Leads ────────────────────────────────────────────────────────────────────
@@ -698,4 +736,71 @@ export function completeConsentWithdrawal(id: string): void {
     w.id === id ? { ...w, status: 'COMPLETED' as const, completedAt: new Date().toISOString() } : w
   );
   localStorage.setItem(KEYS.consentWithdrawals, JSON.stringify(updated));
+}
+
+// ─── Events ──────────────────────────────────────────────────────────────────
+
+export function getEvents(): BoothEvent[] {
+  return get<BoothEvent[]>(KEYS.events) ?? [];
+}
+
+export function getEvent(id: string): BoothEvent | undefined {
+  return getEvents().find((e) => e.id === id);
+}
+
+export function saveEvent(event: BoothEvent): void {
+  const events = getEvents();
+  const idx = events.findIndex((e) => e.id === event.id);
+  if (idx >= 0) {
+    events[idx] = event;
+  } else {
+    events.unshift(event);
+  }
+  set(KEYS.events, events);
+}
+
+export function deleteEvent(id: string): void {
+  set(KEYS.events, getEvents().filter((e) => e.id !== id));
+}
+
+// ─── Booth-Event Participations ──────────────────────────────────────────────
+
+export function getParticipations(): BoothEventParticipation[] {
+  return get<BoothEventParticipation[]>(KEYS.boothEvents) ?? [];
+}
+
+export function getBoothParticipations(boothId: string): BoothEventParticipation[] {
+  return getParticipations().filter((p) => p.boothId === boothId);
+}
+
+export function getEventParticipations(eventId: string): BoothEventParticipation[] {
+  return getParticipations().filter((p) => p.eventId === eventId);
+}
+
+export function saveParticipation(p: BoothEventParticipation): void {
+  const all = getParticipations();
+  const idx = all.findIndex((x) => x.id === p.id);
+  if (idx >= 0) {
+    all[idx] = p;
+  } else {
+    all.unshift(p);
+  }
+  set(KEYS.boothEvents, all);
+}
+
+export function deleteParticipation(id: string): void {
+  set(KEYS.boothEvents, getParticipations().filter((p) => p.id !== id));
+}
+
+export function getActiveEventForBooth(boothId: string): string | undefined {
+  const now = new Date();
+  const participations = getBoothParticipations(boothId);
+  const active = participations.find((p) => {
+    return new Date(p.startAt) <= now && now <= new Date(p.endAt);
+  });
+  if (active) return active.eventId;
+  const upcoming = participations
+    .filter((p) => new Date(p.startAt) > now)
+    .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
+  return upcoming[0]?.eventId;
 }

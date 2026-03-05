@@ -1,10 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, ArrowLeft, Save, Sparkles, Upload, Loader2, Layout } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Save, Sparkles, Upload, Loader2, Layout, Calendar } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { useBooths } from '../../hooks/useBooths';
 import { useToast } from '../../contexts/ToastContext';
-import type { Booth } from '../../types';
+import { getEvents, saveEvent, saveParticipation } from '../../utils/localStorage';
+import type { Booth, BoothEvent } from '../../types';
+
+interface EventParticipationForm {
+  id: string;
+  mode: 'existing' | 'new';
+  eventId: string;
+  newEventName: string;
+  newEventStartDate: string;
+  newEventEndDate: string;
+  newEventLocation: string;
+  startAt: string;
+  endAt: string;
+  boothLocation: string;
+}
 
 const MOCK_AI_EXTRACTIONS = [
   {
@@ -121,9 +135,10 @@ export default function AdminBoothNewPage() {
     { question: '', answer: '' },
     { question: '', answer: '' },
   ]);
-  const [eventTitle, setEventTitle] = useState('');
-  const [eventDate, setEventDate] = useState('');
-  const [eventLocation, setEventLocation] = useState('');
+  const [existingEvents] = useState<BoothEvent[]>(() => getEvents());
+  const [participations, setParticipations] = useState<EventParticipationForm[]>([
+    { id: `ep-${Date.now()}`, mode: 'existing', eventId: '', newEventName: '', newEventStartDate: '', newEventEndDate: '', newEventLocation: '', startAt: '', endAt: '', boothLocation: '' },
+  ]);
 
   const handleSave = () => {
     if (!name.trim()) {
@@ -135,8 +150,53 @@ export default function AdminBoothNewPage() {
       return;
     }
 
+    const boothId = `booth-${Date.now()}`;
+
+    const validParticipations = participations.filter((p) => {
+      if (p.mode === 'existing') return p.eventId && p.startAt && p.endAt;
+      return p.newEventName.trim() && p.newEventStartDate && p.newEventEndDate && p.startAt && p.endAt;
+    });
+
+    const resolvedEvents: Array<{ eventId: string; name: string; startDate: string; endDate: string; location: string; startAt: string; endAt: string; boothLocation: string }> = [];
+    for (const p of validParticipations) {
+      if (p.mode === 'new') {
+        const newEvent: BoothEvent = {
+          id: `event-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          name: p.newEventName.trim(),
+          startDate: p.newEventStartDate,
+          endDate: p.newEventEndDate,
+          location: p.newEventLocation.trim(),
+          createdAt: new Date().toISOString(),
+        };
+        saveEvent(newEvent);
+        resolvedEvents.push({ eventId: newEvent.id, name: newEvent.name, startDate: newEvent.startDate, endDate: newEvent.endDate, location: newEvent.location, startAt: p.startAt, endAt: p.endAt, boothLocation: p.boothLocation });
+      } else {
+        const ev = existingEvents.find((e) => e.id === p.eventId);
+        if (ev) {
+          resolvedEvents.push({ eventId: ev.id, name: ev.name, startDate: ev.startDate, endDate: ev.endDate, location: ev.location, startAt: p.startAt, endAt: p.endAt, boothLocation: p.boothLocation });
+        }
+      }
+    }
+
+    for (const re of resolvedEvents) {
+      saveParticipation({
+        id: `bp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        boothId,
+        eventId: re.eventId,
+        boothLocation: re.boothLocation || undefined,
+        startAt: re.startAt,
+        endAt: re.endAt,
+      });
+    }
+
+    const nextEvents = resolvedEvents.map((re) => ({
+      title: re.name,
+      date: re.startDate === re.endDate ? re.startDate : `${re.startDate} ~ ${re.endDate}`,
+      location: re.boothLocation || re.location,
+    }));
+
     const booth: Booth = {
-      id: `booth-${Date.now()}`,
+      id: boothId,
       name: name.trim(),
       category,
       tagline: tagline.trim(),
@@ -148,9 +208,7 @@ export default function AdminBoothNewPage() {
         site: site.trim() || undefined,
       },
       faq: faq.filter((f) => f.question.trim() && f.answer.trim()),
-      nextEvents: eventTitle.trim()
-        ? [{ title: eventTitle.trim(), date: eventDate, location: eventLocation.trim() }]
-        : [],
+      nextEvents,
       createdAt: new Date().toISOString(),
     };
 
@@ -374,32 +432,160 @@ export default function AdminBoothNewPage() {
             </div>
           </div>
 
-          {/* Current Event */}
+          {/* Event Participation */}
           <div className="bg-white rounded-xl border border-gray-200/60 p-4 sm:p-6">
-            <div className="mb-6">
-              <h2 className="text-sm font-semibold text-gray-900">이번 행사 정보</h2>
-              <p className="text-xs text-gray-400 mt-1">현재 참가 중인 행사의 일정과 부스 위치를 입력하세요</p>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-gray-500" />
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-900">행사 참여</h2>
+                  <p className="text-xs text-gray-400 mt-0.5">참여할 행사를 선택하거나 새로 등록하세요</p>
+                </div>
+              </div>
+              {participations.length < 5 && (
+                <button
+                  onClick={() => setParticipations([...participations, { id: `ep-${Date.now()}`, mode: 'existing', eventId: '', newEventName: '', newEventStartDate: '', newEventEndDate: '', newEventLocation: '', startAt: '', endAt: '', boothLocation: '' }])}
+                  className="flex items-center gap-1 text-xs text-brand-600 hover:text-brand-500 font-medium transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" /> 행사 추가
+                </button>
+              )}
             </div>
-            <div className="space-y-3">
-              <div>
-                <FieldLabel>행사명</FieldLabel>
-                <TextInput value={eventTitle} onChange={setEventTitle} placeholder="예: 2026 서울 B2B 박람회" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <FieldLabel>날짜</FieldLabel>
-                  <input
-                    type="date"
-                    value={eventDate}
-                    onChange={(e) => setEventDate(e.target.value)}
-                    className="w-full h-9 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
-                  />
+            <div className="space-y-4">
+              {participations.map((p, idx) => (
+                <div key={p.id} className="bg-gray-50 border border-gray-200/60 rounded-lg p-3 sm:p-4 relative">
+                  {participations.length > 1 && (
+                    <button
+                      onClick={() => setParticipations(participations.filter((_, i) => i !== idx))}
+                      className="absolute top-3 right-3 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <p className="text-xs font-medium text-gray-500 mb-3">행사 {idx + 1}</p>
+
+                  <div className="mb-3">
+                    <div className="flex gap-2 mb-3">
+                      <button
+                        onClick={() => { const next = [...participations]; next[idx] = { ...next[idx], mode: 'existing' }; setParticipations(next); }}
+                        className={`text-xs px-3 h-7 rounded-md font-medium transition-all ${p.mode === 'existing' ? 'bg-brand-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        기존 행사 선택
+                      </button>
+                      <button
+                        onClick={() => { const next = [...participations]; next[idx] = { ...next[idx], mode: 'new', eventId: '' }; setParticipations(next); }}
+                        className={`text-xs px-3 h-7 rounded-md font-medium transition-all ${p.mode === 'new' ? 'bg-brand-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        새 행사 등록
+                      </button>
+                    </div>
+
+                    {p.mode === 'existing' ? (
+                      <div>
+                        <FieldLabel>행사 선택</FieldLabel>
+                        <select
+                          value={p.eventId}
+                          onChange={(e) => {
+                            const next = [...participations];
+                            const selectedEvent = existingEvents.find((ev) => ev.id === e.target.value);
+                            next[idx] = {
+                              ...next[idx],
+                              eventId: e.target.value,
+                              startAt: next[idx].startAt || selectedEvent?.startDate || '',
+                              endAt: next[idx].endAt || selectedEvent?.endDate || '',
+                            };
+                            setParticipations(next);
+                          }}
+                          className="w-full h-9 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                        >
+                          <option value="">행사를 선택하세요</option>
+                          {existingEvents.map((ev) => (
+                            <option key={ev.id} value={ev.id}>
+                              {ev.name} ({ev.startDate} ~ {ev.endDate}, {ev.location})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div>
+                          <FieldLabel required>행사명</FieldLabel>
+                          <TextInput
+                            value={p.newEventName}
+                            onChange={(v) => { const next = [...participations]; next[idx] = { ...next[idx], newEventName: v }; setParticipations(next); }}
+                            placeholder="예: 2026 부산 IT 박람회"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <FieldLabel required>행사 시작일</FieldLabel>
+                            <input
+                              type="date"
+                              value={p.newEventStartDate}
+                              onChange={(e) => {
+                                const next = [...participations];
+                                next[idx] = { ...next[idx], newEventStartDate: e.target.value, startAt: next[idx].startAt || e.target.value };
+                                setParticipations(next);
+                              }}
+                              className="w-full h-9 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                            />
+                          </div>
+                          <div>
+                            <FieldLabel required>행사 종료일</FieldLabel>
+                            <input
+                              type="date"
+                              value={p.newEventEndDate}
+                              onChange={(e) => {
+                                const next = [...participations];
+                                next[idx] = { ...next[idx], newEventEndDate: e.target.value, endAt: next[idx].endAt || e.target.value };
+                                setParticipations(next);
+                              }}
+                              className="w-full h-9 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <FieldLabel>행사 장소</FieldLabel>
+                          <TextInput
+                            value={p.newEventLocation}
+                            onChange={(v) => { const next = [...participations]; next[idx] = { ...next[idx], newEventLocation: v }; setParticipations(next); }}
+                            placeholder="예: 벡스코 제1전시장"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 pt-3 border-t border-gray-200/60">
+                    <div>
+                      <FieldLabel>참여 시작일</FieldLabel>
+                      <input
+                        type="date"
+                        value={p.startAt}
+                        onChange={(e) => { const next = [...participations]; next[idx] = { ...next[idx], startAt: e.target.value }; setParticipations(next); }}
+                        className="w-full h-9 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <FieldLabel>참여 종료일</FieldLabel>
+                      <input
+                        type="date"
+                        value={p.endAt}
+                        onChange={(e) => { const next = [...participations]; next[idx] = { ...next[idx], endAt: e.target.value }; setParticipations(next); }}
+                        className="w-full h-9 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <FieldLabel>부스 위치</FieldLabel>
+                      <TextInput
+                        value={p.boothLocation}
+                        onChange={(v) => { const next = [...participations]; next[idx] = { ...next[idx], boothLocation: v }; setParticipations(next); }}
+                        placeholder="예: Hall A, B-12"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <FieldLabel>부스 위치</FieldLabel>
-                  <TextInput value={eventLocation} onChange={setEventLocation} placeholder="예: Hall A, B-12" />
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
