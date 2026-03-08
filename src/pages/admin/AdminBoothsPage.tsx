@@ -30,7 +30,7 @@ export default function AdminBoothsPage() {
 
         {/* Booths Grid */}
         {booths.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-gray-200/60 shadow-sm">
+          <div className="text-center py-20 bg-white rounded-xl border border-gray-200/60 shadow-sm">
             <QrCode className="w-12 h-12 text-gray-200 mx-auto mb-4" />
             <p className="text-base text-gray-500 font-bold mb-1">아직 부스가 없어요</p>
             <p className="text-sm text-gray-400 mt-1 mb-8">첫 번째 부스를 만들어 운영을 시작해보세요</p>
@@ -50,7 +50,7 @@ export default function AdminBoothsPage() {
                 <Link
                   key={booth.id}
                   to={`/admin/booths/${booth.id}`}
-                  className="bg-white rounded-2xl border border-gray-200/60 p-5 sm:p-6 hover:border-brand-300 hover:shadow-card-hover transition-all duration-200 group overflow-hidden shadow-sm"
+                  className="bg-white rounded-xl border border-gray-200/60 p-5 sm:p-6 hover:border-brand-300 hover:shadow-card-hover transition-all duration-200 group overflow-hidden shadow-sm"
                 >
                   <div className="flex items-start gap-4">
                     {/* Thumbnail */}
@@ -121,7 +121,7 @@ export default function AdminBoothsPage() {
                 { label: '관심 등록', value: analytics.reduce((s, a) => s + a.favorites, 0), icon: <Heart className="w-4 h-4 text-gray-400" /> },
                 { label: '문의량', value: analytics.reduce((s, a) => s + a.inquiries, 0), icon: <Mail className="w-4 h-4 text-gray-400" /> },
               ].map((stat) => (
-                <div key={stat.label} className="bg-white border border-gray-200/60 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-card-hover transition-all duration-200">
+                <div key={stat.label} className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 shadow-sm hover:shadow-card-hover transition-all duration-200">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-xs sm:text-sm font-bold text-gray-500">{stat.label}</p>
                     {stat.icon}

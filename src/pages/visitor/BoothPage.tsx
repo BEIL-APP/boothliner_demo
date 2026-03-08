@@ -432,7 +432,7 @@ export default function BoothPage() {
                 .sort((a, b) => a.status.order - b.status.order);
               return (
                 <div className="order-1 md:order-none bg-white border border-gray-200/60 rounded-xl p-6 shadow-sm">
-                  <h2 className="text-sm font-bold text-gray-900 mb-4">행사 일정</h2>
+                  <h2 className="text-sm font-semibold text-gray-900 mb-4">행사 일정</h2>
                   <div className="space-y-3">
                     {sorted.map((ev, i) => (
                       <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${ev.status.order === 2 ? 'bg-gray-50/60 border-gray-100' : 'bg-gray-50 border-gray-100/50 hover:border-gray-200 transition-colors'}`}>
@@ -496,14 +496,14 @@ export default function BoothPage() {
 
             {/* 소개 — mobile order: 3 */}
             <div className="order-3 md:order-none bg-white border border-gray-200/60 rounded-xl p-6 shadow-sm">
-              <h2 className="text-sm font-bold text-gray-900 mb-4">회사 소개</h2>
+              <h2 className="text-sm font-semibold text-gray-900 mb-4">회사 소개</h2>
               <p className="text-sm text-gray-600 leading-relaxed font-medium">{booth.description}</p>
             </div>
 
             {/* 제품 갤러리 — mobile order: 4 */}
             {(booth.descriptionImages ?? []).length > 0 && (
               <div className="order-4 md:order-none bg-white border border-gray-200/60 rounded-xl p-6 shadow-sm">
-                <h2 className="text-sm font-bold text-gray-900 mb-4">제품 갤러리</h2>
+                <h2 className="text-sm font-semibold text-gray-900 mb-4">제품 갤러리</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {(booth.descriptionImages ?? []).map((src, i) => (
                     <button
@@ -575,7 +575,7 @@ export default function BoothPage() {
             {/* FAQ — mobile order: 9 */}
             {booth.faq.length > 0 && (
               <div className="order-9 md:order-none bg-white border border-gray-200/60 rounded-xl p-6 shadow-sm">
-                <h2 className="text-sm font-bold text-gray-900 mb-4">자주 묻는 질문</h2>
+                <h2 className="text-sm font-semibold text-gray-900 mb-4">자주 묻는 질문</h2>
                 <div className="space-y-3">
                   {booth.faq.map((item, i) => (
                     <div key={i} className="border border-gray-100 rounded-xl overflow-hidden hover:border-gray-200 transition-colors">
@@ -651,7 +651,7 @@ export default function BoothPage() {
             {/* 첨부 자료 — mobile order: 5 */}
             {attachments.length > 0 && (
               <div className="order-5 md:order-none bg-white border border-gray-200/60 rounded-xl p-6 shadow-sm">
-                <h2 className="text-sm font-bold text-gray-900 mb-4">첨부 자료</h2>
+                <h2 className="text-sm font-semibold text-gray-900 mb-4">첨부 자료</h2>
                 <div className="space-y-2.5">
                   {attachments.map((att) => (
                     <div key={att.id} className="group flex items-center gap-3 bg-gray-50 border border-gray-100/50 rounded-xl px-4 py-3 hover:bg-white hover:border-brand-200 hover:shadow-sm transition-all duration-200">
@@ -684,7 +684,7 @@ export default function BoothPage() {
             {/* 링크 — mobile order: 7 */}
             {(booth.links.instagram || booth.links.store || booth.links.site) && (
               <div className="order-7 md:order-none bg-white border border-gray-200/60 rounded-xl p-6 shadow-sm">
-                <h2 className="text-sm font-bold text-gray-900 mb-4">공식 채널</h2>
+                <h2 className="text-sm font-semibold text-gray-900 mb-4">공식 채널</h2>
                 <div className="grid grid-cols-1 gap-2">
                   {booth.links.instagram && (
                     <a href={booth.links.instagram} target="_blank" rel="noopener noreferrer"

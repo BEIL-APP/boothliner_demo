@@ -187,7 +187,7 @@ export default function AdminLeadsPage() {
                   <PhoneCall className="w-4.5 h-4.5 text-brand-600" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-gray-900">팔로업 우선순위</h2>
+                  <h2 className="text-sm font-semibold text-gray-900">팔로업 우선순위</h2>
                   <p className="text-xs text-gray-500 font-medium">빠른 연락이 필요한 신규 리드입니다</p>
                 </div>
               </div>

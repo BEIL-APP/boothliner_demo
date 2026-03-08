@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-gray-400" />
-                <h2 className="text-sm font-bold text-gray-900">부스별 성과</h2>
+                <h2 className="text-sm font-semibold text-gray-900">부스별 성과</h2>
               </div>
               <Link
                 to="/admin/booths"
@@ -251,7 +251,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
               <Clock className="w-5 h-5 text-gray-400" />
-              <h2 className="text-sm font-bold text-gray-900">시간대별 방문 (오늘)</h2>
+              <h2 className="text-sm font-semibold text-gray-900">시간대별 방문 (오늘)</h2>
               <span className="bg-amber-50 text-amber-600 rounded-md h-6 px-2 text-[11px] font-semibold flex items-center ml-auto">실시간</span>
             </div>
 
@@ -276,7 +276,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
               <ClipboardList className="w-5 h-5 text-gray-400" />
-              <h2 className="text-sm font-bold text-gray-900">설문 집계</h2>
+              <h2 className="text-sm font-semibold text-gray-900">설문 집계</h2>
               <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 rounded-md px-2 h-5 flex items-center ml-auto">
                 총 {allSurveys.length}건
               </span>
@@ -323,7 +323,7 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
                 )}
-                <div className="bg-emerald-50 border border-emerald-100/50 rounded-2xl p-5">
+                <div className="bg-emerald-50 border border-emerald-100/50 rounded-xl p-5">
                   <p className="text-xs font-semibold text-emerald-600 mb-1">연락 희망 응답자</p>
                   <p className="text-2xl font-bold text-emerald-700">
                     {globalWantsContact}명
@@ -343,7 +343,7 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <UserCheck className="w-5 h-5 text-gray-400" />
-              <h2 className="text-sm font-bold text-gray-900">최근 리드</h2>
+              <h2 className="text-sm font-semibold text-gray-900">최근 리드</h2>
             </div>
             <Link
               to="/admin/leads"
@@ -396,7 +396,7 @@ export default function AdminDashboardPage() {
         {/* All booths stats table */}
         <div className="bg-white border border-gray-200/60 rounded-xl overflow-hidden shadow-sm">
           <div className="px-5 sm:px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between bg-gray-50/30">
-            <h2 className="text-sm font-bold text-gray-900">부스별 상세 통계</h2>
+            <h2 className="text-sm font-semibold text-gray-900">부스별 상세 통계</h2>
             <button
               onClick={handleExportAll}
               className="w-full sm:w-auto flex items-center justify-center gap-1.5 bg-white border border-gray-200 text-gray-700 h-9 rounded-lg px-3 text-[13px] font-medium hover:bg-gray-50 transition-all duration-150 shadow-sm"
