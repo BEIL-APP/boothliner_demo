@@ -398,7 +398,7 @@ export default function AdminBoothDetailPage() {
               <h2 className="text-sm font-semibold text-gray-900">QR 코드</h2>
               <button
                 onClick={handleDownloadQR}
-                className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-8 px-3 text-xs font-medium rounded-lg transition-all duration-150"
+                className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-3 text-xs font-medium rounded-lg transition-all duration-150"
               >
                 <Download className="w-3.5 h-3.5" />
                 PNG 다운로드
@@ -470,7 +470,7 @@ export default function AdminBoothDetailPage() {
                     {s.icon}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-500">{s.desc}</p>
+                    <p className="text-sm text-gray-500 font-medium">{s.desc}</p>
                     <p className="text-xl sm:text-2xl font-semibold text-gray-900">{s.value.toLocaleString()}</p>
                   </div>
                 </div>
@@ -663,7 +663,7 @@ export default function AdminBoothDetailPage() {
             </div>
             <button
               onClick={() => fileRef.current?.click()}
-              className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-8 px-3 text-xs font-medium rounded-lg transition-all duration-150"
+              className="flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-3 text-xs font-medium rounded-lg transition-all duration-150"
             >
               <Upload className="w-3.5 h-3.5" />
               파일 추가
@@ -758,7 +758,7 @@ export default function AdminBoothDetailPage() {
                       next[i] = { ...next[i], type: e.target.value as 'text' | 'select' | 'checkbox' };
                       setSurveyFields(next);
                     }}
-                    className="h-8 text-xs bg-white border border-gray-200 rounded-lg px-2 outline-none focus:ring-2 focus:ring-brand-200 text-gray-600"
+                    className="h-9 text-xs bg-white border border-gray-200 rounded-lg px-2 outline-none focus:ring-2 focus:ring-brand-200 text-gray-600"
                   >
                     <option value="text">텍스트</option>
                     <option value="select">선택</option>
