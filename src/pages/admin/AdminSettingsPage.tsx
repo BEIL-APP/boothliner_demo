@@ -146,25 +146,25 @@ export default function AdminSettingsPage() {
 
   return (
     <AdminLayout>
-      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-4xl mx-auto">
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-5xl mx-auto">
         <div className="mb-8 lg:mb-10">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">관리자 설정</h1>
-          <p className="text-sm sm:text-base text-gray-500 font-medium mt-1">프로필 정보 및 서비스 운영 환경을 구성하세요</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">관리자 설정</h1>
+          <p className="text-sm text-gray-500 font-medium mt-1">프로필 정보 및 서비스 운영 환경을 구성하세요</p>
         </div>
 
         <div className="space-y-6 sm:space-y-8">
           {/* ─── Profile ─── */}
-          <section className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden transition-all hover:border-brand-200">
+          <section className="bg-white border border-gray-200/60 rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center shadow-sm">
                 <User className="w-4.5 h-4.5 text-gray-400" />
               </div>
-              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">운영자 프로필</h2>
+              <h2 className="text-sm font-semibold text-gray-900">운영자 프로필</h2>
             </div>
             <div className="p-6 sm:p-8 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                  <label className="block text-xs font-medium text-gray-500 mb-2 px-1">
                     <span className="inline-flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> 운영자 성함</span>
                   </label>
                   <input
@@ -175,7 +175,7 @@ export default function AdminSettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                  <label className="block text-xs font-medium text-gray-500 mb-2 px-1">
                     <span className="inline-flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> 이메일 주소</span>
                   </label>
                   <input
@@ -186,7 +186,7 @@ export default function AdminSettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                  <label className="block text-xs font-medium text-gray-500 mb-2 px-1">
                     <span className="inline-flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> 비상 연락처</span>
                   </label>
                   <input
@@ -197,7 +197,7 @@ export default function AdminSettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                  <label className="block text-xs font-medium text-gray-500 mb-2 px-1">
                     <span className="inline-flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5" /> 담당 부서/직책</span>
                   </label>
                   <input
@@ -209,7 +209,7 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                <label className="block text-xs font-medium text-gray-500 mb-2 px-1">
                   <span className="inline-flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5" /> 소속 회사/기관</span>
                 </label>
                 <input
@@ -233,12 +233,12 @@ export default function AdminSettingsPage() {
           </section>
 
           {/* ─── Notification Settings ─── */}
-          <section className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden transition-all hover:border-brand-200">
+          <section className="bg-white border border-gray-200/60 rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center shadow-sm">
                 <Bell className="w-4.5 h-4.5 text-gray-400" />
               </div>
-              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">워크플로우 알림</h2>
+              <h2 className="text-sm font-semibold text-gray-900">워크플로우 알림</h2>
             </div>
             <div className="px-6 sm:px-8 divide-y divide-gray-100">
               <Toggle
@@ -279,17 +279,17 @@ export default function AdminSettingsPage() {
               />
             </div>
             <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-50">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Settings will be applied immediately</p>
+              <p className="text-[11px] font-medium text-gray-400">설정은 즉시 반영됩니다</p>
             </div>
           </section>
 
           {/* ─── Operation Settings ─── */}
-          <section className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden transition-all hover:border-brand-200">
+          <section className="bg-white border border-gray-200/60 rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center shadow-sm">
                 <Zap className="w-4.5 h-4.5 text-gray-400" />
               </div>
-              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">부스 운영 자동화</h2>
+              <h2 className="text-sm font-semibold text-gray-900">부스 운영 자동화</h2>
             </div>
             <div className="p-6 sm:p-8 space-y-6">
               {/* Auto-reply */}
@@ -302,7 +302,7 @@ export default function AdminSettingsPage() {
                 />
                 {operations.autoReply && (
                   <div className="mt-4 animate-scale-in">
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">자동 응답 메시지 내용</label>
+                    <label className="block text-xs font-medium text-gray-500 mb-2 px-1">자동 응답 메시지 내용</label>
                     <textarea
                       value={operations.autoReplyMessage}
                       onChange={(e) => handleOperation('autoReplyMessage', e.target.value)}
@@ -324,7 +324,7 @@ export default function AdminSettingsPage() {
                   <div className="mt-4 space-y-4 animate-scale-in">
                     <div className="flex items-center gap-4">
                       <div className="flex-1">
-                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">업무 시작</label>
+                        <label className="block text-xs font-medium text-gray-500 mb-2 px-1">업무 시작</label>
                         <input
                           type="time"
                           value={operations.businessStart}
@@ -334,7 +334,7 @@ export default function AdminSettingsPage() {
                       </div>
                       <div className="pt-6 text-gray-300">—</div>
                       <div className="flex-1">
-                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">업무 종료</label>
+                        <label className="block text-xs font-medium text-gray-500 mb-2 px-1">업무 종료</label>
                         <input
                           type="time"
                           value={operations.businessEnd}
@@ -344,7 +344,7 @@ export default function AdminSettingsPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">부재중 안내 메시지</label>
+                      <label className="block text-xs font-medium text-gray-500 mb-2 px-1">부재중 안내 메시지</label>
                       <textarea
                         value={operations.awayMessage}
                         onChange={(e) => handleOperation('awayMessage', e.target.value)}
@@ -370,12 +370,12 @@ export default function AdminSettingsPage() {
           </section>
 
           {/* ─── Account / Danger Zone ─── */}
-          <section className="bg-white border border-red-100/50 rounded-2xl shadow-sm overflow-hidden">
+          <section className="bg-white border border-red-100/50 rounded-xl shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-red-50 bg-red-50/10 flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-white border border-red-100 flex items-center justify-center shadow-sm">
                 <Shield className="w-4.5 h-4.5 text-red-400" />
               </div>
-              <h2 className="text-sm font-bold text-red-600 uppercase tracking-wider">계정 보안 및 위험 영역</h2>
+              <h2 className="text-sm font-semibold text-red-600">계정 보안 및 위험 영역</h2>
             </div>
             <div className="p-6 sm:p-8 space-y-8">
               <div>
@@ -407,7 +407,7 @@ export default function AdminSettingsPage() {
                 </h3>
                 <p className="text-[13px] text-gray-500 font-medium mb-5 leading-relaxed">관리자 계정을 삭제하면 운영 중인 모든 부스 데이터, 수집된 리드, 대화 내역이 즉시 영구 파기되며 복구할 수 없습니다.</p>
                 {showDeleteConfirm ? (
-                  <div className="bg-red-50 border border-red-100 rounded-2xl p-5 animate-scale-in">
+                  <div className="bg-red-50 border border-red-100 rounded-xl p-5 animate-scale-in">
                     <p className="text-sm text-red-700 font-bold mb-4">정말 계정을 영구적으로 삭제하시겠어요?</p>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <button

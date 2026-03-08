@@ -126,8 +126,8 @@ export default function AdminLeadsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 lg:mb-10">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">리드 목록</h1>
-            <p className="text-sm sm:text-base text-gray-500 font-medium mt-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">리드 목록</h1>
+            <p className="text-sm text-gray-500 font-medium mt-1">
               수집된 잠재 고객 데이터를 관리하고 필터링하세요
             </p>
           </div>
@@ -161,7 +161,7 @@ export default function AdminLeadsPage() {
           <div className="flex flex-col gap-1 bg-white border border-gray-200/60 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
               <Users className="w-4 h-4 text-gray-400" />
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">전체</span>
             </div>
             <p className="text-xl font-bold text-gray-900 mt-1">{leads.length}</p>
             <p className="text-[11px] font-bold text-gray-500 uppercase">전체 리드</p>
@@ -192,7 +192,7 @@ export default function AdminLeadsPage() {
                 </div>
               </div>
               <span className="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md uppercase">
-                {followUpLeads.length} Urgent
+                긴급 {followUpLeads.length}건
               </span>
             </div>
             <div className="space-y-2">
@@ -384,7 +384,7 @@ export default function AdminLeadsPage() {
             {lotteryWinner && (
               <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 mb-8 text-left shadow-inner relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-16 h-16 bg-brand-500/5 rounded-full -translate-y-8 translate-x-8" />
-                <p className="text-[11px] font-bold text-brand-600 uppercase tracking-widest mb-2">Winner Details</p>
+                <p className="text-[11px] font-bold text-brand-600 uppercase tracking-widest mb-2">당첨자 정보</p>
                 <p className="text-lg font-bold text-gray-900 mb-1">
                   {lotteryWinner.name ?? '이름 정보 없음'}
                 </p>

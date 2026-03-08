@@ -316,7 +316,7 @@ export default function AdminInboxPage() {
         <div className={`flex flex-col border-gray-100 ${selectedThread ? 'hidden md:flex' : 'flex'} w-full md:w-[360px] md:border-r md:shrink-0 bg-gray-50/30`}>
           {/* Inbox header */}
           <div className="px-5 py-6 sm:px-6 sm:py-8 border-b border-gray-100 bg-white">
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-5">문의 인박스</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-5">문의 인박스</h1>
 
             {/* Search */}
             <div className="relative mb-4 group">
@@ -391,7 +391,7 @@ export default function AdminInboxPage() {
                           <StatusBadge status={t.status} />
                           {t.blocked && (
                             <span className="h-6 px-2 rounded-md text-[10px] font-bold inline-flex items-center gap-0.5 bg-red-50 text-red-600 uppercase tracking-tighter">
-                              <ShieldOff className="w-2.5 h-2.5" /> BLOCKED
+                              <ShieldOff className="w-2.5 h-2.5" /> 차단됨
                             </span>
                           )}
                           {t.tags.slice(0, 1).map((tag) => (
@@ -428,7 +428,7 @@ export default function AdminInboxPage() {
                       ? 'bg-brand-50 text-brand-600'
                       : 'bg-gray-100 text-gray-500'
                   }`}>
-                    {selectedThread.visitorId === 'user' ? 'REGISTERED USER' : 'GUEST'}
+                    {selectedThread.visitorId === 'user' ? '회원 사용자' : '비회원'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-2 flex-wrap">
@@ -507,7 +507,7 @@ export default function AdminInboxPage() {
             {/* Tag input row */}
             {showTagInput && (
               <div className="bg-gray-50/50 px-5 py-3 sm:px-8 sm:py-4 border-b border-gray-100 flex items-center gap-3 flex-wrap animate-fade-in">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Quick Tags:</span>
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">빠른 태그:</span>
                 <div className="flex gap-1.5 flex-wrap">
                   {TAG_SUGGESTIONS.map((s) => (
                     <button
@@ -554,7 +554,7 @@ export default function AdminInboxPage() {
                       msg.from === 'booth' ? 'text-brand-200' : 'text-gray-400'
                     }`}>
                       {formatTime(msg.at)}
-                      {msg.from === 'booth' && <span className="bg-brand-500 text-white px-1.5 rounded-sm">OPERATOR</span>}
+                      {msg.from === 'booth' && <span className="bg-brand-500 text-white px-1.5 rounded-sm">운영자</span>}
                     </div>
                   </div>
                 </div>
@@ -565,7 +565,7 @@ export default function AdminInboxPage() {
             <div className="px-5 py-3 sm:px-8 sm:py-4 bg-amber-50/30 border-t border-amber-100">
               <div className="flex items-center gap-2 mb-1">
                 <Pencil className="w-3 h-3 text-amber-500" />
-                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Internal Memo</span>
+                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">내부 메모</span>
               </div>
               <textarea
                 value={selectedThread.memo}
@@ -580,13 +580,13 @@ export default function AdminInboxPage() {
             <div className="px-5 py-4 sm:px-8 sm:py-5 border-t border-gray-100 bg-gray-50/50">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <ChevronDown className="w-3.5 h-3.5" /> Reply Templates
+                  <ChevronDown className="w-3.5 h-3.5" /> 답변 템플릿
                 </p>
                 <button
                   onClick={() => setShowTemplateModal(true)}
                   className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-brand-600 transition-all duration-200 px-2 py-1 rounded-lg hover:bg-white"
                 >
-                  <Settings className="w-3.5 h-3.5" /> MANAGE
+                  <Settings className="w-3.5 h-3.5" /> 관리
                 </button>
               </div>
               <div className="flex gap-2 flex-wrap">
@@ -624,7 +624,7 @@ export default function AdminInboxPage() {
                   className="h-14 px-6 bg-brand-600 text-white text-sm font-bold rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-brand-500 transition-all duration-200 disabled:opacity-40 shadow-lg shadow-brand-100 shrink-0 group"
                 >
                   <Send className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  <span className="text-[10px] uppercase tracking-tighter">Send</span>
+                  <span className="text-[10px] uppercase tracking-tighter">전송</span>
                 </button>
               </div>
             </div>

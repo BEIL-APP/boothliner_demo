@@ -337,7 +337,7 @@ export default function AdminBoothDetailPage() {
 
   return (
     <AdminLayout>
-      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-5xl">
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 lg:mb-8">
           <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -909,14 +909,14 @@ export default function AdminBoothDetailPage() {
               className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 w-full sm:w-auto"
             >
               <FileDown className="w-4 h-4 text-gray-500" />
-              통계 CSV Export
+              통계 CSV 내보내기
             </button>
             <button
               onClick={handleExportThreadsCSV}
               className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 w-full sm:w-auto"
             >
               <FileDown className="w-4 h-4 text-gray-500" />
-              문의 CSV Export
+              문의 CSV 내보내기
             </button>
           </div>
           <p className="text-xs text-gray-400 mt-3">

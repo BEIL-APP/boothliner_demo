@@ -103,7 +103,7 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminLayout>
-      <div className="px-4 py-5 sm:p-6 lg:p-8">
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 lg:mb-8">
           <div>
@@ -115,7 +115,7 @@ export default function AdminDashboardPage() {
             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 h-10 rounded-lg px-4 text-[13px] font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-150"
           >
             <Download className="w-4 h-4 text-gray-400" />
-            전체 CSV Export
+            전체 CSV 내보내기
           </button>
         </div>
 

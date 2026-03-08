@@ -119,7 +119,7 @@ export default function AdminLeadsScanPage() {
 
   return (
     <AdminLayout>
-      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-2xl">
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6 lg:mb-8">
           <Link
