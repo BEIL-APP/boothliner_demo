@@ -235,7 +235,7 @@ export default function BoothPage() {
       createdAt: new Date().toISOString(),
     });
     setEmailInfoSent(true);
-    showToast('자료 발송 완료! 잠시 후 메일을 확인해주세요.', 'success');
+    showToast('신청이 완료되었습니다.', 'success');
   };
 
   const handleCloseEmailInfo = () => {
@@ -433,7 +433,7 @@ export default function BoothPage() {
                 className="w-full flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-150"
               >
                 <Mail className="w-4 h-4" />
-                이메일로 자료 받기
+                프로모션 소식 받기
               </button>
             </div>
           </div>
@@ -662,13 +662,13 @@ export default function BoothPage() {
             </button>
           </div>
 
-          {/* 이메일로 자료 받기 — mobile only; 7th */}
+          {/* 프로모션 소식 받기 — mobile only; 7th */}
           <button
             onClick={() => setShowEmailInfo(true)}
             className="md:hidden w-full flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-150"
           >
             <Mail className="w-4 h-4" />
-            이메일로 자료 받기
+            프로모션 소식 받기
           </button>
 
           {/* FAQ — md: left col row 3; mobile: 8th */}
@@ -874,19 +874,19 @@ export default function BoothPage() {
       </Modal>
 
       {/* ═══ Email Info Modal ═══ */}
-      <Modal open={showEmailInfo} onClose={handleCloseEmailInfo} title="이메일로 자료 받기">
+      <Modal open={showEmailInfo} onClose={handleCloseEmailInfo} title="프로모션 소식 받기">
         {emailInfoSent ? (
           <div className="text-center py-4">
             <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center mx-auto mb-3">
               <CheckCircle className="w-7 h-7 text-emerald-600" />
             </div>
-            <p className="font-medium text-gray-900 mb-1">발송 완료!</p>
-            <p className="text-sm text-gray-500 mb-5">{emailInfoAddr}으로 카탈로그를 보내드렸어요. (데모)</p>
+            <p className="font-medium text-gray-900 mb-1">신청 완료!</p>
+            <p className="text-sm text-gray-500 mb-5">프로모션 소식 수신 동의가 완료되었습니다.</p>
             <button onClick={handleCloseEmailInfo} className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150">확인</button>
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-500 mb-4">{booth.name}의 카탈로그와 제품 소개 자료를 이메일로 보내드릴게요.</p>
+            <p className="text-sm text-gray-500 mb-4">이벤트/프로모션 정보를 이메일로 보내드려요. (선택 수신)</p>
             <div className="mb-4">
               <label className="block text-xs font-medium text-gray-600 mb-1.5">이메일 주소</label>
               <input type="email" value={emailInfoAddr} onChange={(e) => setEmailInfoAddr(e.target.value)}
@@ -899,7 +899,7 @@ export default function BoothPage() {
             </label>
             <button onClick={handleSendEmailInfo} disabled={!emailInfoAddr.includes('@') || !emailInfoConsent}
               className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
-              자료 받기
+              신청하기
             </button>
           </>
         )}
