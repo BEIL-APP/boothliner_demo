@@ -498,17 +498,22 @@ export default function BoothPage() {
             <div className="order-3 md:order-none bg-white border border-gray-200/60 rounded-xl p-5 md:p-6">
               <h2 className="text-sm font-semibold text-gray-900 mb-3">회사 소개</h2>
               <p className="text-sm text-gray-600 leading-relaxed">{booth.description}</p>
-              {(booth.descriptionImages ?? []).length > 0 && (
-                <div className="flex gap-2 mt-4 overflow-x-auto pb-1 scrollbar-hide">
+            </div>
+
+            {/* 제품 갤러리 — mobile order: 4 */}
+            {(booth.descriptionImages ?? []).length > 0 && (
+              <div className="order-4 md:order-none bg-white border border-gray-200/60 rounded-xl p-5 md:p-6">
+                <h2 className="text-sm font-semibold text-gray-900 mb-3">제품 갤러리</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {(booth.descriptionImages ?? []).map((src, i) => (
                     <button
                       key={i}
                       onClick={() => setLightboxIndex(i)}
-                      className="shrink-0 w-24 h-16 rounded-lg overflow-hidden border border-gray-200 hover:border-brand-400 hover:shadow-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-brand-300"
+                      className="relative aspect-[4/3] rounded-lg overflow-hidden border border-gray-200 hover:border-brand-400 hover:shadow-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-brand-300"
                     >
                       <img
                         src={src}
-                        alt={`${booth.name} 소개 이미지 ${i + 1}`}
+                        alt={`${booth.name} 제품 이미지 ${i + 1}`}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src =
@@ -518,8 +523,8 @@ export default function BoothPage() {
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Lightbox (fixed position — no layout impact) */}
             {lightboxIndex !== null && (
@@ -551,7 +556,7 @@ export default function BoothPage() {
                 )}
                 <img
                   src={(booth.descriptionImages ?? [])[lightboxIndex]}
-                  alt={`${booth.name} 소개 이미지 ${lightboxIndex + 1}`}
+                  alt={`${booth.name} 제품 이미지 ${lightboxIndex + 1}`}
                   className="max-w-full max-h-[85vh] object-contain rounded-lg"
                   onClick={(e) => e.stopPropagation()}
                 />
@@ -567,9 +572,9 @@ export default function BoothPage() {
               </div>
             )}
 
-            {/* FAQ — mobile order: 8 */}
+            {/* FAQ — mobile order: 9 */}
             {booth.faq.length > 0 && (
-              <div className="order-8 md:order-none bg-white border border-gray-200/60 rounded-xl p-5 md:p-6">
+              <div className="order-9 md:order-none bg-white border border-gray-200/60 rounded-xl p-5 md:p-6">
                 <h2 className="text-sm font-semibold text-gray-900 mb-3">자주 묻는 질문</h2>
                 <div className="space-y-2">
                   {booth.faq.map((item, i) => (
@@ -643,9 +648,9 @@ export default function BoothPage() {
               )}
             </div>
 
-            {/* 첨부 자료 — mobile order: 4 */}
+            {/* 첨부 자료 — mobile order: 5 */}
             {attachments.length > 0 && (
-              <div className="order-4 md:order-none bg-white border border-gray-200/60 rounded-xl p-5">
+              <div className="order-5 md:order-none bg-white border border-gray-200/60 rounded-xl p-5">
                 <h2 className="text-sm font-semibold text-gray-900 mb-3">첨부 자료</h2>
                 <div className="space-y-2">
                   {attachments.map((att) => (
@@ -667,18 +672,18 @@ export default function BoothPage() {
               </div>
             )}
 
-            {/* 프로모션 소식 받기 — mobile only, order: 5 */}
+            {/* 프로모션 소식 받기 — mobile only, order: 6 */}
             <button
               onClick={() => setShowEmailInfo(true)}
-              className="order-5 md:hidden w-full flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-150"
+              className="order-6 md:hidden w-full flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-150"
             >
               <Mail className="w-4 h-4" />
               프로모션 소식 받기
             </button>
 
-            {/* 링크 — mobile order: 6 */}
+            {/* 링크 — mobile order: 7 */}
             {(booth.links.instagram || booth.links.store || booth.links.site) && (
-              <div className="order-6 md:order-none bg-white border border-gray-200/60 rounded-xl p-5">
+              <div className="order-7 md:order-none bg-white border border-gray-200/60 rounded-xl p-5">
                 <h2 className="text-sm font-semibold text-gray-900 mb-3">링크</h2>
                 <div className="space-y-1.5">
                   {booth.links.instagram && (
@@ -706,8 +711,8 @@ export default function BoothPage() {
               </div>
             )}
 
-            {/* 1분 설문 — mobile order: 7 */}
-            <div className="order-7 md:order-none bg-white border border-gray-200/60 rounded-xl p-5">
+            {/* 1분 설문 — mobile order: 8 */}
+            <div className="order-8 md:order-none bg-white border border-gray-200/60 rounded-xl p-5">
               <div className="flex items-center gap-2 mb-1.5">
                 <ClipboardList className="w-4 h-4 text-gray-500" />
                 <span className="text-sm font-semibold text-gray-900">1분 설문 참여</span>
