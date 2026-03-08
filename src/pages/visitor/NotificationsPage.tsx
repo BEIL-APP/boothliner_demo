@@ -28,41 +28,45 @@ export default function NotificationsPage() {
     <div className="min-h-screen bg-gray-50">
       <VisitorHeader />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-20">
-        <h1 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">알림</h1>
-        <p className="text-[13px] sm:text-sm text-gray-500 mb-5">이 기기에서 받은 알림 내역이에요</p>
+      <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 pb-24">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-2">알림</h1>
+        <p className="text-sm sm:text-base text-gray-500 font-medium mb-8">이 기기에서 받은 새로운 소식들을 확인하세요</p>
 
         {notifications.length === 0 ? (
-          <div className="text-center py-16">
-            <Bell className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-400">아직 알림이 없어요</p>
-            <p className="text-xs text-gray-300 mt-1">
+          <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Bell className="w-8 h-8 text-gray-200" />
+            </div>
+            <p className="text-base text-gray-500 font-bold">아직 알림이 없어요</p>
+            <p className="text-sm text-gray-400 mt-1 font-medium">
               문의 답변이 오면 여기서 알려드릴게요
             </p>
           </div>
         ) : (
-          <div className="max-w-2xl space-y-2">
+          <div className="max-w-2xl space-y-3">
             {notifications.map((n) => (
               <Link
                 key={n.id}
                 to={n.threadId ? '/messages' : (n.boothId ? `/scan/${n.boothId}` : '#')}
-                className="flex items-start gap-3 bg-white border border-gray-200/60 rounded-xl p-3 hover:border-gray-300 transition-all duration-150"
+                className="flex items-start gap-4 bg-white border border-gray-200/60 rounded-2xl p-4 hover:border-brand-200 hover:shadow-card-hover transition-all duration-200 shadow-sm group"
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                  n.type === 'reply' ? 'bg-brand-50' : 'bg-gray-100'
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform ${
+                  n.type === 'reply' ? 'bg-brand-50' : 'bg-gray-50'
                 }`}>
                   {n.type === 'reply' ? (
-                    <MessageSquare className="w-4 h-4 text-brand-600" />
+                    <MessageSquare className="w-5 h-5 text-brand-600" />
                   ) : (
-                    <Info className="w-4 h-4 text-gray-500" />
+                    <Info className="w-5 h-5 text-gray-400" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 leading-tight">{n.title}</p>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed line-clamp-2">{n.body}</p>
-                  <p className="text-xs text-gray-300 mt-1.5">{formatTime(n.createdAt)}</p>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-[15px] font-bold text-gray-900 leading-tight group-hover:text-brand-600 transition-colors">{n.title}</p>
+                    <p className="text-[11px] font-bold text-gray-300 uppercase tracking-tight ml-3 shrink-0">{formatTime(n.createdAt)}</p>
+                  </div>
+                  <p className="text-sm text-gray-500 font-medium leading-relaxed line-clamp-2">{n.body}</p>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-300 shrink-0 mt-1" />
+                <ArrowRight className="w-4 h-4 text-gray-300 shrink-0 mt-1 group-hover:text-brand-500 group-hover:translate-x-0.5 transition-all" />
               </Link>
             ))}
           </div>
