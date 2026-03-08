@@ -13,6 +13,7 @@ import {
   Filter,
   PhoneCall,
   ArrowRight,
+  ChevronDown,
 } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { useBooths } from '../../hooks/useBooths';
@@ -121,33 +122,33 @@ export default function AdminLeadsPage() {
 
   return (
     <AdminLayout>
-      <div className="px-4 py-5 sm:p-6 lg:p-8">
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 lg:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 lg:mb-10">
           <div>
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">리드 목록</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              문의 동의 · 명함 스캔 · 이메일 수신 신청 · 설문 응답 기반
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">리드 목록</h1>
+            <p className="text-sm sm:text-base text-gray-500 font-medium mt-1">
+              수집된 잠재 고객 데이터를 관리하고 필터링하세요
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => { exportLeadsCSV(filtered); showToast('리드 CSV가 다운로드됐어요!', 'success'); }}
-              className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 flex-1 sm:flex-none"
+              className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-10 px-4 text-[13px] font-bold rounded-xl transition-all duration-200 shadow-sm"
             >
-              <FileDown className="w-4 h-4" />
+              <FileDown className="w-4 h-4 text-gray-400" />
               CSV 내보내기
             </button>
             <button
               onClick={handleLottery}
-              className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 flex-1 sm:flex-none"
+              className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-10 px-4 text-[13px] font-bold rounded-xl transition-all duration-200 shadow-sm"
             >
-              <Dice5 className="w-4 h-4" />
+              <Dice5 className="w-4 h-4 text-gray-400" />
               명함 추첨
             </button>
             <Link
               to="/admin/leads/scan"
-              className="flex items-center justify-center gap-1.5 bg-brand-600 text-white hover:bg-brand-500 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 flex-1 sm:flex-none"
+              className="flex items-center justify-center gap-2 bg-brand-600 text-white hover:bg-brand-500 h-10 px-5 text-[13px] font-bold rounded-xl transition-all duration-200 shadow-lg shadow-brand-100"
             >
               <ScanLine className="w-4 h-4" />
               명함 스캔
@@ -156,174 +157,207 @@ export default function AdminLeadsPage() {
         </div>
 
         {/* Source stat chips */}
-        <div className="flex overflow-x-auto gap-2 pb-2 mb-4 sm:mb-6 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible sm:pb-0">
-          <div className="flex items-center gap-1.5 text-xs bg-white border border-gray-200/60 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 shrink-0">
-            <Users className="w-3.5 h-3.5 text-gray-400" />
-            <span className="text-gray-600 font-medium">전체</span>
-            <span className="font-semibold text-gray-900">{leads.length}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
+          <div className="flex flex-col gap-1 bg-white border border-gray-200/60 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
+            <div className="flex items-center justify-between">
+              <Users className="w-4 h-4 text-gray-400" />
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total</span>
+            </div>
+            <p className="text-xl font-bold text-gray-900 mt-1">{leads.length}</p>
+            <p className="text-[11px] font-bold text-gray-500 uppercase">전체 리드</p>
           </div>
           {(['bizcard', 'inquiry', 'email_info', 'survey'] as Lead['source'][]).map((src) => (
-            <div key={src} className="flex items-center gap-1.5 text-xs bg-white border border-gray-200/60 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 shrink-0">
-              <span className="text-gray-400">{SOURCE_ICONS[src]}</span>
-              <span className="text-gray-600">{SOURCE_LABELS[src]}</span>
-              <span className="font-semibold text-gray-900">{countBySource(src)}</span>
+            <div key={src} className="flex flex-col gap-1 bg-white border border-gray-200/60 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">{SOURCE_ICONS[src]}</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{src.split('_')[0]}</span>
+              </div>
+              <p className="text-xl font-bold text-gray-900 mt-1">{countBySource(src)}</p>
+              <p className="text-[11px] font-bold text-gray-500 uppercase">{SOURCE_LABELS[src]}</p>
             </div>
           ))}
         </div>
 
         {/* Follow-up section */}
         {followUpLeads.length > 0 && (
-          <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-5 mb-4 sm:mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <PhoneCall className="w-4 h-4 text-brand-500" />
-              <h2 className="text-sm font-semibold text-gray-900">팔로업 필요</h2>
-              <span className="text-xs text-gray-500 bg-gray-100 rounded-md px-2 h-5 flex items-center">
-                {followUpLeads.length}건
+          <div className="bg-white border border-brand-100 rounded-2xl p-5 sm:p-6 mb-8 shadow-sm group">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 bg-brand-50 rounded-xl flex items-center justify-center">
+                  <PhoneCall className="w-4.5 h-4.5 text-brand-600" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-gray-900">팔로업 우선순위</h2>
+                  <p className="text-xs text-gray-500 font-medium">빠른 연락이 필요한 신규 리드입니다</p>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md uppercase">
+                {followUpLeads.length} Urgent
               </span>
             </div>
             <div className="space-y-2">
               {followUpLeads.map((lead) => (
-                <div key={lead.id} className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 py-2 border-b border-gray-100 last:border-0">
-                  <span className={`h-5 px-1.5 rounded text-[10px] font-medium inline-flex items-center ${STATUS_COLORS[lead.status ?? 'NEW']}`}>
+                <div key={lead.id} className="flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all group/item">
+                  <span className={`h-6 px-2 rounded-lg text-[10px] font-bold uppercase tracking-tight flex items-center shrink-0 ${STATUS_COLORS[lead.status ?? 'NEW']}`}>
                     {STATUS_LABELS[lead.status ?? 'NEW']}
                   </span>
-                  <span className="text-sm font-medium text-gray-900 truncate">{lead.name ?? lead.email ?? '이름 없음'}</span>
-                  {lead.company && <span className="text-xs text-gray-400 hidden sm:inline">{lead.company}</span>}
-                  <span className="text-xs text-gray-400 ml-auto shrink-0">{boothMap[lead.boothId] ?? lead.boothId}</span>
-                  <select
-                    value={lead.status ?? 'NEW'}
-                    onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                    className="h-7 text-xs bg-white border border-gray-200 rounded-md px-1.5 outline-none focus:ring-2 focus:ring-brand-200 text-gray-600 shrink-0"
-                  >
-                    {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
-                      <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                    ))}
-                  </select>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-900 truncate">{lead.name ?? lead.email ?? '이름 없음'}</p>
+                    <p className="text-xs text-gray-400 font-medium truncate mt-0.5">{lead.company ?? '소속 미정'} · {boothMap[lead.boothId] ?? lead.boothId}</p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <select
+                      value={lead.status ?? 'NEW'}
+                      onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
+                      className="h-8 text-[11px] font-bold bg-white border border-gray-200 rounded-lg px-2 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 text-gray-600 cursor-pointer shadow-sm"
+                    >
+                      {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
+                        <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               ))}
             </div>
-            <Link
-              to="/admin/leads"
-              onClick={() => setFilterStatus('NEW')}
-              className="mt-3 text-xs text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1 transition-colors"
-            >
-              신규 리드 전체 보기 <ArrowRight className="w-3 h-3" />
-            </Link>
+            <div className="mt-5 pt-4 border-t border-gray-50 flex justify-center">
+              <button
+                onClick={() => setFilterStatus('NEW')}
+                className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 transition-colors group/btn"
+              >
+                신규 리드 전체 보기 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         )}
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:mb-6">
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <div className="flex flex-col md:flex-row gap-3 mb-6">
+          <div className="relative flex-1 group">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 group-focus-within:text-brand-500 transition-colors" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="이름, 회사, 이메일 검색"
-              className="w-full h-9 text-sm bg-white border border-gray-200 rounded-lg pl-9 pr-4 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+              placeholder="고객 이름, 회사명, 이메일로 검색..."
+              className="w-full h-11 bg-white border border-gray-200 rounded-xl pl-10 pr-4 text-sm outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all placeholder:text-gray-400 shadow-sm"
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400 shrink-0 hidden sm:block" />
-            <select
-              value={filterSource}
-              onChange={(e) => setFilterSource(e.target.value as Lead['source'] | 'all')}
-              className="h-9 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all flex-1 sm:flex-none"
-            >
-              <option value="all">전체 유형</option>
-              <option value="bizcard">명함 스캔</option>
-              <option value="inquiry">문의 동의</option>
-              <option value="email_info">이메일 수신</option>
-              <option value="survey">설문</option>
-            </select>
-            <select
-              value={filterBooth}
-              onChange={(e) => setFilterBooth(e.target.value)}
-              className="h-9 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all flex-1 sm:flex-none"
-            >
-              <option value="all">전체 부스</option>
-              {booths.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as LeadStatus | 'all')}
-              className="h-9 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all flex-1 sm:flex-none"
-            >
-              <option value="all">전체 상태</option>
-              {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
-                <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-              ))}
-            </select>
+            <div className="relative flex-1 sm:flex-none">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+              <select
+                value={filterSource}
+                onChange={(e) => setFilterSource(e.target.value as Lead['source'] | 'all')}
+                className="w-full h-11 text-xs font-bold bg-white border border-gray-200 rounded-xl pl-8 pr-8 appearance-none outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all shadow-sm cursor-pointer"
+              >
+                <option value="all">전체 수집 유형</option>
+                <option value="bizcard">명함 스캔</option>
+                <option value="inquiry">문의 동의</option>
+                <option value="email_info">이메일 수신</option>
+                <option value="survey">설문 응답</option>
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
+            <div className="relative flex-1 sm:flex-none">
+              <select
+                value={filterBooth}
+                onChange={(e) => setFilterBooth(e.target.value)}
+                className="w-full h-11 text-xs font-bold bg-white border border-gray-200 rounded-xl px-4 pr-8 appearance-none outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all shadow-sm cursor-pointer"
+              >
+                <option value="all">전체 부스</option>
+                {booths.map((b) => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
+            <div className="relative flex-1 sm:flex-none">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value as LeadStatus | 'all')}
+                className="w-full h-11 text-xs font-bold bg-white border border-gray-200 rounded-xl px-4 pr-8 appearance-none outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all shadow-sm cursor-pointer"
+              >
+                <option value="all">전체 리드 상태</option>
+                {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
+                  <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
           </div>
         </div>
 
         {/* Lead Table */}
-        <div className="bg-white rounded-xl border border-gray-200/60 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-200/60 overflow-hidden shadow-sm">
           {filtered.length === 0 ? (
-            <div className="py-16 text-center">
-              <Users className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-              <p className="text-sm text-gray-400">조건에 맞는 리드가 없어요</p>
+            <div className="py-20 text-center">
+              <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-gray-200" />
+              </div>
+              <p className="text-base text-gray-500 font-bold">조건에 맞는 리드가 없습니다</p>
+              <p className="text-sm text-gray-400 mt-1 font-medium">필터를 변경하거나 검색어를 확인해 보세요</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[700px]">
+              <table className="w-full min-w-[900px]">
                 <thead>
-                  <tr className="bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <th className="text-left px-3 py-2.5 sm:px-5 sm:py-3">이름 / 이메일</th>
-                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">회사</th>
-                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">전화</th>
-                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">유형</th>
-                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">상태</th>
-                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">부스</th>
-                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">메모</th>
-                    <th className="text-left px-3 py-2.5 sm:px-4 sm:py-3">수집일</th>
-                    <th className="px-3 py-2.5 sm:px-4 sm:py-3" />
+                  <tr className="bg-gray-50/50 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
+                    <th className="text-left px-6 py-4">고객 정보</th>
+                    <th className="text-left px-4 py-4">소속</th>
+                    <th className="text-left px-4 py-4">연락처</th>
+                    <th className="text-left px-4 py-4">수집 경로</th>
+                    <th className="text-left px-4 py-4">상태</th>
+                    <th className="text-left px-4 py-4">부스</th>
+                    <th className="text-left px-4 py-4">수집일</th>
+                    <th className="px-6 py-4" />
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-gray-50">
                   {filtered.map((lead) => (
-                    <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                      <td className="px-3 py-2.5 sm:px-5 sm:py-3.5">
-                        <p className="text-sm font-medium text-gray-800">{lead.name ?? '-'}</p>
-                        <p className="text-xs text-gray-400">{lead.email ?? '-'}</p>
+                    <tr key={lead.id} className="hover:bg-gray-50/50 transition-colors group">
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-bold text-gray-900">{lead.name ?? '-'}</p>
+                        <p className="text-xs text-gray-400 font-medium">{lead.email ?? '-'}</p>
                       </td>
-                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5 text-sm text-gray-600">{lead.company ?? '-'}</td>
-                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5 text-xs text-gray-500 font-mono">{lead.phone ?? '-'}</td>
-                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5">
-                        <span className={`h-6 px-2 rounded-md text-xs font-medium inline-flex items-center gap-1 ${SOURCE_COLORS[lead.source]}`}>
+                      <td className="px-4 py-4">
+                        <p className="text-sm text-gray-700 font-medium">{lead.company ?? '-'}</p>
+                      </td>
+                      <td className="px-4 py-4">
+                        <p className="text-xs text-gray-500 font-mono tracking-tighter">{lead.phone ?? '-'}</p>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className={`h-6 px-2 rounded-lg text-[10px] font-bold uppercase tracking-tight inline-flex items-center gap-1.5 ${SOURCE_COLORS[lead.source]}`}>
                           {SOURCE_ICONS[lead.source]}
                           {SOURCE_LABELS[lead.source]}
                         </span>
                       </td>
-                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5">
+                      <td className="px-4 py-4">
                         <select
                           value={lead.status ?? 'NEW'}
                           onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                          className={`h-6 text-xs font-medium rounded-md px-1.5 border-0 outline-none cursor-pointer ${STATUS_COLORS[lead.status ?? 'NEW']}`}
+                          className={`h-7 text-[11px] font-bold uppercase rounded-lg px-2 border-0 outline-none cursor-pointer shadow-sm transition-all hover:brightness-95 ${STATUS_COLORS[lead.status ?? 'NEW']}`}
                         >
                           {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
                             <option key={s} value={s}>{STATUS_LABELS[s]}</option>
                           ))}
                         </select>
                       </td>
-                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5 text-sm text-gray-600">
-                        {boothMap[lead.boothId] ?? lead.boothId}
+                      <td className="px-4 py-4">
+                        <p className="text-xs font-bold text-gray-500 truncate max-w-[120px]">
+                          {boothMap[lead.boothId] ?? lead.boothId}
+                        </p>
                       </td>
-                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5 text-xs text-gray-500 max-w-[180px] truncate">
-                        {lead.memo || '-'}
+                      <td className="px-4 py-4">
+                        <p className="text-[11px] font-bold text-gray-400 uppercase">
+                          {new Date(lead.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </p>
                       </td>
-                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5 text-xs text-gray-400">
-                        {new Date(lead.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
-                      </td>
-                      <td className="px-3 py-2.5 sm:px-4 sm:py-3.5">
+                      <td className="px-6 py-4 text-right">
                         <button
                           onClick={() => handleDelete(lead.id)}
-                          className="p-1.5 text-gray-300 hover:text-red-400 rounded-md hover:bg-red-50 transition-all duration-150"
+                          className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
@@ -337,35 +371,43 @@ export default function AdminLeadsPage() {
 
       {/* Lottery modal */}
       {showLottery && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 sm:p-5">
-          <div className="bg-white rounded-xl p-5 sm:p-6 max-w-sm w-full text-center shadow-xl animate-in fade-in zoom-in-95 duration-150">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">추첨 결과</h2>
-            <p className="text-sm text-gray-500 mb-6">
-              {filtered.length}명 중 1명이 선택됐어요
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 sm:p-5 animate-fade-in">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl animate-scale-in border border-gray-100">
+            <div className="w-20 h-20 bg-brand-50 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+              <Dice5 className="w-10 h-10 text-brand-600 animate-pulse" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">럭키 드로우 결과</h2>
+            <p className="text-sm text-gray-500 font-medium mb-8 leading-relaxed">
+              총 <span className="text-brand-600 font-bold">{filtered.length}명</span>의 리드 중에서<br />운 좋게 선택된 당첨자입니다!
             </p>
+            
             {lotteryWinner && (
-              <div className="bg-gray-50 border border-gray-200/60 rounded-xl p-4 sm:p-5 mb-6 text-left">
-                <p className="text-base font-semibold text-gray-900 mb-1">
-                  {lotteryWinner.name ?? '이름 미상'}
+              <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 mb-8 text-left shadow-inner relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-brand-500/5 rounded-full -translate-y-8 translate-x-8" />
+                <p className="text-[11px] font-bold text-brand-600 uppercase tracking-widest mb-2">Winner Details</p>
+                <p className="text-lg font-bold text-gray-900 mb-1">
+                  {lotteryWinner.name ?? '이름 정보 없음'}
                 </p>
                 {lotteryWinner.company && (
-                  <p className="text-sm text-gray-600">{lotteryWinner.company}</p>
+                  <p className="text-sm text-gray-600 font-medium">{lotteryWinner.company}</p>
                 )}
-                {lotteryWinner.email && (
-                  <p className="text-xs text-gray-500 mt-1">{lotteryWinner.email}</p>
-                )}
+                <div className="mt-4 pt-4 border-t border-gray-200/60 flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5 text-gray-400" />
+                  <p className="text-xs text-gray-500 font-medium truncate">{lotteryWinner.email ?? '이메일 미제공'}</p>
+                </div>
               </div>
             )}
+
             <div className="flex gap-3">
               <button
                 onClick={handleLottery}
-                className="flex-1 h-9 bg-white border border-gray-200 text-gray-700 text-[13px] font-medium rounded-lg flex items-center justify-center hover:bg-gray-50 transition-all duration-150"
+                className="flex-1 h-12 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-2xl flex items-center justify-center hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
               >
                 다시 추첨
               </button>
               <button
                 onClick={() => { setShowLottery(false); setLotteryWinner(null); }}
-                className="flex-1 h-9 bg-brand-600 text-white text-[13px] font-medium rounded-lg flex items-center justify-center hover:bg-brand-500 transition-all duration-150"
+                className="flex-1 h-12 bg-brand-600 text-white text-sm font-bold rounded-2xl flex items-center justify-center hover:bg-brand-500 transition-all shadow-lg shadow-brand-100"
               >
                 확인
               </button>

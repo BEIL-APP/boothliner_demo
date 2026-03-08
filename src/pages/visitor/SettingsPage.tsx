@@ -18,7 +18,13 @@ import {
 import { VisitorHeader } from '../../components/VisitorHeader';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
-import { getConsentWithdrawals, requestConsentWithdrawal, retryFailedNotifications, getFailedNotificationCount } from '../../utils/localStorage';
+import {
+  getConsentWithdrawals,
+  requestConsentWithdrawal,
+  retryFailedNotifications,
+  getFailedNotificationCount,
+  deleteMyData,
+} from '../../utils/localStorage';
 import type { ConsentWithdrawal } from '../../types';
 
 interface VisitorProfile {
@@ -45,10 +51,12 @@ const STORAGE_KEY_PROFILE = 'visitor_profile';
 const STORAGE_KEY_NOTIFICATIONS = 'visitor_notification_settings';
 const STORAGE_KEY_INTERESTS = 'visitor_interests';
 
-function loadJSON<T>(key: string, fallback: T): T {
+function loadJSON<T extends object>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return { ...fallback, ...parsed };
   } catch {
     return fallback;
   }
@@ -61,19 +69,19 @@ function Toggle({ checked, onChange, label, description }: {
   description?: string;
 }) {
   return (
-    <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+    <div className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
       <div className="pr-4">
-        <p className="text-sm font-medium text-gray-800">{label}</p>
-        {description && <p className="text-xs text-gray-400 mt-0.5">{description}</p>}
+        <p className="text-sm font-bold text-gray-800">{label}</p>
+        {description && <p className="text-xs text-gray-500 font-medium mt-1">{description}</p>}
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className={`relative w-10 h-[22px] rounded-full transition-colors duration-150 shrink-0 ${
-          checked ? 'bg-brand-600' : 'bg-gray-200'
+        className={`relative w-11 h-6 rounded-full transition-all duration-200 shrink-0 ${
+          checked ? 'bg-brand-600 shadow-lg shadow-brand-100' : 'bg-gray-200'
         }`}
       >
-        <span className={`absolute top-[3px] w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-150 ${
-          checked ? 'left-[22px]' : 'left-[3px]'
+        <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-200 ${
+          checked ? 'left-6' : 'left-1'
         }`} />
       </button>
     </div>
@@ -141,11 +149,7 @@ export default function SettingsPage() {
   };
 
   const handleDeleteData = () => {
-    const keys = [
-      'bep_favorites', 'bep_visits', 'bep_threads', 'bep_notifications',
-      STORAGE_KEY_PROFILE, STORAGE_KEY_NOTIFICATIONS, STORAGE_KEY_INTERESTS,
-    ];
-    keys.forEach((k) => localStorage.removeItem(k));
+    deleteMyData();
     showToast('모든 데이터가 삭제됐어요', 'info');
     setShowDeleteConfirm(false);
     setProfile({ name: '', email: '', company: '', position: '' });

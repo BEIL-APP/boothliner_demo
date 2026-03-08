@@ -45,10 +45,13 @@ const STORAGE_KEY_PROFILE = 'admin_profile';
 const STORAGE_KEY_NOTIFICATIONS = 'admin_notification_settings';
 const STORAGE_KEY_OPERATIONS = 'admin_operation_settings';
 
-function loadJSON<T>(key: string, fallback: T): T {
+function loadJSON<T extends object>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed !== 'object' || parsed === null) return fallback;
+    return { ...fallback, ...parsed };
   } catch {
     return fallback;
   }
@@ -61,19 +64,19 @@ function Toggle({ checked, onChange, label, description }: {
   description?: string;
 }) {
   return (
-    <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+    <div className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
       <div className="pr-4">
-        <p className="text-sm font-medium text-gray-800">{label}</p>
-        {description && <p className="text-xs text-gray-400 mt-0.5">{description}</p>}
+        <p className="text-sm font-bold text-gray-800">{label}</p>
+        {description && <p className="text-xs text-gray-500 font-medium mt-1">{description}</p>}
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className={`relative w-10 h-[22px] rounded-full transition-colors duration-150 shrink-0 ${
-          checked ? 'bg-brand-600' : 'bg-gray-200'
+        className={`relative w-11 h-6 rounded-full transition-all duration-200 shrink-0 ${
+          checked ? 'bg-brand-600 shadow-lg shadow-brand-100' : 'bg-gray-200'
         }`}
       >
-        <span className={`absolute top-[3px] w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-150 ${
-          checked ? 'left-[22px]' : 'left-[3px]'
+        <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-200 ${
+          checked ? 'left-6' : 'left-1'
         }`} />
       </button>
     </div>
@@ -143,285 +146,293 @@ export default function AdminSettingsPage() {
 
   return (
     <AdminLayout>
-      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-3xl">
-        <div className="mb-6 lg:mb-8">
-          <h1 className="text-xl font-semibold text-gray-900">설정</h1>
-          <p className="text-sm text-gray-500 mt-1">프로필, 알림, 부스 운영 설정을 관리하세요</p>
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-4xl mx-auto">
+        <div className="mb-8 lg:mb-10">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">관리자 설정</h1>
+          <p className="text-sm sm:text-base text-gray-500 font-medium mt-1">프로필 정보 및 서비스 운영 환경을 구성하세요</p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 sm:space-y-8">
           {/* ─── Profile ─── */}
-          <section className="bg-white border border-gray-200/60 rounded-xl">
-            <div className="px-5 py-4 sm:px-6 border-b border-gray-100 flex items-center gap-2.5">
-              <User className="w-4 h-4 text-gray-400" />
-              <h2 className="text-sm font-semibold text-gray-900">프로필</h2>
+          <section className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden transition-all hover:border-brand-200">
+            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                <User className="w-4.5 h-4.5 text-gray-400" />
+              </div>
+              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">운영자 프로필</h2>
             </div>
-            <div className="p-5 sm:p-6 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="p-6 sm:p-8 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-                    <span className="inline-flex items-center gap-1"><User className="w-3 h-3" /> 이름</span>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                    <span className="inline-flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> 운영자 성함</span>
                   </label>
                   <input
                     type="text"
                     value={profile.name}
                     onChange={(e) => handleProfileField('name', e.target.value)}
-                    className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                    className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white transition-all shadow-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-                    <span className="inline-flex items-center gap-1"><Mail className="w-3 h-3" /> 이메일</span>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                    <span className="inline-flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> 이메일 주소</span>
                   </label>
                   <input
                     type="email"
                     value={profile.email}
                     onChange={(e) => handleProfileField('email', e.target.value)}
-                    className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                    className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white transition-all shadow-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-                    <span className="inline-flex items-center gap-1"><Phone className="w-3 h-3" /> 연락처</span>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                    <span className="inline-flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> 비상 연락처</span>
                   </label>
                   <input
                     type="tel"
                     value={profile.phone}
                     onChange={(e) => handleProfileField('phone', e.target.value)}
-                    className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                    className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white transition-all shadow-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-                    <span className="inline-flex items-center gap-1"><Briefcase className="w-3 h-3" /> 직책</span>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                    <span className="inline-flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5" /> 담당 부서/직책</span>
                   </label>
                   <input
                     type="text"
                     value={profile.position}
                     onChange={(e) => handleProfileField('position', e.target.value)}
-                    className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                    className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white transition-all shadow-sm"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-                  <span className="inline-flex items-center gap-1"><Building2 className="w-3 h-3" /> 소속</span>
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                  <span className="inline-flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5" /> 소속 회사/기관</span>
                 </label>
                 <input
                   type="text"
                   value={profile.company}
                   onChange={(e) => handleProfileField('company', e.target.value)}
-                  className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                  className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white transition-all shadow-sm"
                 />
               </div>
               <div className="pt-2">
                 <button
                   onClick={() => saveSection('profile', STORAGE_KEY_PROFILE, profile)}
                   disabled={saving === 'profile'}
-                  className="h-9 px-4 bg-brand-600 text-white text-[13px] font-medium rounded-lg hover:bg-brand-500 transition-all duration-150 disabled:opacity-50 inline-flex items-center gap-1.5 w-full sm:w-auto"
+                  className="h-11 px-6 bg-brand-600 text-white text-sm font-bold rounded-xl hover:bg-brand-500 transition-all duration-200 disabled:opacity-50 inline-flex items-center gap-2 w-full sm:w-auto shadow-lg shadow-brand-100"
                 >
-                  {saving === 'profile' ? <CheckCircle className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
-                  {saving === 'profile' ? '저장됨' : '프로필 저장'}
+                  {saving === 'profile' ? <CheckCircle className="w-4.5 h-4.5" /> : <Save className="w-4.5 h-4.5" />}
+                  {saving === 'profile' ? '프로필 저장됨' : '프로필 정보 저장'}
                 </button>
               </div>
             </div>
           </section>
 
           {/* ─── Notification Settings ─── */}
-          <section className="bg-white border border-gray-200/60 rounded-xl">
-            <div className="px-5 py-4 sm:px-6 border-b border-gray-100 flex items-center gap-2.5">
-              <Bell className="w-4 h-4 text-gray-400" />
-              <h2 className="text-sm font-semibold text-gray-900">알림 설정</h2>
+          <section className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden transition-all hover:border-brand-200">
+            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                <Bell className="w-4.5 h-4.5 text-gray-400" />
+              </div>
+              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">워크플로우 알림</h2>
             </div>
-            <div className="px-5 sm:px-6 divide-y divide-gray-100">
+            <div className="px-6 sm:px-8 divide-y divide-gray-100">
               <Toggle
                 checked={notifications.inquiryEmail}
                 onChange={(v) => handleNotification('inquiryEmail', v)}
-                label="문의 이메일 알림"
-                description="새 문의가 들어오면 이메일로 알림을 보냅니다"
+                label="새 문의 이메일 알림"
+                description="관람객이 문의를 남기면 즉시 운영자 이메일로 발송합니다"
               />
               <Toggle
                 checked={notifications.inquiryPush}
                 onChange={(v) => handleNotification('inquiryPush', v)}
-                label="문의 푸시 알림"
-                description="브라우저 푸시 알림으로 즉시 확인"
+                label="브라우저 실시간 푸시"
+                description="관리자 화면 접속 중일 때 즉시 팝업으로 알려드려요"
               />
               <Toggle
                 checked={notifications.leadNew}
                 onChange={(v) => handleNotification('leadNew', v)}
-                label="새 리드 알림"
-                description="명함 스캔, 설문 등으로 새 리드가 생기면 알림"
+                label="신규 리드 생성 알림"
+                description="명함 스캔, 설문 등으로 새 잠재 고객이 등록되면 알림"
               />
               <Toggle
                 checked={notifications.leadDigest}
                 onChange={(v) => handleNotification('leadDigest', v)}
-                label="리드 일간 요약"
-                description="매일 오전 9시에 전날 리드 요약을 이메일로 발송"
+                label="리드 일간 요약 리포트"
+                description="매일 오전 9시에 전날의 전체 리드 목록을 요약해 드립니다"
               />
               <Toggle
                 checked={notifications.surveyAlert}
                 onChange={(v) => handleNotification('surveyAlert', v)}
-                label="설문 응답 알림"
-                description="관람객이 설문에 참여하면 알림"
+                label="설문 응답 개별 알림"
+                description="관람객이 설문 조사를 완료할 때마다 실시간으로 확인"
               />
               <Toggle
                 checked={notifications.weeklyReport}
                 onChange={(v) => handleNotification('weeklyReport', v)}
-                label="주간 리포트"
-                description="매주 월요일 부스 운영 통계를 이메일로 발송"
+                label="주간 성과 통계 리포트"
+                description="매주 월요일 부스별 누적 성과 데이터를 분석해 발송"
               />
             </div>
-            <div className="px-5 py-3 sm:px-6 border-t border-gray-100">
-              <p className="text-xs text-gray-400">알림 설정은 즉시 반영됩니다 (데모)</p>
+            <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-50">
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Settings will be applied immediately</p>
             </div>
           </section>
 
           {/* ─── Operation Settings ─── */}
-          <section className="bg-white border border-gray-200/60 rounded-xl">
-            <div className="px-5 py-4 sm:px-6 border-b border-gray-100 flex items-center gap-2.5">
-              <Zap className="w-4 h-4 text-gray-400" />
-              <h2 className="text-sm font-semibold text-gray-900">부스 운영 설정</h2>
+          <section className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden transition-all hover:border-brand-200">
+            <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                <Zap className="w-4.5 h-4.5 text-gray-400" />
+              </div>
+              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">부스 운영 자동화</h2>
             </div>
-            <div className="p-5 sm:p-6 space-y-5">
+            <div className="p-6 sm:p-8 space-y-6">
               {/* Auto-reply */}
               <div>
                 <Toggle
                   checked={operations.autoReply}
                   onChange={(v) => handleOperation('autoReply', v)}
-                  label="자동 응답"
-                  description="문의 접수 시 자동으로 첫 응답을 보냅니다"
+                  label="첫 문의 자동 응답"
+                  description="관람객이 문의를 시작하면 시스템이 즉시 답변을 보냅니다"
                 />
                 {operations.autoReply && (
-                  <div className="mt-3 animate-fade-in">
-                    <label className="block text-[13px] font-medium text-gray-700 mb-1.5">자동 응답 메시지</label>
+                  <div className="mt-4 animate-scale-in">
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">자동 응답 메시지 내용</label>
                     <textarea
                       value={operations.autoReplyMessage}
                       onChange={(e) => handleOperation('autoReplyMessage', e.target.value)}
                       rows={3}
-                      className="w-full text-sm bg-white border border-gray-200 rounded-lg px-3 py-2.5 resize-none outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                      className="w-full text-sm font-medium bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 resize-none outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white transition-all shadow-inner"
                     />
                   </div>
                 )}
               </div>
 
-              <div className="border-t border-gray-100 pt-5">
+              <div className="border-t border-gray-50 pt-6">
                 <Toggle
                   checked={operations.businessHours}
                   onChange={(v) => handleOperation('businessHours', v)}
-                  label="업무 시간 설정"
-                  description="설정한 시간 외에는 부재중 메시지를 자동 발송합니다"
+                  label="운영 시간(영업 시간) 외 부재중"
+                  description="설정된 시간 외에 들어오는 문의에 별도 메시지를 보냅니다"
                 />
                 {operations.businessHours && (
-                  <div className="mt-3 space-y-3 animate-fade-in">
-                    <div className="flex items-center gap-3">
+                  <div className="mt-4 space-y-4 animate-scale-in">
+                    <div className="flex items-center gap-4">
                       <div className="flex-1">
-                        <label className="block text-xs text-gray-500 mb-1">시작</label>
+                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">업무 시작</label>
                         <input
                           type="time"
                           value={operations.businessStart}
                           onChange={(e) => handleOperation('businessStart', e.target.value)}
-                          className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                          className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm font-bold outline-none focus:ring-4 focus:ring-brand-500/10 shadow-sm"
                         />
                       </div>
-                      <span className="text-gray-300 mt-5">—</span>
+                      <div className="pt-6 text-gray-300">—</div>
                       <div className="flex-1">
-                        <label className="block text-xs text-gray-500 mb-1">종료</label>
+                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">업무 종료</label>
                         <input
                           type="time"
                           value={operations.businessEnd}
                           onChange={(e) => handleOperation('businessEnd', e.target.value)}
-                          className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all"
+                          className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm font-bold outline-none focus:ring-4 focus:ring-brand-500/10 shadow-sm"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[13px] font-medium text-gray-700 mb-1.5">부재중 메시지</label>
+                      <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">부재중 안내 메시지</label>
                       <textarea
                         value={operations.awayMessage}
                         onChange={(e) => handleOperation('awayMessage', e.target.value)}
                         rows={2}
-                        className="w-full text-sm bg-white border border-gray-200 rounded-lg px-3 py-2.5 resize-none outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                        className="w-full text-sm font-medium bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 resize-none outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white transition-all shadow-inner"
                       />
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="pt-2 border-t border-gray-100">
+              <div className="pt-4 border-t border-gray-50">
                 <button
                   onClick={() => saveSection('operations', STORAGE_KEY_OPERATIONS, operations)}
                   disabled={saving === 'operations'}
-                  className="h-9 px-4 bg-brand-600 text-white text-[13px] font-medium rounded-lg hover:bg-brand-500 transition-all duration-150 disabled:opacity-50 inline-flex items-center gap-1.5 w-full sm:w-auto"
+                  className="h-11 px-6 bg-brand-600 text-white text-sm font-bold rounded-xl hover:bg-brand-500 transition-all duration-200 disabled:opacity-50 inline-flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg shadow-brand-100"
                 >
-                  {saving === 'operations' ? <CheckCircle className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
-                  {saving === 'operations' ? '저장됨' : '운영 설정 저장'}
+                  {saving === 'operations' ? <CheckCircle className="w-4.5 h-4.5" /> : <Save className="w-4.5 h-4.5" />}
+                  {saving === 'operations' ? '운영 설정 저장됨' : '부스 운영 설정 저장'}
                 </button>
               </div>
             </div>
           </section>
 
           {/* ─── Account / Danger Zone ─── */}
-          <section className="bg-white border border-gray-200/60 rounded-xl">
-            <div className="px-5 py-4 sm:px-6 border-b border-gray-100 flex items-center gap-2.5">
-              <Shield className="w-4 h-4 text-gray-400" />
-              <h2 className="text-sm font-semibold text-gray-900">계정 관리</h2>
+          <section className="bg-white border border-red-100/50 rounded-2xl shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-red-50 bg-red-50/10 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white border border-red-100 flex items-center justify-center shadow-sm">
+                <Shield className="w-4.5 h-4.5 text-red-400" />
+              </div>
+              <h2 className="text-sm font-bold text-red-600 uppercase tracking-wider">계정 보안 및 위험 영역</h2>
             </div>
-            <div className="p-5 sm:p-6 space-y-4">
+            <div className="p-6 sm:p-8 space-y-8">
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1.5">비밀번호 변경</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className="block text-sm font-bold text-gray-800 mb-3 px-1">관리자 비밀번호 변경</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <input
                     type="password"
                     placeholder="현재 비밀번호"
-                    className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                    className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all"
                   />
                   <input
                     type="password"
-                    placeholder="새 비밀번호"
-                    className="w-full h-9 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                    placeholder="새로운 비밀번호"
+                    className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl px-4 text-sm outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all"
                   />
                 </div>
                 <button
                   onClick={() => showToast('비밀번호가 변경됐어요 (데모)', 'success')}
-                  className="mt-3 h-9 px-4 bg-white border border-gray-200 text-gray-700 text-[13px] font-medium rounded-lg hover:bg-gray-50 transition-all duration-150 w-full sm:w-auto"
+                  className="mt-4 h-10 px-5 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
                 >
-                  비밀번호 변경
+                  비밀번호 변경 적용
                 </button>
               </div>
 
-              <div className="border-t border-gray-100 pt-4">
-                <h3 className="text-[13px] font-medium text-red-600 mb-2 flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  위험 영역
+              <div className="border-t border-red-50 pt-6">
+                <h3 className="text-sm font-bold text-red-600 mb-1 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  서비스 이용 해지 (계정 탈퇴)
                 </h3>
-                <p className="text-xs text-gray-500 mb-3">계정을 삭제하면 모든 부스 데이터, 리드, 문의 내역이 영구적으로 삭제됩니다.</p>
+                <p className="text-[13px] text-gray-500 font-medium mb-5 leading-relaxed">관리자 계정을 삭제하면 운영 중인 모든 부스 데이터, 수집된 리드, 대화 내역이 즉시 영구 파기되며 복구할 수 없습니다.</p>
                 {showDeleteConfirm ? (
-                  <div className="bg-red-50 border border-red-100 rounded-lg p-4 animate-fade-in">
-                    <p className="text-sm text-red-700 font-medium mb-3">정말 계정을 삭제하시겠어요?</p>
-                    <div className="flex gap-2">
+                  <div className="bg-red-50 border border-red-100 rounded-2xl p-5 animate-scale-in">
+                    <p className="text-sm text-red-700 font-bold mb-4">정말 계정을 영구적으로 삭제하시겠어요?</p>
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <button
                         onClick={() => {
                           showToast('계정이 삭제됐어요 (데모)', 'info');
                           setShowDeleteConfirm(false);
                         }}
-                        className="h-8 px-3 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-500 transition-all duration-150"
+                        className="h-11 px-6 bg-red-600 text-white text-[13px] font-bold rounded-xl hover:bg-red-700 transition-all duration-150 shadow-md shadow-red-100"
                       >
-                        삭제 확인
+                        네, 계정을 파기합니다
                       </button>
                       <button
                         onClick={() => setShowDeleteConfirm(false)}
-                        className="h-8 px-3 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-50 transition-all duration-150"
+                        className="h-11 px-6 bg-white border border-red-200 text-red-600 text-[13px] font-bold rounded-xl hover:bg-red-50 transition-all duration-150"
                       >
-                        취소
+                        아니오, 취소하겠습니다
                       </button>
                     </div>
                   </div>
                 ) : (
                   <button
                     onClick={() => setShowDeleteConfirm(true)}
-                    className="h-9 px-4 text-red-600 text-[13px] font-medium rounded-lg hover:bg-red-50 transition-all duration-150"
+                    className="h-10 px-5 text-red-600 border border-red-100 bg-red-50/50 text-xs font-bold rounded-xl hover:bg-red-100 transition-all"
                   >
-                    계정 삭제
+                    관리자 계정 삭제 요청
                   </button>
                 )}
               </div>
