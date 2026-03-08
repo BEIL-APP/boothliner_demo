@@ -39,21 +39,16 @@ function Navbar() {
         <nav className="hidden md:flex items-center gap-6">
           <button onClick={() => scrollTo('features')} className="text-[13px] text-gray-500 hover:text-gray-900 transition-colors">기능</button>
           <button onClick={() => scrollTo('how-it-works')} className="text-[13px] text-gray-500 hover:text-gray-900 transition-colors">이용 방법</button>
-          <Link to="/auth" className="text-[13px] text-gray-500 hover:text-gray-900 transition-colors">관람객 로그인</Link>
+          <Link to="/explore" className="text-[13px] text-gray-500 hover:text-gray-900 transition-colors">부스 둘러보기</Link>
         </nav>
 
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-5">
+          <Link to="/auth" className="text-[13px] text-gray-500 hover:text-gray-900 transition-colors">관람객 로그인</Link>
           <Link
             to="/admin/login"
-            className="h-8 px-3 text-[13px] font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-150 inline-flex items-center"
+            className="h-8 px-3 text-[13px] font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-500 transition-all duration-150 inline-flex items-center"
           >
             운영자 로그인
-          </Link>
-          <Link
-            to="/explore"
-            className="h-8 px-3 text-[13px] font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-500 transition-all duration-150 inline-flex items-center gap-1"
-          >
-            부스 둘러보기 <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
 
@@ -70,9 +65,9 @@ function Navbar() {
             <button onClick={() => scrollTo('features')} className="block w-full text-left px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50">기능</button>
             <button onClick={() => scrollTo('how-it-works')} className="block w-full text-left px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50">이용 방법</button>
             <Link to="/explore" className="block px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50" onClick={() => setOpen(false)}>부스 둘러보기</Link>
-            <div className="pt-2 flex flex-col gap-2 border-t border-gray-100 mt-2">
-              <Link to="/admin/login" className="h-10 flex items-center justify-center text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">운영자 로그인</Link>
-              <Link to="/explore" className="h-10 flex items-center justify-center text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-500 transition-colors">부스 둘러보기</Link>
+            <Link to="/auth" className="block px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50" onClick={() => setOpen(false)}>관람객 로그인</Link>
+            <div className="pt-2 border-t border-gray-100 mt-2">
+              <Link to="/admin/login" className="h-10 flex items-center justify-center text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-500 transition-colors" onClick={() => setOpen(false)}>운영자 로그인</Link>
             </div>
           </div>
         </div>
