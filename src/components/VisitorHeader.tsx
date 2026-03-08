@@ -16,7 +16,7 @@ export function VisitorHeader() {
   }, [location.pathname]);
 
   const navItems = [
-    { to: '/me', icon: Heart, label: '관심' },
+    { to: '/me', icon: Heart, label: '마이' },
     { to: '/messages', icon: MessageSquare, label: '문의' },
     { to: '/notifications', icon: Bell, label: '알림' },
   ];
@@ -40,17 +40,19 @@ export function VisitorHeader() {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`relative flex items-center gap-1.5 h-9 px-2 md:px-3 rounded-lg transition-colors ${
+                className={`flex items-center gap-1.5 h-9 px-2 md:px-3 rounded-lg transition-colors ${
                   isActive
                     ? 'text-brand-600 bg-brand-50'
                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                <Icon className="w-[18px] h-[18px]" />
+                <span className="relative">
+                  <Icon className="w-[18px] h-[18px]" />
+                  {isBell && unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                  )}
+                </span>
                 <span className="hidden md:inline text-[13px] font-medium">{item.label}</span>
-                {isBell && unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 md:top-1 md:right-auto md:left-[18px] w-2 h-2 bg-red-500 rounded-full" />
-                )}
               </Link>
             );
           })}
