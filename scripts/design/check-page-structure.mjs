@@ -5,10 +5,6 @@ const ROOT = process.cwd();
 const PAGES_DIR = path.join(ROOT, 'src', 'pages');
 const TARGET_EXT = '.tsx';
 const TITLE_BASE_TOKENS = ['text-xl', 'sm:text-2xl', 'font-bold', 'tracking-tight'];
-const ADMIN_FORM_TARGETS = new Set([
-  'src/pages/admin/AdminBoothDetailPage.tsx',
-  'src/pages/admin/AdminBoothNewPage.tsx',
-]);
 
 function walk(dir) {
   const out = [];
@@ -48,34 +44,33 @@ function run() {
       });
     }
 
-    if (ADMIN_FORM_TARGETS.has(rel)) {
-      const classRegex = /className="([^"]*)"/g;
-      for (const classMatch of content.matchAll(classRegex)) {
-        const cls = classMatch[1] ?? '';
-        const line = toPos(content, classMatch.index ?? 0);
+    const controlRegex = /<(button|input|select|textarea|a)\b[^>]*className="([^"]*)"[^>]*>/g;
+    for (const tagMatch of content.matchAll(controlRegex)) {
+      const tag = tagMatch[1] ?? '';
+      const cls = tagMatch[2] ?? '';
+      const line = toPos(content, tagMatch.index ?? 0);
 
-        const isControlLike =
-          /\b(h-7|h-8)\b/.test(cls) &&
-          /(border|bg-|px-|pl-|pr-)/.test(cls) &&
-          !/\bw-(7|8)\b/.test(cls);
+      const isCompactControl =
+        /\b(h-7|h-8)\b/.test(cls) &&
+        /(border|bg-|px-|pl-|pr-)/.test(cls) &&
+        !/\bw-(7|8)\b/.test(cls);
 
-        if (isControlLike) {
-          violations.push({
-            file: rel,
-            line,
-            rule: 'control-height-token',
-            detail: '컨트롤 높이는 h-9/h-10/h-11 토큰만 사용하세요.',
-          });
-        }
+      if (isCompactControl) {
+        violations.push({
+          file: rel,
+          line,
+          rule: 'control-height-token',
+          detail: `${tag} 컨트롤 높이는 h-9/h-10/h-11 토큰만 사용하세요.`,
+        });
+      }
 
-        if (/\brounded-(2xl|3xl)\b/.test(cls)) {
-          violations.push({
-            file: rel,
-            line,
-            rule: 'control-radius-token',
-            detail: 'Admin Booth 편집 페이지는 rounded-xl 이하 토큰을 사용하세요.',
-          });
-        }
+      if (/\brounded-(2xl|3xl)\b/.test(cls)) {
+        violations.push({
+          file: rel,
+          line,
+          rule: 'control-radius-token',
+          detail: `${tag} 컨트롤은 rounded-xl 이하 토큰을 사용하세요.`,
+        });
       }
     }
 
