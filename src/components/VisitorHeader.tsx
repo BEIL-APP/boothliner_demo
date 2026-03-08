@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { QrCode, Heart, MessageSquare, User, LogIn, Bell, Settings } from 'lucide-react';
+import { QrCode, Heart, MessageSquare, User, LogIn, Bell, Settings, Compass } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getGuestId, getUnreadNotificationCount } from '../utils/localStorage';
 
@@ -16,6 +16,7 @@ export function VisitorHeader() {
   }, [location.pathname]);
 
   const navItems = [
+    { to: '/explore', icon: Compass, label: '탐색' },
     { to: '/me', icon: Heart, label: '마이' },
     { to: '/messages', icon: MessageSquare, label: '문의' },
     { to: '/notifications', icon: Bell, label: '알림' },
