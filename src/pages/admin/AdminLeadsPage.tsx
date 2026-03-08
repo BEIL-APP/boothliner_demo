@@ -209,7 +209,7 @@ export default function AdminLeadsPage() {
                     <select
                       value={lead.status ?? 'NEW'}
                       onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                      className="h-8 text-[11px] font-bold bg-white border border-gray-200 rounded-lg px-2 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 text-gray-600 cursor-pointer shadow-sm"
+                      className="h-9 text-[11px] font-bold bg-white border border-gray-200 rounded-lg px-2 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 text-gray-600 cursor-pointer shadow-sm"
                     >
                       {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
                         <option key={s} value={s}>{STATUS_LABELS[s]}</option>
@@ -335,7 +335,7 @@ export default function AdminLeadsPage() {
                         <select
                           value={lead.status ?? 'NEW'}
                           onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                          className={`h-7 text-[11px] font-bold uppercase rounded-lg px-2 border-0 outline-none cursor-pointer shadow-sm transition-all hover:brightness-95 ${STATUS_COLORS[lead.status ?? 'NEW']}`}
+                          className={`h-9 text-[11px] font-bold uppercase rounded-lg px-2 border-0 outline-none cursor-pointer shadow-sm transition-all hover:brightness-95 ${STATUS_COLORS[lead.status ?? 'NEW']}`}
                         >
                           {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
                             <option key={s} value={s}>{STATUS_LABELS[s]}</option>

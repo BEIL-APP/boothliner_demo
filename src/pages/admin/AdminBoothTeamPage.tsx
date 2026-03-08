@@ -130,7 +130,7 @@ export default function AdminBoothTeamPage() {
             </Link>
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">팀 관리</h1>
-              <p className="text-sm text-gray-500 truncate">{booth.name} 부스의 운영 팀</p>
+              <p className="text-sm text-gray-500 font-medium truncate">{booth.name} 부스의 운영 팀</p>
             </div>
           </div>
           <button

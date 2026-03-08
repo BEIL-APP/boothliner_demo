@@ -317,7 +317,7 @@ export default function AdminInboxPage() {
           {/* Inbox header */}
           <div className="px-4 py-5 sm:p-6 lg:p-8 border-b border-gray-100 bg-white">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">문의 인박스</h1>
-            <p className="text-sm text-gray-500">관람객 문의를 확인하고 응답하세요</p>
+            <p className="text-sm text-gray-500 font-medium">관람객 문의를 확인하고 응답하세요</p>
 
             {/* Search */}
             <div className="relative mt-6 lg:mt-8 group">
@@ -337,7 +337,7 @@ export default function AdminInboxPage() {
                 <button
                   key={s}
                   onClick={() => setFilter(s)}
-                  className={`flex items-center gap-2 text-xs font-bold px-3 h-8 rounded-lg transition-all duration-200 ${
+                  className={`flex items-center gap-2 text-xs font-bold px-3 h-9 rounded-lg transition-all duration-200 ${
                     filter === s
                       ? 'bg-gray-900 text-white shadow-md'
                       : 'bg-white border border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700'
@@ -622,10 +622,10 @@ export default function AdminInboxPage() {
                 <button
                   onClick={handleSendReply}
                   disabled={!replyText.trim()}
-                  className="h-14 px-6 bg-brand-600 text-white text-sm font-bold rounded-xl flex flex-col items-center justify-center gap-1 hover:bg-brand-500 transition-all duration-200 disabled:opacity-40 shadow-lg shadow-brand-100 shrink-0 group"
+                  className="h-11 px-5 bg-brand-600 text-white text-sm font-bold rounded-xl flex items-center justify-center gap-1.5 hover:bg-brand-500 transition-all duration-200 disabled:opacity-40 shadow-lg shadow-brand-100 shrink-0 group"
                 >
-                  <Send className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  <span className="text-[10px] uppercase tracking-tighter">전송</span>
+                  <Send className="w-4.5 h-4.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <span className="text-xs">전송</span>
                 </button>
               </div>
             </div>

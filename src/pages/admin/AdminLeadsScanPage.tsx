@@ -130,7 +130,7 @@ export default function AdminLeadsScanPage() {
           </Link>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">명함 스캔</h1>
-            <p className="text-sm text-gray-500">이미지 업로드 → 정보 추출 → 리드 저장</p>
+            <p className="text-sm text-gray-500 font-medium">이미지 업로드 → 정보 추출 → 리드 저장</p>
           </div>
         </div>
 

@@ -95,7 +95,7 @@ export default function SignupPage() {
             {isOrganizer ? '기업 (운영자)' : '개인 (관람객)'}
           </span>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">이메일로 가입</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 font-medium">
             {isOrganizer ? '부스를 만들고 리드를 관리하세요' : '관심 부스를 저장하고 문의하세요'}
           </p>
         </div>

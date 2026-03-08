@@ -183,7 +183,7 @@ export default function ExplorePage() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`shrink-0 text-[13px] font-medium px-3 h-8 rounded-lg border transition-all duration-150 ${
+                className={`shrink-0 text-[13px] font-medium px-3 h-9 rounded-lg border transition-all duration-150 ${
                   activeCategory === cat
                     ? 'bg-gray-900 text-white border-gray-900'
                     : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -198,7 +198,7 @@ export default function ExplorePage() {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setOnlyActive(!onlyActive)}
-              className={`text-[13px] font-medium px-3 h-8 rounded-lg border transition-all duration-150 flex items-center gap-1.5 ${
+              className={`text-[13px] font-medium px-3 h-9 rounded-lg border transition-all duration-150 flex items-center gap-1.5 ${
                 onlyActive
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                   : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
@@ -211,7 +211,7 @@ export default function ExplorePage() {
             <div className="relative">
               <button
                 onClick={() => setShowSortMenu(!showSortMenu)}
-                className="text-[13px] font-medium px-3 h-8 rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-gray-300 transition-all duration-150 flex items-center gap-1.5"
+                className="text-[13px] font-medium px-3 h-9 rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-gray-300 transition-all duration-150 flex items-center gap-1.5"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 {SORT_LABELS[sort]}

@@ -740,7 +740,7 @@ export default function BoothPage() {
         <div className="max-w-5xl mx-auto flex gap-2.5">
           <button
             onClick={handleToggleFav}
-            className={`h-12 px-5 rounded-2xl text-sm font-bold flex items-center gap-2 transition-all duration-200 ${
+            className={`h-11 px-5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all duration-200 ${
               fav ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-gray-700'
             }`}
           >
@@ -750,13 +750,13 @@ export default function BoothPage() {
           <button
             onClick={() => setShowInquiry(true)}
             disabled={!inquiryAllowed}
-            className="flex-1 h-12 rounded-2xl text-sm font-bold bg-brand-600 text-white hover:bg-brand-500 transition-all duration-200 shadow-lg shadow-brand-100 disabled:opacity-40 disabled:shadow-none"
+            className="flex-1 h-11 rounded-xl text-sm font-bold bg-brand-600 text-white hover:bg-brand-500 transition-all duration-200 shadow-lg shadow-brand-100 disabled:opacity-40 disabled:shadow-none"
           >
             {!inquiryAllowed ? '문의 마감' : '문의하기'}
           </button>
           <button
             onClick={handleShare}
-            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-100 text-gray-600 transition-all duration-200 active:scale-95"
+            className="w-11 h-11 flex items-center justify-center rounded-xl bg-gray-100 text-gray-600 transition-all duration-200 active:scale-95"
           >
             <Share2 className="w-5 h-5" />
           </button>
@@ -772,7 +772,7 @@ export default function BoothPage() {
             <p className="flex-1 text-xs text-gray-600 font-mono truncate">{typeof window !== 'undefined' ? window.location.href : ''}</p>
             <button
               onClick={handleCopyLink}
-              className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium transition-all shrink-0 ${
+              className={`flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium transition-all shrink-0 ${
                 shareCopied
                   ? 'bg-emerald-100 text-emerald-700'
                   : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'
