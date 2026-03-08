@@ -496,7 +496,7 @@ export default function BoothPage() {
 
             {/* 소개 — mobile order: 3 */}
             <div className="order-3 md:order-none bg-white border border-gray-200/60 rounded-xl p-5 md:p-6">
-              <h2 className="text-sm font-semibold text-gray-900 mb-3">소개</h2>
+              <h2 className="text-sm font-semibold text-gray-900 mb-3">회사 소개</h2>
               <p className="text-sm text-gray-600 leading-relaxed">{booth.description}</p>
               {(booth.descriptionImages ?? []).length > 0 && (
                 <div className="flex gap-2 mt-4 overflow-x-auto pb-1 scrollbar-hide">
