@@ -84,6 +84,7 @@ export interface Lead {
 
 export interface BoothPolicy {
   boothId: string;
+  eventId?: string;
   startAt: string;
   endAt: string;
   allowViewAfterEnd: boolean;

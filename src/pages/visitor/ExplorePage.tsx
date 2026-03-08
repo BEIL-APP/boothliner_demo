@@ -13,7 +13,7 @@ import {
 import { VisitorHeader } from '../../components/VisitorHeader';
 import { useBooths } from '../../hooks/useBooths';
 import { useFavorites } from '../../hooks/useFavorites';
-import { getAnalytics, getBoothPolicy } from '../../utils/localStorage';
+import { getAnalytics, getPolicies } from '../../utils/localStorage';
 import type { Analytics, BoothPolicy } from '../../types';
 
 type SortOption = 'latest' | 'popular' | 'name';
@@ -46,9 +46,9 @@ export default function ExplorePage() {
 
   const MOCK_EVENTS = [
     { id: 'all', name: '전체 행사' },
-    { id: 'event-1', name: '2026 서울 B2B 박람회', date: '2026-03-10 ~ 03-12' },
-    { id: 'event-2', name: '스타트업 네트워킹 데이', date: '2026-03-15' },
-    { id: 'event-3', name: '그린 비즈니스 엑스포', date: '2026-03-20 ~ 03-22' },
+    { id: 'event-001', name: '2026 서울 B2B 박람회', date: '2026-03-10 ~ 03-12' },
+    { id: 'event-002', name: '스타트업 네트워킹 데이', date: '2026-03-15' },
+    { id: 'event-003', name: '그린 비즈니스 엑스포', date: '2026-03-20 ~ 03-22' },
   ];
 
   const analytics = useMemo(() => getAnalytics(), []);
@@ -64,13 +64,22 @@ export default function ExplorePage() {
   }, [booths]);
 
   const policyMap = useMemo(() => {
-    const map: Record<string, BoothPolicy | undefined> = {};
-    booths.forEach((b) => { map[b.id] = getBoothPolicy(b.id); });
+    const map: Record<string, BoothPolicy[]> = {};
+    booths.forEach((b) => { map[b.id] = []; });
+    getPolicies().forEach((p) => {
+      if (map[p.boothId]) map[p.boothId].push(p);
+    });
     return map;
   }, [booths]);
 
   const filtered = useMemo(() => {
     let result = [...booths];
+
+    if (selectedEvent !== 'all') {
+      result = result.filter((b) =>
+        policyMap[b.id]?.some((p) => p.eventId === selectedEvent)
+      );
+    }
 
     if (activeCategory !== '전체') {
       result = result.filter((b) => b.category === activeCategory);
@@ -88,9 +97,9 @@ export default function ExplorePage() {
 
     if (onlyActive) {
       result = result.filter((b) => {
-        const policy = policyMap[b.id];
-        if (!policy) return true;
-        return !isPolicyExpired(policy);
+        const policies = policyMap[b.id];
+        if (!policies || policies.length === 0) return false;
+        return policies.some((p) => isPolicyActive(p));
       });
     }
 
@@ -253,9 +262,9 @@ export default function ExplorePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
             {filtered.map((booth) => {
               const faved = checkFav(booth.id);
-              const policy = policyMap[booth.id];
-              const expired = policy ? isPolicyExpired(policy) : false;
-              const active = policy ? isPolicyActive(policy) : true;
+              const policies = policyMap[booth.id] ?? [];
+              const expired = policies.length > 0 && policies.every((p) => isPolicyExpired(p));
+              const active = policies.some((p) => isPolicyActive(p));
               const stats = analyticsMap[booth.id];
 
               return (
@@ -287,7 +296,7 @@ export default function ExplorePage() {
                         <Clock className="w-3 h-3" /> 종료
                       </span>
                     )}
-                    {!expired && active && policy && (
+                    {!expired && active && policies.length > 0 && (
                       <span className="absolute top-3 left-3 bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-medium px-2 py-0.5 rounded-md flex items-center gap-1">
                         <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> 운영중
                       </span>
