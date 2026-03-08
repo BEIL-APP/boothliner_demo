@@ -279,14 +279,8 @@ export function getAnalytics(): Analytics[] {
 }
 
 export function getBoothAnalytics(boothId: string): Analytics {
-  const all = getAnalytics().filter((a) => a.boothId === boothId);
-  if (all.length === 0) return { boothId, scans: 0, favorites: 0, inquiries: 0 };
-  return {
-    boothId,
-    scans: all.reduce((s, a) => s + a.scans, 0),
-    favorites: all.reduce((s, a) => s + a.favorites, 0),
-    inquiries: all.reduce((s, a) => s + a.inquiries, 0),
-  };
+  const total = getAnalytics().find((a) => a.boothId === boothId && !a.eventId);
+  return total ?? { boothId, scans: 0, favorites: 0, inquiries: 0 };
 }
 
 export function getBoothAnalyticsByEvent(boothId: string, eventId: string): Analytics {

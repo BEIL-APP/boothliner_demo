@@ -8,7 +8,7 @@ export default function AdminBoothsPage() {
   const { booths } = useBooths();
   const { analytics } = useAnalytics();
 
-  const analyticsMap = Object.fromEntries(analytics.map((a) => [a.boothId, a]));
+  const analyticsMap = Object.fromEntries(analytics.filter((a) => !a.eventId).map((a) => [a.boothId, a]));
 
   return (
     <AdminLayout>

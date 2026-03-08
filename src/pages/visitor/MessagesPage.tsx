@@ -4,7 +4,7 @@ import { VisitorHeader } from '../../components/VisitorHeader';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useThreads } from '../../hooks/useThreads';
-import { getBooths } from '../../utils/localStorage';
+import { getBooths, getGuestId } from '../../utils/localStorage';
 import type { Thread } from '../../types';
 
 function formatTime(iso: string) {
@@ -21,7 +21,9 @@ function formatTime(iso: string) {
 export default function MessagesPage() {
   const { isLoggedIn } = useAuth();
   const { showToast } = useToast();
-  const { threads, reply } = useThreads();
+  const { threads: allThreads, reply } = useThreads();
+  const guestId = getGuestId();
+  const threads = allThreads.filter((t) => t.visitorGuestId === guestId);
   const [selected, setSelected] = useState<Thread | null>(null);
   const [replyText, setReplyText] = useState('');
 

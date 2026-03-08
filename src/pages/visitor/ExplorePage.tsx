@@ -54,7 +54,7 @@ export default function ExplorePage() {
   const analytics = useMemo(() => getAnalytics(), []);
   const analyticsMap = useMemo(() => {
     const map: Record<string, Analytics> = {};
-    analytics.forEach((a) => { map[a.boothId] = a; });
+    analytics.filter((a) => !a.eventId).forEach((a) => { map[a.boothId] = a; });
     return map;
   }, [analytics]);
 
