@@ -397,33 +397,6 @@ export default function BoothPage() {
           </div>
         )}
 
-        {/* Mobile action buttons */}
-        <div className="flex gap-2 mb-5 md:hidden">
-          <button
-            onClick={handleToggleFav}
-            className={`flex-1 flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium transition-all duration-150 ${
-              fav ? 'bg-brand-600 text-white' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <Heart className={`w-4 h-4 ${fav ? 'fill-current' : ''}`} />
-            {fav ? '저장됨' : '저장'}
-          </button>
-          <button
-            onClick={() => setShowInquiry(true)}
-            disabled={!inquiryAllowed}
-            className="flex-1 flex items-center justify-center gap-2 h-10 rounded-lg text-sm font-medium bg-brand-600 text-white hover:bg-brand-500 transition-all duration-150 disabled:opacity-40"
-          >
-            <MessageSquare className="w-4 h-4" />
-            {!inquiryAllowed ? '문의 마감' : '문의하기'}
-          </button>
-          <button
-            onClick={handleShare}
-            className="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 transition-all duration-150"
-          >
-            <Share2 className="w-4 h-4" />
-          </button>
-        </div>
-
         {/* Two-column layout on md+ */}
         <div className="md:flex md:gap-8">
           {/* ─── Main column ─── */}
