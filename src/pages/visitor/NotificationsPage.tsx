@@ -29,8 +29,8 @@ export default function NotificationsPage() {
       <VisitorHeader />
 
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 pb-24">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-2">알림</h1>
-        <p className="text-sm sm:text-base text-gray-500 font-medium mb-8">이 기기에서 받은 새로운 소식들을 확인하세요</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">알림</h1>
+        <p className="text-sm text-gray-500 font-medium mb-8">이 기기에서 받은 새로운 소식들을 확인하세요</p>
 
         {notifications.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">

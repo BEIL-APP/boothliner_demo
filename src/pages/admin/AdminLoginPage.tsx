@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
 
         {/* Card */}
         <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-6 sm:p-8">
-          <h1 className="text-xl font-semibold text-gray-900 mb-1.5">운영자 로그인</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-1.5">운영자 로그인</h1>
           <p className="text-sm text-gray-500 mb-6">부스 운영 대시보드에 접속하세요</p>
 
           {/* Demo Quick Login */}

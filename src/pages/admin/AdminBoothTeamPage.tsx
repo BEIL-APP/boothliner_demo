@@ -129,8 +129,8 @@ export default function AdminBoothTeamPage() {
               <ArrowLeft className="w-4 h-4 text-gray-500" />
             </Link>
             <div className="min-w-0">
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">팀 관리</h1>
-              <p className="text-sm text-gray-500 mt-0.5 truncate">{booth.name} 부스의 운영 팀</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">팀 관리</h1>
+              <p className="text-sm text-gray-500 mt-1 truncate">{booth.name} 부스의 운영 팀</p>
             </div>
           </div>
           <button

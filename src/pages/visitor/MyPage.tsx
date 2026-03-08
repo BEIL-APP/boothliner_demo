@@ -484,8 +484,8 @@ export default function MyPage() {
 
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 pb-24">
         {/* Page title */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-2">내 부스</h1>
-        <p className="text-sm sm:text-base text-gray-500 font-medium mb-8">방문 기록과 관심 부스를 모아볼 수 있어요</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">내 부스</h1>
+        <p className="text-sm text-gray-500 font-medium mb-8">방문 기록과 관심 부스를 모아볼 수 있어요</p>
 
         {/* Login banner */}
         {!isLoggedIn && (

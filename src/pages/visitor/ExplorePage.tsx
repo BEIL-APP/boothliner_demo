@@ -130,8 +130,8 @@ export default function ExplorePage() {
       {/* Hero / Search */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-2">부스 둘러보기</h1>
-          <p className="text-sm sm:text-base text-gray-500 font-medium mb-6 sm:mb-8">관심 있는 부스를 찾아 문의하고 자료를 받아보세요</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">부스 둘러보기</h1>
+          <p className="text-sm text-gray-500 font-medium mb-6 sm:mb-8">관심 있는 부스를 찾아 문의하고 자료를 받아보세요</p>
 
           <div className="space-y-4">
             {/* Event selector */}

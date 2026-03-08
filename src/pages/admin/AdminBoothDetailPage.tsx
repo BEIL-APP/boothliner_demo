@@ -346,7 +346,7 @@ export default function AdminBoothDetailPage() {
             </Link>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg sm:text-xl font-semibold text-gray-900">{booth.name}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">{booth.name}</h1>
                 <span className="h-6 px-2 rounded-md text-xs font-medium inline-flex items-center bg-gray-100 text-gray-600">
                   {booth.category}
                 </span>

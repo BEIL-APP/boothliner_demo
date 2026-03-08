@@ -163,8 +163,8 @@ export default function SettingsPage() {
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 pb-24">
         <div className="max-w-2xl">
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">설정</h1>
-            <p className="text-sm sm:text-base text-gray-500 font-medium mt-1">프로필, 관심 분야, 알림 설정을 관리하세요</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">설정</h1>
+            <p className="text-sm text-gray-500 font-medium mt-1">프로필, 관심 분야, 알림 설정을 관리하세요</p>
           </div>
 
           {/* Login nudge */}

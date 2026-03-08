@@ -54,8 +54,8 @@ export default function MessagesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">문의 내역</h1>
-            <p className="text-sm sm:text-base text-gray-500 font-medium mt-1">부스에 남긴 문의와 답변을 확인하세요</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">문의 내역</h1>
+            <p className="text-sm text-gray-500 font-medium mt-1">부스에 남긴 문의와 답변을 확인하세요</p>
           </div>
           {isLoggedIn && hasUnread && (
             <div className="h-6 px-2 rounded-lg inline-flex items-center gap-1.5 bg-brand-50 text-brand-700 text-xs font-bold shadow-sm shadow-brand-100">

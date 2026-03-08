@@ -80,7 +80,7 @@ export default function OAuthPage() {
           뒤로
         </Link>
 
-        <h1 className="text-xl font-semibold text-gray-900 mb-1.5">소셜 계정으로 로그인</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-1.5">소셜 계정으로 로그인</h1>
         <p className="text-sm text-gray-500 mb-7">
           아래 계정 중 하나를 선택해 빠르게 시작하세요
         </p>

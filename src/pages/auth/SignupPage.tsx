@@ -63,7 +63,7 @@ export default function SignupPage() {
           <div className="bg-emerald-50 rounded-xl w-14 h-14 flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-7 h-7 text-emerald-600" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-1">가입 완료!</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-1">가입 완료!</h2>
           <p className="text-sm text-gray-500">잠시 후 이동합니다…</p>
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function SignupPage() {
           <span className="inline-flex items-center bg-gray-100 text-gray-600 rounded-md text-xs px-2 h-5 mb-3">
             {isOrganizer ? '기업 (운영자)' : '개인 (관람객)'}
           </span>
-          <h1 className="text-xl font-semibold text-gray-900">이메일로 가입</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">이메일로 가입</h1>
           <p className="text-sm text-gray-500 mt-1">
             {isOrganizer ? '부스를 만들고 리드를 관리하세요' : '관심 부스를 저장하고 문의하세요'}
           </p>
