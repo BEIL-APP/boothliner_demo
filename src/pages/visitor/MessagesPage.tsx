@@ -118,13 +118,13 @@ export default function MessagesPage() {
                           <p className="text-sm text-gray-500 truncate font-medium">{lastMsg?.text}</p>
                           <div className="flex flex-wrap items-center gap-2 mt-3">
                             {isNew && (
-                              <span className="h-5 px-2 rounded font-bold text-[10px] text-brand-600 bg-brand-50 uppercase tracking-tight">
-                                NEW REPLY
+                              <span className="h-5 px-2 rounded font-bold text-[10px] text-brand-600 bg-brand-50 tracking-tight">
+                                새 답변
                               </span>
                             )}
                             {hasBoothReply && (
-                              <span className="h-5 px-2 rounded font-bold text-[10px] text-emerald-600 bg-emerald-50 uppercase tracking-tight">
-                                ANSWERED
+                              <span className="h-5 px-2 rounded font-bold text-[10px] text-emerald-600 bg-emerald-50 tracking-tight">
+                                답변 완료
                               </span>
                             )}
                             <span

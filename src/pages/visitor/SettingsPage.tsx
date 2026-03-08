@@ -188,12 +188,12 @@ export default function SettingsPage() {
             <section className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center gap-2.5">
                 <User className="w-4.5 h-4.5 text-gray-400" />
-                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">프로필 설정</h2>
+                <h2 className="text-sm font-semibold text-gray-900">프로필 설정</h2>
               </div>
               <div className="p-6 space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    <label className="block text-xs font-medium text-gray-500 mb-2">
                       <span className="inline-flex items-center gap-1.5"><User className="w-3 h-3" /> 이름</span>
                     </label>
                     <input
@@ -205,7 +205,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    <label className="block text-xs font-medium text-gray-500 mb-2">
                       <span className="inline-flex items-center gap-1.5"><Mail className="w-3 h-3" /> 이메일</span>
                     </label>
                     <input
@@ -217,7 +217,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    <label className="block text-xs font-medium text-gray-500 mb-2">
                       <span className="inline-flex items-center gap-1.5"><Building2 className="w-3 h-3" /> 소속 회사</span>
                     </label>
                     <input
@@ -229,7 +229,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    <label className="block text-xs font-medium text-gray-500 mb-2">
                       <span className="inline-flex items-center gap-1.5"><Briefcase className="w-3 h-3" /> 담당 직책</span>
                     </label>
                     <input
@@ -259,10 +259,10 @@ export default function SettingsPage() {
               <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <Tag className="w-4.5 h-4.5 text-gray-400" />
-                  <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">관심 분야</h2>
+                  <h2 className="text-sm font-semibold text-gray-900">관심 분야</h2>
                 </div>
                 {interests.length > 0 && (
-                  <span className="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md uppercase">{interests.length} Selected</span>
+                  <span className="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">선택 {interests.length}개</span>
                 )}
               </div>
               <div className="p-6">
@@ -292,7 +292,7 @@ export default function SettingsPage() {
             <section className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center gap-2.5">
                 <Bell className="w-4.5 h-4.5 text-gray-400" />
-                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">알림 설정</h2>
+                <h2 className="text-sm font-semibold text-gray-900">알림 설정</h2>
               </div>
               <div className="px-6 divide-y divide-gray-50">
                 <Toggle
@@ -321,7 +321,7 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <p className="text-[11px] text-gray-400 font-bold uppercase tracking-tight">Real-time update enabled</p>
+                <p className="text-[11px] text-gray-400 font-medium">실시간 반영됨</p>
                 {failedCount > 0 && (
                   <button
                     onClick={() => {
@@ -342,7 +342,7 @@ export default function SettingsPage() {
             <section className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center gap-2.5">
                 <FileText className="w-4.5 h-4.5 text-gray-400" />
-                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">데이터 동의 관리</h2>
+                <h2 className="text-sm font-semibold text-gray-900">데이터 동의 관리</h2>
               </div>
               <div className="p-6 space-y-5">
                 <p className="text-[13px] text-gray-500 font-medium leading-relaxed">
@@ -351,21 +351,21 @@ export default function SettingsPage() {
 
                 {withdrawals.length > 0 && (
                   <div className="space-y-2.5">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-1">최근 처리 내역</p>
+                    <p className="text-[11px] font-medium text-gray-500 px-1">최근 처리 내역</p>
                     {withdrawals.map((w) => (
                       <div key={w.id} className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 group">
-                        <span className={`h-5 px-2 rounded font-bold text-[10px] uppercase inline-flex items-center ${
+                        <span className={`h-5 px-2 rounded font-bold text-[10px] inline-flex items-center ${
                           w.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700' :
                           w.status === 'PROCESSING' ? 'bg-amber-50 text-amber-700' :
                           'bg-brand-50 text-brand-700'
                         }`}>
-                          {w.status === 'COMPLETED' ? 'COMPLETED' : w.status === 'PROCESSING' ? 'PROCESSING' : 'REQUESTED'}
+                          {w.status === 'COMPLETED' ? '처리 완료' : w.status === 'PROCESSING' ? '처리 중' : '요청됨'}
                         </span>
                         <span className="text-sm font-bold text-gray-700">
                           {w.type === 'data_delete' ? '데이터 영구 삭제' : '마케팅 정보 수신 철회'}
                         </span>
-                        <span className="text-[11px] font-bold text-gray-400 ml-auto uppercase">
-                          {new Date(w.requestedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        <span className="text-[11px] font-bold text-gray-400 ml-auto">
+                          {new Date(w.requestedAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
                         </span>
                       </div>
                     ))}
@@ -375,7 +375,7 @@ export default function SettingsPage() {
                 {showWithdrawForm ? (
                   <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4 animate-scale-in">
                     <div>
-                      <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">철회 사유 (선택 사항)</label>
+                      <label className="block text-xs font-medium text-gray-500 mb-2 px-1">철회 사유 (선택 사항)</label>
                       <input
                         type="text"
                         value={withdrawReason}
@@ -432,7 +432,7 @@ export default function SettingsPage() {
             <section className="bg-white border border-gray-200/60 rounded-2xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/30 flex items-center gap-2.5">
                 <Shield className="w-4.5 h-4.5 text-gray-400" />
-                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">계정 및 보안</h2>
+                <h2 className="text-sm font-semibold text-gray-900">계정 및 보안</h2>
               </div>
               <div className="p-6 space-y-6">
                 <div>

@@ -347,7 +347,7 @@ export default function ExplorePage() {
                       )}
                       {booth.nextEvents.length > 0 && (
                         <span className="flex items-center gap-1.5 text-brand-600 bg-brand-50/50 px-1.5 py-0.5 rounded">
-                          <Calendar className="w-3 h-3" /> EVENT
+                          <Calendar className="w-3 h-3" /> 행사
                         </span>
                       )}
                     </div>

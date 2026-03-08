@@ -313,7 +313,7 @@ function CollectionsTab({ favoriteBooths }: { favoriteBooths: Array<{ booth: Boo
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-gray-900 truncate">{col.name}</p>
-                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">{col.boothIds.length} Booths</p>
+                      <p className="text-[11px] font-bold text-gray-400 tracking-tight">부스 {col.boothIds.length}개</p>
                     </div>
                   </button>
                   <div className="flex gap-1 shrink-0">
