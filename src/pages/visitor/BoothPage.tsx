@@ -853,22 +853,20 @@ export default function BoothPage() {
                 </div>
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" checked={inquiryAbuseCheck} onChange={(e) => setInquiryAbuseCheck(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
-                  <span className="text-xs text-gray-500">부적절한 문의(스팸, 광고 등)는 이용이 제한될 수 있음을 확인했습니다</span>
-                </label>
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" checked={ipTrackingConsent} onChange={(e) => setIpTrackingConsent(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
-                  <span className="text-xs text-gray-500">(선택) 비로그인 상태에서 방문 추적(IP 기반)에 동의합니다<span className="text-gray-400 block">동의 시 재방문 시 이전 문의를 이어볼 수 있어요</span></span>
+                  <span className="text-xs text-gray-500">(필수) 부적절한 문의(스팸, 광고 등)는 이용이 제한될 수 있음을 확인했습니다</span>
                 </label>
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" checked={inquiryConsent} onChange={(e) => setInquiryConsent(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
-                  <span className="text-xs text-gray-500">(선택) 운영자에게 이메일 제공에 동의합니다<span className="text-gray-400 block">동의 시 운영자가 리드로 저장합니다</span></span>
+                  <span className="text-xs text-gray-500">(필수) 운영자에게 이메일 제공에 동의합니다<span className="text-gray-400 block">동의 시 운영자가 리드로 저장합니다</span></span>
                 </label>
-                {inquiryConsent && (
-                  <label className="flex items-start gap-2 cursor-pointer pl-6">
-                    <input type="checkbox" checked={inquiryConsentMarketing} onChange={(e) => setInquiryConsentMarketing(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
-                    <span className="text-xs text-gray-400">(선택) 마케팅 정보 수신에 동의합니다<span className="block">언제든 철회할 수 있어요</span></span>
-                  </label>
-                )}
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" checked={ipTrackingConsent} onChange={(e) => setIpTrackingConsent(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
+                  <span className="text-xs text-gray-500">(선택) 비로그인 상태에서 방문 추적에 동의합니다<span className="text-gray-400 block">동의 시 재방문 시 이전 문의를 이어볼 수 있어요</span></span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" checked={inquiryConsentMarketing} onChange={(e) => setInquiryConsentMarketing(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
+                  <span className="text-xs text-gray-500">(선택) 마케팅 정보 수신에 동의합니다<span className="text-gray-400 block">언제든 철회할 수 있어요</span></span>
+                </label>
               </div>
             )}
             <button onClick={handleSendInquiry} disabled={!inquiryFormValid}
