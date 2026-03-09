@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {
   Search, ChevronDown, Send, ArrowLeft,
   Clock, CheckCircle, PauseCircle, X, MessageSquare, ShieldOff, Shield,
-  Settings, Plus, Pencil, Trash2, UserPlus,
+  Settings, Plus, Pencil, Trash2, UserPlus, LayoutGrid,
 } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { useThreads } from '../../hooks/useThreads';
@@ -220,6 +220,7 @@ export default function AdminInboxPage() {
   const { showToast } = useToast();
   const [selected, setSelected] = useState<Thread | null>(null);
   const [filter, setFilter] = useState<StatusFilter>('all');
+  const [filterBooth, setFilterBooth] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [replyText, setReplyText] = useState('');
   const [newTag, setNewTag] = useState('');
@@ -233,6 +234,7 @@ export default function AdminInboxPage() {
   const filtered = useMemo(() => {
     return threads.filter((t) => {
       const matchStatus = filter === 'all' || t.status === filter;
+      const matchBooth = filterBooth === 'all' || t.boothId === filterBooth;
       const booth = boothMap[t.boothId];
       const q = search.toLowerCase();
       const matchSearch =
@@ -240,9 +242,9 @@ export default function AdminInboxPage() {
         booth?.name.toLowerCase().includes(q) ||
         t.messages.some((m) => m.text.toLowerCase().includes(q)) ||
         t.tags.some((tg) => tg.toLowerCase().includes(q));
-      return matchStatus && matchSearch;
+      return matchStatus && matchBooth && matchSearch;
     });
-  }, [threads, filter, search, boothMap]);
+  }, [threads, filter, filterBooth, search, boothMap]);
 
   // Keep selected up-to-date
   const selectedThread = selected
@@ -329,6 +331,22 @@ export default function AdminInboxPage() {
                 placeholder="부스명 또는 키워드 검색"
                 className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 text-sm focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white outline-none transition-all placeholder:text-gray-400"
               />
+            </div>
+
+            {/* Booth filter */}
+            <div className="relative mt-2">
+              <LayoutGrid className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <select
+                value={filterBooth}
+                onChange={(e) => setFilterBooth(e.target.value)}
+                className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-8 text-sm font-medium appearance-none outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white transition-all cursor-pointer text-gray-600"
+              >
+                <option value="all">전체 부스</option>
+                {allBooths.map((b) => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
 
             {/* Status filter */}
