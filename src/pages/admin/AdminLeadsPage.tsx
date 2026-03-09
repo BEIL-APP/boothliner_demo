@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Plus,
   X,
+  Pencil,
 } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { useBooths } from '../../hooks/useBooths';
@@ -76,6 +77,37 @@ export default function AdminLeadsPage() {
   const [lotteryWinner, setLotteryWinner] = useState<Lead | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addForm, setAddForm] = useState({ name: '', company: '', phone: '', email: '', boothId: '', memo: '' });
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', company: '', phone: '', email: '', boothId: '', memo: '' });
+
+  const openEditModal = (lead: Lead) => {
+    setEditingLead(lead);
+    setEditForm({
+      name: lead.name ?? '',
+      company: lead.company ?? '',
+      phone: lead.phone ?? '',
+      email: lead.email ?? '',
+      boothId: lead.boothId,
+      memo: lead.memo,
+    });
+  };
+
+  const handleEditLead = () => {
+    if (!editingLead) return;
+    if (!editForm.name && !editForm.email) { showToast('이름 또는 이메일을 입력해주세요', 'error'); return; }
+    saveLead({
+      ...editingLead,
+      name: editForm.name || undefined,
+      company: editForm.company || undefined,
+      phone: editForm.phone || undefined,
+      email: editForm.email || undefined,
+      boothId: editForm.boothId,
+      memo: editForm.memo,
+    });
+    setLeads(getLeads());
+    setEditingLead(null);
+    showToast('리드가 수정됐어요', 'success');
+  };
 
   const handleAddLead = () => {
     if (!addForm.boothId) { showToast('부스를 선택해주세요', 'error'); return; }
@@ -145,13 +177,6 @@ export default function AdminLeadsPage() {
     const winner = filtered[Math.floor(Math.random() * filtered.length)];
     setLotteryWinner(winner);
     setShowLottery(true);
-  };
-
-  const handleMemoChange = (id: string, memo: string) => {
-    const lead = leads.find((l) => l.id === id);
-    if (!lead) return;
-    saveLead({ ...lead, memo });
-    setLeads(getLeads());
   };
 
   const countBySource = (src: Lead['source']) => leads.filter((l) => l.source === src).length;
@@ -398,21 +423,25 @@ export default function AdminLeadsPage() {
                         </p>
                       </td>
                       <td className="px-4 py-4 min-w-[180px]">
-                        <input
-                          type="text"
-                          defaultValue={lead.memo}
-                          onBlur={(e) => handleMemoChange(lead.id, e.target.value)}
-                          placeholder="메모 입력..."
-                          className="w-full h-8 text-xs text-gray-600 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-brand-400 outline-none transition-all placeholder:text-gray-300 px-1"
-                        />
+                        <p className="text-xs text-gray-500 truncate max-w-[180px]">
+                          {lead.memo || <span className="text-gray-300">-</span>}
+                        </p>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => handleDelete(lead.id)}
-                          className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                          <button
+                            onClick={() => openEditModal(lead)}
+                            className="p-2 text-gray-300 hover:text-brand-500 hover:bg-brand-50 rounded-xl transition-all"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(lead.id)}
+                            className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -464,6 +493,76 @@ export default function AdminLeadsPage() {
                 className="flex-1 h-12 bg-brand-600 text-white text-sm font-bold rounded-xl flex items-center justify-center hover:bg-brand-500 transition-all shadow-lg shadow-brand-100"
               >
                 확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Lead Modal */}
+      {editingLead && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-md shadow-2xl border border-gray-100">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h2 className="text-sm font-bold text-gray-900">리드 수정</h2>
+              <button onClick={() => setEditingLead(null)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                <X className="w-4 h-4 text-gray-500" />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1.5">부스</label>
+                <select
+                  value={editForm.boothId}
+                  onChange={(e) => setEditForm((f) => ({ ...f, boothId: e.target.value }))}
+                  className="w-full h-10 text-sm bg-white border border-gray-200 rounded-xl px-3 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all"
+                >
+                  {booths.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5">이름</label>
+                  <input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                    placeholder="홍길동"
+                    className="w-full h-10 text-sm bg-white border border-gray-200 rounded-xl px-3 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all placeholder:text-gray-300" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5">회사</label>
+                  <input value={editForm.company} onChange={(e) => setEditForm((f) => ({ ...f, company: e.target.value }))}
+                    placeholder="(주)회사명"
+                    className="w-full h-10 text-sm bg-white border border-gray-200 rounded-xl px-3 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all placeholder:text-gray-300" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5">이메일</label>
+                  <input type="email" value={editForm.email} onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                    placeholder="example@co.kr"
+                    className="w-full h-10 text-sm bg-white border border-gray-200 rounded-xl px-3 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all placeholder:text-gray-300" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-1.5">전화번호</label>
+                  <input value={editForm.phone} onChange={(e) => setEditForm((f) => ({ ...f, phone: e.target.value }))}
+                    placeholder="010-0000-0000"
+                    className="w-full h-10 text-sm bg-white border border-gray-200 rounded-xl px-3 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all placeholder:text-gray-300" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1.5">메모</label>
+                <input value={editForm.memo} onChange={(e) => setEditForm((f) => ({ ...f, memo: e.target.value }))}
+                  placeholder="메모"
+                  className="w-full h-10 text-sm bg-white border border-gray-200 rounded-xl px-3 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 transition-all placeholder:text-gray-300" />
+              </div>
+            </div>
+            <div className="flex gap-3 px-6 pb-5">
+              <button onClick={() => setEditingLead(null)}
+                className="flex-1 h-10 text-sm font-bold bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all">
+                취소
+              </button>
+              <button onClick={handleEditLead}
+                className="flex-1 h-10 text-sm font-bold bg-brand-600 text-white rounded-xl hover:bg-brand-500 transition-all shadow-lg shadow-brand-100">
+                저장
               </button>
             </div>
           </div>
