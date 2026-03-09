@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BarChart3,
@@ -13,6 +14,8 @@ import {
   Lightbulb,
   MessageSquare,
   PhoneCall,
+  Calendar,
+  ChevronDown,
 } from 'lucide-react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { useAnalytics } from '../../hooks/useAnalytics';
@@ -20,33 +23,100 @@ import { useBooths } from '../../hooks/useBooths';
 import { useThreads } from '../../hooks/useThreads';
 import { exportAnalyticsCSV } from '../../utils/csv';
 import { useToast } from '../../contexts/ToastContext';
-import { getVisits, getLeads, getSurveys } from '../../utils/localStorage';
+import { getVisits, getLeads, getSurveys, getFavorites } from '../../utils/localStorage';
 
 const HOUR_LABELS = ['9', '10', '11', '12', '13', '14', '15', '16', '17', '18'];
 const MOCK_HOURLY = [8, 22, 35, 28, 18, 42, 56, 38, 25, 14];
+
+type Period = 'all' | 'week' | 'month' | 'custom';
+
+function getPeriodRange(period: Period, customFrom: string, customTo: string): { from: Date | null; to: Date | null } {
+  const now = new Date();
+  if (period === 'week') {
+    const from = new Date(now);
+    from.setDate(from.getDate() - 7);
+    return { from, to: now };
+  }
+  if (period === 'month') {
+    const from = new Date(now);
+    from.setDate(from.getDate() - 30);
+    return { from, to: now };
+  }
+  if (period === 'custom' && customFrom && customTo) {
+    return { from: new Date(customFrom), to: new Date(customTo + 'T23:59:59') };
+  }
+  return { from: null, to: null };
+}
+
+function inRange(dateStr: string, from: Date | null, to: Date | null): boolean {
+  if (!from || !to) return true;
+  const d = new Date(dateStr);
+  return d >= from && d <= to;
+}
 
 export default function AdminDashboardPage() {
   const { analytics: allAnalytics } = useAnalytics();
   const { booths } = useBooths();
   const { showToast } = useToast();
+  const { threads } = useThreads();
 
-  // 이벤트별 항목 제외 — 총계 항목(eventId 없음)만 사용해 더블 카운팅 방지
+  const [period, setPeriod] = useState<Period>('all');
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTo, setCustomTo] = useState('');
+  const [showCustom, setShowCustom] = useState(false);
+
+  const { from, to } = getPeriodRange(period, customFrom, customTo);
+
+  // All raw data (unfiltered) — for KPI cards
+  const allVisitsRaw = getVisits();
+  const allFavoritesRaw = getFavorites();
+  const allLeadsRaw = getLeads();
+  const allSurveysRaw = getSurveys();
+
+  // KPIs — always full data, not affected by period filter
+  const qrVisits = allVisitsRaw.filter((v) => v.source === 'qr').length;
+  const directVisits = allVisitsRaw.filter((v) => v.source === 'direct' || !v.source).length;
+  const totalFavorites = allFavoritesRaw.length;
+  const totalInquiries = threads.length;
+
+  // Period-filtered data — for charts / tables below the filter
+  const filteredVisits = allVisitsRaw.filter((v) => inRange(v.visitedAt, from, to));
+  const filteredFavorites = allFavoritesRaw.filter((f) => inRange(f.createdAt, from, to));
+  const filteredLeads = allLeadsRaw.filter((l) => inRange(l.createdAt, from, to));
+  const filteredSurveys = allSurveysRaw.filter((s) => inRange(s.createdAt, from, to));
+  const filteredThreads = threads.filter((t) => {
+    const firstMsgAt = t.messages[0]?.at;
+    return firstMsgAt ? inRange(firstMsgAt, from, to) : inRange(t.lastUpdated, from, to);
+  });
+
+  // 이벤트별 항목 제외 — 총계만
   const analytics = allAnalytics.filter((a) => !a.eventId);
 
-  const totalScans = analytics.reduce((s, a) => s + a.scans, 0);
-  const totalFavorites = analytics.reduce((s, a) => s + a.favorites, 0);
-  const totalInquiries = analytics.reduce((s, a) => s + a.inquiries, 0);
+  // Top booths by filtered visit count
+  const visitCountByBooth: Record<string, number> = {};
+  filteredVisits.forEach((v) => {
+    visitCountByBooth[v.boothId] = (visitCountByBooth[v.boothId] ?? 0) + 1;
+  });
+  const topBooths = Object.entries(visitCountByBooth)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
 
-  const allVisits = getVisits();
-  const uniqueVisitors = new Set(allVisits.map((v) => v.visitorId ?? 'unknown')).size;
+  // Insight cards — always unfiltered
+  const pendingInquiries = threads.filter((t) => t.status === '미처리').length;
+  const newLeads = allLeadsRaw.filter((l) => !l.status || l.status === 'NEW').length;
+  const allInterests: Record<string, number> = {};
+  for (const s of allSurveysRaw) {
+    (s.answers.interests ?? []).forEach((tag) => {
+      allInterests[tag] = (allInterests[tag] ?? 0) + 1;
+    });
+  }
+  const topInterestName = Object.entries(allInterests).sort((a, b) => b[1] - a[1])[0]?.[0];
 
-  const allLeads = getLeads();
-  const allSurveys = getSurveys();
-
+  // Filtered survey aggregates — for charts below the filter
   const globalInterests: Record<string, number> = {};
   const globalPurposes: Record<string, number> = {};
   let globalWantsContact = 0;
-  for (const s of allSurveys) {
+  for (const s of filteredSurveys) {
     (s.answers.interests ?? []).forEach((tag) => {
       globalInterests[tag] = (globalInterests[tag] ?? 0) + 1;
     });
@@ -60,26 +130,18 @@ export default function AdminDashboardPage() {
   const maxGlobalInterest = topGlobalInterests[0]?.[1] ?? 1;
 
   const leadsBySource = {
-    bizcard: allLeads.filter((l) => l.source === 'bizcard').length,
-    inquiry: allLeads.filter((l) => l.source === 'inquiry').length,
-    email_info: allLeads.filter((l) => l.source === 'email_info').length,
-    survey: allLeads.filter((l) => l.source === 'survey').length,
+    bizcard: filteredLeads.filter((l) => l.source === 'bizcard').length,
+    inquiry: filteredLeads.filter((l) => l.source === 'inquiry').length,
+    email_info: filteredLeads.filter((l) => l.source === 'email_info').length,
+    survey: filteredLeads.filter((l) => l.source === 'survey').length,
   };
 
   const boothMap = Object.fromEntries(booths.map((b) => [b.id, b]));
-
-  const topBooths = [...analytics].sort((a, b) => b.scans - a.scans).slice(0, 5);
 
   const handleExportAll = () => {
     exportAnalyticsCSV(analytics);
     showToast('전체 통계 CSV가 다운로드됐어요!', 'success');
   };
-
-  const { threads } = useThreads();
-  const pendingInquiries = threads.filter((t) => t.status === '미처리').length;
-  const newLeads = allLeads.filter((l) => !l.status || l.status === 'NEW').length;
-
-  const topInterestName = topGlobalInterests[0]?.[0];
 
   const peakHourIdx = MOCK_HOURLY.indexOf(Math.max(...MOCK_HOURLY));
   const peakHour = HOUR_LABELS[peakHourIdx];
@@ -100,6 +162,19 @@ export default function AdminDashboardPage() {
   ].filter(Boolean) as Array<{ icon: typeof MessageSquare; color: string; text: string; action: string | null; to: string | null }>;
 
   const maxHourly = Math.max(...MOCK_HOURLY);
+  const maxTopBooth = topBooths[0]?.[1] ?? 1;
+
+  const PERIOD_LABELS: Record<Period, string> = {
+    all: '전체 기간',
+    week: '최근 7일',
+    month: '최근 30일',
+    custom: '기간 설정',
+  };
+
+  const handlePeriodClick = (p: Period) => {
+    setPeriod(p);
+    setShowCustom(p === 'custom');
+  };
 
   return (
     <AdminLayout>
@@ -143,42 +218,85 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
+        {/* Period selector */}
+        <div className="mb-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+            {(['all', 'week', 'month', 'custom'] as Period[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => handlePeriodClick(p)}
+                className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-[13px] font-medium transition-all duration-150 ${
+                  period === p
+                    ? 'bg-brand-600 text-white shadow-sm'
+                    : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {PERIOD_LABELS[p]}
+                {p === 'custom' && <ChevronDown className="w-3.5 h-3.5 opacity-70" />}
+              </button>
+            ))}
+          </div>
+
+          {/* Custom date range */}
+          {showCustom && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 pl-6">
+              <input
+                type="date"
+                value={customFrom}
+                onChange={(e) => setCustomFrom(e.target.value)}
+                className="h-9 border border-gray-200 rounded-lg px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400"
+              />
+              <span className="text-sm text-gray-400 font-medium">~</span>
+              <input
+                type="date"
+                value={customTo}
+                onChange={(e) => setCustomTo(e.target.value)}
+                min={customFrom}
+                className="h-9 border border-gray-200 rounded-lg px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400"
+              />
+              {customFrom && customTo && (
+                <span className="text-[12px] text-gray-400 font-medium">
+                  {customFrom} ~ {customTo}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* KPI Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[
             {
-              label: '총 스캔 수',
-              value: totalScans.toLocaleString(),
+              label: 'QR 방문 수',
+              value: qrVisits.toLocaleString(),
               icon: <QrCode className="w-5 h-5" />,
-              trend: '+12% 전주 대비',
+              sub: 'QR 코드 스캔 기준',
             },
             {
-              label: '고유 방문자',
-              value: uniqueVisitors.toLocaleString(),
+              label: '직접 방문 수',
+              value: directVisits.toLocaleString(),
               icon: <UserCheck className="w-5 h-5" />,
-              trend: '전체 부스 기준',
+              sub: 'URL 직접 접근 기준',
             },
             {
               label: '관심 저장',
               value: totalFavorites.toLocaleString(),
               icon: <Users className="w-5 h-5" />,
-              trend: '+8% 전주 대비',
+              sub: '하트 누른 횟수',
             },
             {
               label: '총 문의',
               value: totalInquiries.toLocaleString(),
               icon: <TrendingUp className="w-5 h-5" />,
-              trend: '+22% 전주 대비',
+              sub: '스레드 생성 기준',
             },
           ].map((kpi) => (
             <div key={kpi.label} className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 hover:shadow-card-hover transition-all duration-200">
               <div className="text-gray-400 mb-4">{kpi.icon}</div>
               <p className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">{kpi.value}</p>
               <p className="text-xs sm:text-sm font-medium text-gray-500 mt-1">{kpi.label}</p>
-              <p className="text-[11px] text-gray-400 mt-2 flex items-center gap-1">
-                <span className="text-emerald-500 font-medium">{kpi.trend.split(' ')[0]}</span>
-                {kpi.trend.split(' ').slice(1).join(' ')}
-              </p>
+              <p className="text-[11px] text-gray-400 mt-2">{kpi.sub}</p>
             </div>
           ))}
         </div>
@@ -189,7 +307,7 @@ export default function AdminDashboardPage() {
             { label: '명함 스캔 리드', value: leadsBySource.bizcard, icon: <CreditCard className="w-5 h-5" /> },
             { label: '문의 동의 리드', value: leadsBySource.inquiry, icon: <UserCheck className="w-5 h-5" /> },
             { label: '이메일 수신 신청', value: leadsBySource.email_info, icon: <TrendingUp className="w-5 h-5" /> },
-            { label: '설문 응답 수', value: allSurveys.length, icon: <ClipboardList className="w-5 h-5" /> },
+            { label: '설문 응답 수', value: filteredSurveys.length, icon: <ClipboardList className="w-5 h-5" /> },
           ].map((item) => (
             <div key={item.label} className="bg-white border border-gray-200/60 rounded-xl p-4 hover:shadow-card-hover transition-all duration-200">
               <div className="text-gray-400 mb-3">{item.icon}</div>
@@ -205,7 +323,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-gray-400" />
-                <h2 className="text-sm font-semibold text-gray-900">부스별 성과</h2>
+                <h2 className="text-sm font-semibold text-gray-900">부스별 방문 Top 5</h2>
               </div>
               <Link
                 to="/admin/booths"
@@ -215,36 +333,41 @@ export default function AdminDashboardPage() {
               </Link>
             </div>
 
-            <div className="space-y-4">
-              {topBooths.map((a, i) => {
-                const booth = boothMap[a.boothId];
-                const maxScans = topBooths[0]?.scans ?? 1;
-                return (
-                  <div key={a.boothId} className="group">
-                    <div className="flex items-center gap-4 mb-2">
-                      <span className="text-xs font-bold text-gray-300 w-4">{i + 1}</span>
-                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                        {booth?.images[0] && (
-                          <img src={booth.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <p className="text-sm font-semibold text-gray-800 truncate">{booth?.name ?? a.boothId}</p>
-                          <span className="text-xs font-bold text-gray-900 ml-2">{a.scans.toLocaleString()}</span>
+            {topBooths.length === 0 ? (
+              <div className="text-center py-10">
+                <p className="text-sm text-gray-400">해당 기간에 방문 기록이 없어요</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {topBooths.map(([boothId, count], i) => {
+                  const booth = boothMap[boothId];
+                  return (
+                    <div key={boothId} className="group">
+                      <div className="flex items-center gap-4 mb-2">
+                        <span className="text-xs font-bold text-gray-300 w-4">{i + 1}</span>
+                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
+                          {booth?.images[0] && (
+                            <img src={booth.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                          )}
                         </div>
-                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-brand-500 rounded-full transition-all duration-500"
-                            style={{ width: `${(a.scans / maxScans) * 100}%` }}
-                          />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <p className="text-sm font-semibold text-gray-800 truncate">{booth?.name ?? boothId}</p>
+                            <span className="text-xs font-bold text-gray-900 ml-2">{count.toLocaleString()}</span>
+                          </div>
+                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-brand-500 rounded-full transition-all duration-500"
+                              style={{ width: `${(count / maxTopBooth) * 100}%` }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Hourly visit bar chart (mock) */}
@@ -272,13 +395,13 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Survey Aggregate */}
-        {allSurveys.length > 0 && (
+        {filteredSurveys.length > 0 && (
           <div className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
               <ClipboardList className="w-5 h-5 text-gray-400" />
               <h2 className="text-sm font-semibold text-gray-900">설문 집계</h2>
               <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 rounded-md px-2 h-5 flex items-center ml-auto">
-                총 {allSurveys.length}건
+                총 {filteredSurveys.length}건
               </span>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -314,7 +437,7 @@ export default function AdminDashboardPage() {
                           <span className="text-gray-700 font-medium">{purpose}</span>
                           <div className="flex items-center gap-3">
                             <div className="h-1.5 bg-brand-200 rounded-full overflow-hidden w-24">
-                              <div className="h-full bg-brand-500" style={{ width: `${(count / allSurveys.length) * 100}%` }} />
+                              <div className="h-full bg-brand-500" style={{ width: `${(count / filteredSurveys.length) * 100}%` }} />
                             </div>
                             <span className="font-bold text-gray-600 w-8 text-right">{count}건</span>
                           </div>
@@ -328,7 +451,7 @@ export default function AdminDashboardPage() {
                   <p className="text-2xl font-bold text-emerald-700">
                     {globalWantsContact}명
                     <span className="text-sm font-medium text-emerald-500 ml-2">
-                      ({allSurveys.length > 0 ? Math.round((globalWantsContact / allSurveys.length) * 100) : 0}%)
+                      ({filteredSurveys.length > 0 ? Math.round((globalWantsContact / filteredSurveys.length) * 100) : 0}%)
                     </span>
                   </p>
                   <p className="text-[11px] text-emerald-600/60 mt-1 font-medium italic">잠재 리드로 연결될 가능성이 높습니다</p>
@@ -353,13 +476,13 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
 
-          {allLeads.length === 0 ? (
+          {filteredLeads.length === 0 ? (
             <div className="text-center py-10">
-              <p className="text-sm text-gray-400 font-medium">아직 리드가 없어요</p>
+              <p className="text-sm text-gray-400 font-medium">해당 기간에 수집된 리드가 없어요</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
-              {allLeads.slice(0, 5).map((lead) => {
+              {filteredLeads.slice(0, 5).map((lead) => {
                 const sourceColors = {
                   bizcard: 'bg-gray-100 text-gray-600',
                   inquiry: 'bg-blue-50 text-blue-600',
@@ -412,7 +535,7 @@ export default function AdminDashboardPage() {
                 <tr className="bg-gray-50/50 text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
                   <th className="text-left px-6 py-3.5">부스</th>
                   <th className="text-left px-4 py-3.5">카테고리</th>
-                  <th className="text-right px-4 py-3.5">스캔</th>
+                  <th className="text-right px-4 py-3.5">방문</th>
                   <th className="text-right px-4 py-3.5">관심</th>
                   <th className="text-right px-4 py-3.5">문의</th>
                   <th className="text-right px-4 py-3.5">리드</th>
@@ -420,36 +543,38 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {analytics.map((a) => {
-                  const booth = boothMap[a.boothId];
-                  const boothLeads = allLeads.filter((l) => l.boothId === a.boothId).length;
-                  const convRate = a.scans > 0 ? ((a.inquiries / a.scans) * 100).toFixed(1) : '0.0';
+                {booths.map((booth) => {
+                  const visits = filteredVisits.filter((v) => v.boothId === booth.id).length;
+                  const favs = filteredFavorites.filter((f) => f.boothId === booth.id).length;
+                  const inqs = filteredThreads.filter((t) => t.boothId === booth.id).length;
+                  const leads = filteredLeads.filter((l) => l.boothId === booth.id).length;
+                  const convRate = visits > 0 ? ((inqs / visits) * 100).toFixed(1) : '0.0';
                   return (
-                    <tr key={a.boothId} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={booth.id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
-                            {booth?.images[0] && (
+                            {booth.images[0] && (
                               <img src={booth.images[0]} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                             )}
                           </div>
                           <Link
-                            to={`/admin/booths/${a.boothId}`}
+                            to={`/admin/booths/${booth.id}`}
                             className="text-sm font-semibold text-gray-900 hover:text-brand-600 transition-colors"
                           >
-                            {booth?.name ?? a.boothId}
+                            {booth.name}
                           </Link>
                         </div>
                       </td>
                       <td className="px-4 py-4">
                         <span className="text-[11px] font-bold text-gray-500 bg-gray-100 rounded-md px-2 py-0.5">
-                          {booth?.category ?? '-'}
+                          {booth.category}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-right text-sm font-bold text-gray-900">{a.scans.toLocaleString()}</td>
-                      <td className="px-4 py-4 text-right text-sm font-semibold text-gray-600">{a.favorites.toLocaleString()}</td>
-                      <td className="px-4 py-4 text-right text-sm font-semibold text-gray-600">{a.inquiries.toLocaleString()}</td>
-                      <td className="px-4 py-4 text-right text-sm font-semibold text-gray-600">{boothLeads.toLocaleString()}</td>
+                      <td className="px-4 py-4 text-right text-sm font-bold text-gray-900">{visits.toLocaleString()}</td>
+                      <td className="px-4 py-4 text-right text-sm font-semibold text-gray-600">{favs.toLocaleString()}</td>
+                      <td className="px-4 py-4 text-right text-sm font-semibold text-gray-600">{inqs.toLocaleString()}</td>
+                      <td className="px-4 py-4 text-right text-sm font-semibold text-gray-600">{leads.toLocaleString()}</td>
                       <td className="px-6 py-4 text-right text-sm font-bold text-brand-600 bg-brand-50/20">{convRate}%</td>
                     </tr>
                   );

@@ -121,7 +121,9 @@ export default function BoothPage() {
   useEffect(() => {
     if (!boothId || tracked.current) return;
     tracked.current = true;
-    addVisit(boothId);
+    const params = new URLSearchParams(location.search);
+    const source = params.get('ref') === 'qr' ? 'qr' : 'direct';
+    addVisit(boothId, source);
   }, [boothId]);
 
   useEffect(() => {

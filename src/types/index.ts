@@ -22,6 +22,7 @@ export interface Visit {
   eventId?: string;
   visitedAt: string;
   visitorId?: string;
+  source?: 'qr' | 'direct';
 }
 
 export interface Favorite {

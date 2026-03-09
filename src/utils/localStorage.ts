@@ -139,11 +139,11 @@ export function getVisits(): Visit[] {
   return get<Visit[]>(KEYS.visits) ?? [];
 }
 
-export function addVisit(boothId: string): void {
+export function addVisit(boothId: string, source: 'qr' | 'direct' = 'direct'): void {
   const visitorId = getGuestId();
   const eventId = getActiveEventForBooth(boothId);
   const visits = getVisits();
-  visits.unshift({ boothId, eventId, visitedAt: new Date().toISOString(), visitorId });
+  visits.unshift({ boothId, eventId, visitedAt: new Date().toISOString(), visitorId, source });
   set(KEYS.visits, visits.slice(0, 100));
   incrementScan(boothId, eventId);
 }

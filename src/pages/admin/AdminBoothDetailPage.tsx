@@ -50,7 +50,7 @@ export default function AdminBoothDetailPage() {
     navigate('/admin/booths');
   };
 
-  const boothUrl = `${window.location.origin}/scan/${boothId}`;
+  const boothUrl = `${window.location.origin}/scan/${boothId}?ref=qr`;
 
   // Policy state
   const [policy, setPolicy] = useState<BoothPolicy>(() =>
