@@ -49,7 +49,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const sidebarContent = (
     <>
       <div className="h-12 flex items-center px-4 border-b border-white/[0.06]">
-        <Link to="/admin/booths" className="flex items-center gap-2">
+        <Link to="/admin/dashboard" className="flex items-center gap-2">
           <div className="w-6 h-6 bg-brand-600 rounded-md flex items-center justify-center">
             <QrCode className="w-3 h-3 text-white" />
           </div>

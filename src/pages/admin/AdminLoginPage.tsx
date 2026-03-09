@@ -15,12 +15,12 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isAdmin) navigate('/admin/booths', { replace: true });
+    if (isAdmin) navigate('/admin/dashboard', { replace: true });
   }, [isAdmin, navigate]);
 
   const handleDemoLogin = () => {
     loginAsAdmin();
-    navigate('/admin/booths', { replace: true });
+    navigate('/admin/dashboard', { replace: true });
   };
 
   const handleFormLogin = (e: React.FormEvent) => {
@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
     setTimeout(() => {
       loginAsAdmin();
       showToast('로그인 성공!', 'success');
-      navigate('/admin/booths', { replace: true });
+      navigate('/admin/dashboard', { replace: true });
     }, 800);
   };
 
@@ -42,7 +42,7 @@ export default function AdminLoginPage() {
     showToast(`${provider} 로그인 연동 중... (데모)`, 'info');
     setTimeout(() => {
       loginAsAdmin();
-      navigate('/admin/booths', { replace: true });
+      navigate('/admin/dashboard', { replace: true });
     }, 1000);
   };
 

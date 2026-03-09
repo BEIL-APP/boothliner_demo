@@ -326,7 +326,7 @@ export default function AdminLeadsPage() {
                         <p className="text-xs text-gray-500 font-mono tracking-tighter">{lead.phone ?? '-'}</p>
                       </td>
                       <td className="px-4 py-4">
-                        <span className={`h-6 px-2 rounded-lg text-[10px] font-bold uppercase tracking-tight inline-flex items-center gap-1.5 ${SOURCE_COLORS[lead.source]}`}>
+                        <span className={`h-6 px-2 rounded-lg text-[10px] font-bold uppercase tracking-tight inline-flex items-center gap-1.5 whitespace-nowrap ${SOURCE_COLORS[lead.source]}`}>
                           {SOURCE_ICONS[lead.source]}
                           {SOURCE_LABELS[lead.source]}
                         </span>
