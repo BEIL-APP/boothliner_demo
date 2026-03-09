@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Users, Crown, UserCheck, UserPlus, Trash2, Clock, Mail, Shield,
 } from 'lucide-react';
@@ -43,6 +43,7 @@ function StatusBadge({ status }: { status: StaffMember['status'] }) {
 
 export default function AdminBoothTeamPage() {
   const { boothId } = useParams<{ boothId: string }>();
+  const location = useLocation();
   const { booth } = useBooth(boothId ?? '');
   const { showToast } = useToast();
 
@@ -118,28 +119,56 @@ export default function AdminBoothTeamPage() {
 
   return (
     <AdminLayout>
-      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-2xl mx-auto">
+      <div className="px-4 py-5 sm:p-6 lg:p-8 max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 lg:mb-8">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <Link
-              to={`/admin/booths/${boothId}`}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-150 shrink-0"
-            >
-              <ArrowLeft className="w-4 h-4 text-gray-500" />
+            <Link to="/admin/booths" className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-150 shrink-0">
+              <ArrowLeft className="w-5 h-5 text-gray-600" />
             </Link>
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">팀 관리</h1>
-              <p className="text-sm text-gray-500 font-medium truncate">{booth.name} 부스의 운영 팀</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">{booth.name}</h1>
+                <span className="h-6 px-2 rounded-md text-xs font-medium inline-flex items-center bg-gray-100 text-gray-600">
+                  {booth.category}
+                </span>
+              </div>
+              <p className="text-sm text-gray-500 font-medium truncate">{booth.tagline}</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowInvite(!showInvite)}
-            className="flex items-center justify-center gap-2 h-9 text-[13px] font-medium text-white bg-brand-600 rounded-lg px-4 hover:bg-brand-500 transition-all duration-150 w-full sm:w-auto shrink-0"
-          >
-            <UserPlus className="w-4 h-4" />
-            팀원 초대
-          </button>
+          <div className="flex gap-2 w-full sm:w-auto shrink-0">
+            <button
+              onClick={() => setShowInvite(!showInvite)}
+              className="flex items-center justify-center gap-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 flex-1 sm:flex-initial"
+            >
+              <UserPlus className="w-4 h-4" />
+              팀원 초대
+            </button>
+          </div>
+        </div>
+
+        {/* Tab nav */}
+        <div className="flex border-b border-gray-200 mb-6 gap-1">
+          {[
+            { label: '설정', to: `/admin/booths/${boothId}` },
+            { label: '통계', to: `/admin/booths/${boothId}/stats` },
+            { label: '팀', to: `/admin/booths/${boothId}/team` },
+          ].map((tab) => {
+            const isActive = location.pathname === tab.to;
+            return (
+              <Link
+                key={tab.to}
+                to={tab.to}
+                className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                  isActive
+                    ? 'border-brand-600 text-brand-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Invite Form */}

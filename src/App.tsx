@@ -28,6 +28,7 @@ import AdminInboxPage from './pages/admin/AdminInboxPage';
 import AdminLeadsPage from './pages/admin/AdminLeadsPage';
 import AdminLeadsScanPage from './pages/admin/AdminLeadsScanPage';
 import AdminBoothTeamPage from './pages/admin/AdminBoothTeamPage';
+import AdminBoothStatsPage from './pages/admin/AdminBoothStatsPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 
 // Dashboard
@@ -68,6 +69,7 @@ function AppRoutes() {
       <Route path="/admin/inbox" element={<AdminGuard><AdminInboxPage /></AdminGuard>} />
       <Route path="/admin/leads" element={<AdminGuard><AdminLeadsPage /></AdminGuard>} />
       <Route path="/admin/leads/scan" element={<AdminGuard><AdminLeadsScanPage /></AdminGuard>} />
+      <Route path="/admin/booths/:boothId/stats" element={<AdminGuard><AdminBoothStatsPage /></AdminGuard>} />
       <Route path="/admin/booths/:boothId/team" element={<AdminGuard><AdminBoothTeamPage /></AdminGuard>} />
       <Route path="/admin/settings" element={<AdminGuard><AdminSettingsPage /></AdminGuard>} />
       <Route path="/admin/dashboard" element={<AdminGuard><AdminDashboardPage /></AdminGuard>} />
