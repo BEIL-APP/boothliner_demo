@@ -86,15 +86,8 @@ export default function AdminDashboardPage() {
   const totalFavorites = allFavoritesRaw.length;
   const totalInquiries = threads.length;
 
-  // Period + day-of-week filtered data — for charts / tables below the filter
+  // Period + day-of-week filtered data — 부스별 Top 5 + 시간대 차트에만 사용
   const filteredVisits = allVisitsRaw.filter((v) => inRange(v.visitedAt, from, to, selectedDays));
-  const filteredFavorites = allFavoritesRaw.filter((f) => inRange(f.createdAt, from, to, selectedDays));
-  const filteredLeads = allLeadsRaw.filter((l) => inRange(l.createdAt, from, to, selectedDays));
-  const filteredSurveys = allSurveysRaw.filter((s) => inRange(s.createdAt, from, to, selectedDays));
-  const filteredThreads = threads.filter((t) => {
-    const firstMsgAt = t.messages[0]?.at;
-    return firstMsgAt ? inRange(firstMsgAt, from, to, selectedDays) : inRange(t.lastUpdated, from, to, selectedDays);
-  });
 
   // 이벤트별 항목 제외 — 총계만
   const analytics = allAnalytics.filter((a) => !a.eventId);
@@ -119,11 +112,11 @@ export default function AdminDashboardPage() {
   }
   const topInterestName = Object.entries(allInterests).sort((a, b) => b[1] - a[1])[0]?.[0];
 
-  // Filtered survey aggregates — for charts below the filter
+  // Survey aggregates — unfiltered
   const globalInterests: Record<string, number> = {};
   const globalPurposes: Record<string, number> = {};
   let globalWantsContact = 0;
-  for (const s of filteredSurveys) {
+  for (const s of allSurveysRaw) {
     (s.answers.interests ?? []).forEach((tag) => {
       globalInterests[tag] = (globalInterests[tag] ?? 0) + 1;
     });
@@ -137,10 +130,10 @@ export default function AdminDashboardPage() {
   const maxGlobalInterest = topGlobalInterests[0]?.[1] ?? 1;
 
   const leadsBySource = {
-    bizcard: filteredLeads.filter((l) => l.source === 'bizcard').length,
-    inquiry: filteredLeads.filter((l) => l.source === 'inquiry').length,
-    email_info: filteredLeads.filter((l) => l.source === 'email_info').length,
-    survey: filteredLeads.filter((l) => l.source === 'survey').length,
+    bizcard: allLeadsRaw.filter((l) => l.source === 'bizcard').length,
+    inquiry: allLeadsRaw.filter((l) => l.source === 'inquiry').length,
+    email_info: allLeadsRaw.filter((l) => l.source === 'email_info').length,
+    survey: allLeadsRaw.filter((l) => l.source === 'survey').length,
   };
 
   const boothMap = Object.fromEntries(booths.map((b) => [b.id, b]));
@@ -357,7 +350,7 @@ export default function AdminDashboardPage() {
             { label: '명함 스캔 리드', value: leadsBySource.bizcard, icon: <CreditCard className="w-5 h-5" /> },
             { label: '문의 동의 리드', value: leadsBySource.inquiry, icon: <UserCheck className="w-5 h-5" /> },
             { label: '이메일 수신 신청', value: leadsBySource.email_info, icon: <TrendingUp className="w-5 h-5" /> },
-            { label: '설문 응답 수', value: filteredSurveys.length, icon: <ClipboardList className="w-5 h-5" /> },
+            { label: '설문 응답 수', value: allSurveysRaw.length, icon: <ClipboardList className="w-5 h-5" /> },
           ].map((item) => (
             <div key={item.label} className="bg-white border border-gray-200/60 rounded-xl p-4 hover:shadow-card-hover transition-all duration-200">
               <div className="text-gray-400 mb-3">{item.icon}</div>
@@ -462,13 +455,13 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Survey Aggregate */}
-        {filteredSurveys.length > 0 && (
+        {allSurveysRaw.length > 0 && (
           <div className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
               <ClipboardList className="w-5 h-5 text-gray-400" />
               <h2 className="text-sm font-semibold text-gray-900">설문 집계</h2>
               <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 rounded-md px-2 h-5 flex items-center ml-auto">
-                총 {filteredSurveys.length}건
+                총 {allSurveysRaw.length}건
               </span>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -504,7 +497,7 @@ export default function AdminDashboardPage() {
                           <span className="text-gray-700 font-medium">{purpose}</span>
                           <div className="flex items-center gap-3">
                             <div className="h-1.5 bg-brand-200 rounded-full overflow-hidden w-24">
-                              <div className="h-full bg-brand-500" style={{ width: `${(count / filteredSurveys.length) * 100}%` }} />
+                              <div className="h-full bg-brand-500" style={{ width: `${(count / allSurveysRaw.length) * 100}%` }} />
                             </div>
                             <span className="font-bold text-gray-600 w-8 text-right">{count}건</span>
                           </div>
@@ -518,7 +511,7 @@ export default function AdminDashboardPage() {
                   <p className="text-2xl font-bold text-emerald-700">
                     {globalWantsContact}명
                     <span className="text-sm font-medium text-emerald-500 ml-2">
-                      ({filteredSurveys.length > 0 ? Math.round((globalWantsContact / filteredSurveys.length) * 100) : 0}%)
+                      ({allSurveysRaw.length > 0 ? Math.round((globalWantsContact / allSurveysRaw.length) * 100) : 0}%)
                     </span>
                   </p>
                   <p className="text-[11px] text-emerald-600/60 mt-1 font-medium italic">잠재 리드로 연결될 가능성이 높습니다</p>
@@ -543,13 +536,13 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
 
-          {filteredLeads.length === 0 ? (
+          {allLeadsRaw.length === 0 ? (
             <div className="text-center py-10">
-              <p className="text-sm text-gray-400 font-medium">해당 기간에 수집된 리드가 없어요</p>
+              <p className="text-sm text-gray-400 font-medium">아직 리드가 없어요</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
-              {filteredLeads.slice(0, 5).map((lead) => {
+              {allLeadsRaw.slice(0, 5).map((lead) => {
                 const sourceColors = {
                   bizcard: 'bg-gray-100 text-gray-600',
                   inquiry: 'bg-blue-50 text-blue-600',
@@ -611,10 +604,10 @@ export default function AdminDashboardPage() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {booths.map((booth) => {
-                  const visits = filteredVisits.filter((v) => v.boothId === booth.id).length;
-                  const favs = filteredFavorites.filter((f) => f.boothId === booth.id).length;
-                  const inqs = filteredThreads.filter((t) => t.boothId === booth.id).length;
-                  const leads = filteredLeads.filter((l) => l.boothId === booth.id).length;
+                  const visits = allVisitsRaw.filter((v) => v.boothId === booth.id).length;
+                  const favs = allFavoritesRaw.filter((f) => f.boothId === booth.id).length;
+                  const inqs = threads.filter((t) => t.boothId === booth.id).length;
+                  const leads = allLeadsRaw.filter((l) => l.boothId === booth.id).length;
                   const convRate = visits > 0 ? ((inqs / visits) * 100).toFixed(1) : '0.0';
                   return (
                     <tr key={booth.id} className="hover:bg-gray-50/50 transition-colors">
