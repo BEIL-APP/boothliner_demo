@@ -154,7 +154,8 @@ export default function AdminDashboardPage() {
   const allHourlyCounts = ALL_HOURS.map((h) =>
     allVisitsRaw.filter((v) => new Date(v.visitedAt).getHours() === h).length
   );
-  const peakHour = allHourlyCounts.indexOf(Math.max(...allHourlyCounts));
+  const allMaxHourly = Math.max(...allHourlyCounts);
+  const peakHour = allHourlyCounts.indexOf(allMaxHourly);
 
   // Filtered hourly counts for chart
   const filteredHourlyCounts = ALL_HOURS.map((h) =>
@@ -172,7 +173,7 @@ export default function AdminDashboardPage() {
     topInterestName
       ? { icon: Lightbulb, color: 'text-emerald-600 bg-emerald-50', text: `관심 분야 1위 "${topInterestName}" — 관련 자료를 부스에 추가해 보세요`, action: '내 부스', to: '/admin/booths' }
       : null,
-    maxHourly > 1
+    allMaxHourly > 0
       ? { icon: Clock, color: 'text-sky-600 bg-sky-50', text: `방문 피크 시간대 ${peakHour}시 — 이 시간에 인력을 집중 배치하세요`, action: null, to: null }
       : null,
   ].filter(Boolean) as Array<{ icon: typeof MessageSquare; color: string; text: string; action: string | null; to: string | null }>;
