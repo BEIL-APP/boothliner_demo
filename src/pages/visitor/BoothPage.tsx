@@ -392,7 +392,7 @@ export default function BoothPage() {
           <div className="md:hidden mb-6 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 shadow-sm">
             <p className="text-xs text-gray-600 leading-relaxed">
               <span className="font-bold text-gray-900">로그인하면</span> 문의 답변 알림과 저장 목록을 어디서든 확인할 수 있어요.{' '}
-              <Link to={loginHref} className="underline font-bold text-brand-600">지금 가입하기 →</Link>
+              <Link to={loginHref} className="underline font-bold text-brand-600">지금 로그인 / 가입하기 →</Link>
             </p>
           </div>
         )}
@@ -642,7 +642,7 @@ export default function BoothPage() {
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-xs text-gray-500 leading-relaxed font-medium">
                     <span className="font-bold text-gray-700">로그인하면</span> 문의 답변 알림과 저장 목록을 어디서든 확인할 수 있어요.{' '}
-                    <Link to={loginHref} className="underline font-bold text-brand-600">지금 가입하기 →</Link>
+                    <Link to={loginHref} className="underline font-bold text-brand-600">지금 로그인 / 가입하기 →</Link>
                   </p>
                 </div>
               )}

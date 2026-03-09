@@ -499,7 +499,7 @@ export default function MyPage() {
                 현재 비로그인 상태로 사용 중입니다. 기기를 바꾸거나 브라우저 캐시를 삭제하면 기록이 사라질 수 있어요.
               </p>
               <Link to="/auth" className="inline-block mt-3 text-[13px] font-bold text-brand-600 hover:text-brand-700 underline">
-                지금 로그인하기 →
+                지금 로그인 / 가입하기 →
               </Link>
             </div>
           </div>
