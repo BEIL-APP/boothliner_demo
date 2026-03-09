@@ -36,6 +36,10 @@ function isPolicyExpired(policy: BoothPolicy): boolean {
   return new Date(policy.endAt) < new Date();
 }
 
+function isPolicyUpcoming(policy: BoothPolicy): boolean {
+  return new Date(policy.startAt) > new Date();
+}
+
 export default function ExplorePage() {
   const { booths } = useBooths();
   const { checkFav, toggleFav } = useFavorites();
@@ -226,7 +230,7 @@ export default function ExplorePage() {
               }`}
             >
               <Clock className="w-3.5 h-3.5" />
-              운영중만
+              운영 중
             </button>
 
             <div className="relative">
@@ -288,6 +292,7 @@ export default function ExplorePage() {
               const policies = policyMap[booth.id] ?? [];
               const expired = policies.length > 0 && policies.every((p) => isPolicyExpired(p));
               const active = policies.some((p) => isPolicyActive(p));
+              const upcoming = !active && !expired && policies.some((p) => isPolicyUpcoming(p));
               const stats = analyticsMap[booth.id];
 
               return (
@@ -314,14 +319,19 @@ export default function ExplorePage() {
                     )}
 
                     {/* Status badge */}
-                    {expired && (
-                      <span className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> 종료
+                    {active && (
+                      <span className="absolute top-3 left-3 bg-emerald-500/90 backdrop-blur-md text-white text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> 운영 중
                       </span>
                     )}
-                    {!expired && active && policies.length > 0 && (
-                      <span className="absolute top-3 left-3 bg-emerald-500/90 backdrop-blur-md text-white text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> 운영중
+                    {upcoming && (
+                      <span className="absolute top-3 left-3 bg-brand-500/90 backdrop-blur-md text-white text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> 운영 예정
+                      </span>
+                    )}
+                    {expired && (
+                      <span className="absolute top-3 left-3 bg-black/50 backdrop-blur-md text-white text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> 운영 종료
                       </span>
                     )}
                   </Link>

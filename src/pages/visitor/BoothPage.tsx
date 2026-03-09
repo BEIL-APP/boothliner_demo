@@ -359,7 +359,7 @@ export default function BoothPage() {
           {!expired && active && policy && (
             <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-lg">
               <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-              운영중
+              운영 중
             </div>
           )}
 
