@@ -357,7 +357,7 @@ export default function AdminBoothDetailPage() {
                 )}
                 {isPolicyActive && (
                   <span className="h-6 px-2 rounded-md text-xs font-medium inline-flex items-center bg-emerald-50 text-emerald-700">
-                    운영중
+                    운영 중
                   </span>
                 )}
               </div>
