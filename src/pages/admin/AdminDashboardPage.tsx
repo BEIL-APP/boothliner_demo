@@ -25,8 +25,7 @@ import { exportAnalyticsCSV } from '../../utils/csv';
 import { useToast } from '../../contexts/ToastContext';
 import { getVisits, getLeads, getSurveys, getFavorites } from '../../utils/localStorage';
 
-const HOUR_LABELS = ['9', '10', '11', '12', '13', '14', '15', '16', '17', '18'];
-const MOCK_HOURLY = [8, 22, 35, 28, 18, 42, 56, 38, 25, 14];
+const ALL_HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 type Period = 'all' | 'week' | 'month' | 'custom';
 
@@ -151,8 +150,17 @@ export default function AdminDashboardPage() {
     showToast('전체 통계 CSV가 다운로드됐어요!', 'success');
   };
 
-  const peakHourIdx = MOCK_HOURLY.indexOf(Math.max(...MOCK_HOURLY));
-  const peakHour = HOUR_LABELS[peakHourIdx];
+  // Hourly visit chart — unfiltered for insight card peak hour
+  const allHourlyCounts = ALL_HOURS.map((h) =>
+    allVisitsRaw.filter((v) => new Date(v.visitedAt).getHours() === h).length
+  );
+  const peakHour = allHourlyCounts.indexOf(Math.max(...allHourlyCounts));
+
+  // Filtered hourly counts for chart
+  const filteredHourlyCounts = ALL_HOURS.map((h) =>
+    filteredVisits.filter((v) => new Date(v.visitedAt).getHours() === h).length
+  );
+  const maxHourly = Math.max(...filteredHourlyCounts, 1);
 
   const insights = [
     pendingInquiries > 0
@@ -164,12 +172,11 @@ export default function AdminDashboardPage() {
     topInterestName
       ? { icon: Lightbulb, color: 'text-emerald-600 bg-emerald-50', text: `관심 분야 1위 "${topInterestName}" — 관련 자료를 부스에 추가해 보세요`, action: '내 부스', to: '/admin/booths' }
       : null,
-    peakHour
+    maxHourly > 1
       ? { icon: Clock, color: 'text-sky-600 bg-sky-50', text: `방문 피크 시간대 ${peakHour}시 — 이 시간에 인력을 집중 배치하세요`, action: null, to: null }
       : null,
   ].filter(Boolean) as Array<{ icon: typeof MessageSquare; color: string; text: string; action: string | null; to: string | null }>;
 
-  const maxHourly = Math.max(...MOCK_HOURLY);
   const maxTopBooth = topBooths[0]?.[1] ?? 1;
 
   const PERIOD_LABELS: Record<Period, string> = {
@@ -416,23 +423,40 @@ export default function AdminDashboardPage() {
           <div className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
               <Clock className="w-5 h-5 text-gray-400" />
-              <h2 className="text-sm font-semibold text-gray-900">시간대별 방문 (오늘)</h2>
-              <span className="bg-amber-50 text-amber-600 rounded-md h-6 px-2 text-[11px] font-semibold flex items-center ml-auto">실시간</span>
+              <h2 className="text-sm font-semibold text-gray-900">시간대별 방문</h2>
+              <span className="bg-gray-100 text-gray-500 rounded-md h-6 px-2 text-[11px] font-semibold flex items-center ml-auto">
+                {period === 'all' ? '전체 기간' : period === 'week' ? '최근 7일' : period === 'month' ? '최근 30일' : '기간 설정'}
+              </span>
             </div>
 
-            <div className="flex items-end gap-2 h-32">
-              {MOCK_HOURLY.map((val, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                  <div
-                    className="w-full bg-brand-500 rounded-t-lg transition-all hover:bg-brand-600 cursor-help"
-                    style={{ height: `${(val / maxHourly) * 100}%` }}
-                    title={`${val}명`}
-                  />
-                  <span className="text-[11px] font-medium text-gray-400">{HOUR_LABELS[i]}</span>
-                </div>
-              ))}
-            </div>
-            <p className="text-[11px] text-gray-400 mt-4 text-right">단위: 방문 수 / 시간대</p>
+            {filteredVisits.length === 0 ? (
+              <div className="h-32 flex items-center justify-center">
+                <p className="text-sm text-gray-400">해당 기간에 방문 기록이 없어요</p>
+              </div>
+            ) : (
+              <div className="flex items-end gap-1 h-32">
+                {ALL_HOURS.map((h) => {
+                  const val = filteredHourlyCounts[h];
+                  const isPeak = val > 0 && val === maxHourly;
+                  return (
+                    <div key={h} className="flex-1 flex flex-col items-center gap-1">
+                      {val > 0 && (
+                        <div
+                          className={`w-full rounded-t-sm transition-all cursor-help ${isPeak ? 'bg-brand-600' : 'bg-brand-400 hover:bg-brand-500'}`}
+                          style={{ height: `${(val / maxHourly) * 100}%` }}
+                          title={`${h}시 : ${val}건`}
+                        />
+                      )}
+                      {val === 0 && <div className="w-full" style={{ height: '2px' }} />}
+                      {(h % 3 === 0) && (
+                        <span className="text-[10px] font-medium text-gray-400">{h}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <p className="text-[11px] text-gray-400 mt-4 text-right">단위: 방문 수 / 시간대 (0~23시)</p>
           </div>
         </div>
 
