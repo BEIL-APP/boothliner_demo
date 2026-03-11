@@ -746,6 +746,15 @@ export default function BoothPage() {
               </button>
             </div>
 
+            {/* 프로모션 소식 받기 — mobile only, order: 7 */}
+            <button
+              onClick={() => setShowEmailInfo(true)}
+              className="order-7 md:hidden w-full flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-bold border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm"
+            >
+              <Mail className="w-4.5 h-4.5 text-gray-400" />
+              프로모션 소식 받기
+            </button>
+
             {/* 링크 — mobile order: 8 */}
             {(booth.links.instagram || booth.links.store || booth.links.site) && (
               <div className="order-8 md:order-none bg-white border border-gray-200/60 rounded-xl p-6 shadow-sm">
@@ -786,10 +795,10 @@ export default function BoothPage() {
 
       {/* ═══ Mobile Sticky Bottom Bar ═══ */}
       <div className="fixed bottom-0 left-0 right-0 md:hidden z-30 bg-white/95 backdrop-blur-xl border-t border-gray-200 px-4 pt-3 pb-6 safe-area-bottom shadow-[0_-8px_24px_rgba(0,0,0,0.05)]">
-        <div className="max-w-5xl mx-auto flex gap-2">
+        <div className="max-w-5xl mx-auto flex gap-2.5">
           <button
             onClick={handleToggleFav}
-            className={`h-11 px-4 rounded-xl text-sm font-bold flex items-center gap-2 transition-all duration-200 ${
+            className={`h-11 px-5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all duration-200 ${
               fav ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-gray-700'
             }`}
           >
@@ -799,15 +808,9 @@ export default function BoothPage() {
           <button
             onClick={() => setShowInquiry(true)}
             disabled={!inquiryAllowed}
-            className="h-11 px-4 rounded-xl text-sm font-bold bg-brand-600 text-white hover:bg-brand-500 transition-all duration-200 shadow-lg shadow-brand-100 disabled:opacity-40 disabled:shadow-none whitespace-nowrap"
+            className="flex-1 h-11 rounded-xl text-sm font-bold bg-brand-600 text-white hover:bg-brand-500 transition-all duration-200 shadow-lg shadow-brand-100 disabled:opacity-40 disabled:shadow-none"
           >
             {!inquiryAllowed ? '문의 마감' : '문의하기'}
-          </button>
-          <button
-            onClick={() => setShowEmailInfo(true)}
-            className="h-11 px-4 rounded-xl text-sm font-bold border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 whitespace-nowrap"
-          >
-            소식 받기
           </button>
           <button
             onClick={handleShare}
