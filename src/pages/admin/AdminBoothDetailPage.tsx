@@ -390,8 +390,6 @@ export default function AdminBoothDetailPage() {
           })}
         </div>
 
-        {activeTab === 'setting' && (
-          <>
         {/* QR Code Card */}
         <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
@@ -425,6 +423,8 @@ export default function AdminBoothDetailPage() {
           </div>
         </div>
 
+        {activeTab === 'setting' && (
+          <>
         {/* ─── 운영 기간 설정 ─── */}
         <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
