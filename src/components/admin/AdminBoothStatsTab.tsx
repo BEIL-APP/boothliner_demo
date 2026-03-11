@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BarChart3,
@@ -14,6 +14,9 @@ import {
   Lightbulb,
   MessageSquare,
   PhoneCall,
+  Calendar,
+  ChevronDown,
+  MapPin,
 } from 'lucide-react';
 import { useThreads } from '../../hooks/useThreads';
 import { useToast } from '../../contexts/ToastContext';
@@ -22,16 +25,52 @@ import {
   getVisits,
   getFavorites,
   getBoothLeads,
-  getSurveyAggregate,
   getAnalytics,
+  getBoothParticipations,
+  getEvents,
+  getBoothSurveys,
 } from '../../utils/localStorage';
-import type { Visit, Favorite, Lead, Thread } from '../../types';
+import type { Visit, Favorite, Lead, Thread, BoothEventParticipation } from '../../types';
 
 const ALL_HOURS = Array.from({ length: 24 }, (_, index) => index);
+type Period = 'all' | 'week' | 'month' | 'custom';
 
 function formatDate(iso: string): string {
   const date = new Date(iso);
   return `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function getPeriodRange(period: Period, customFrom: string, customTo: string): { from: Date | null; to: Date | null } {
+  const now = new Date();
+  if (period === 'week') {
+    const from = new Date(now);
+    from.setDate(from.getDate() - 7);
+    return { from, to: now };
+  }
+  if (period === 'month') {
+    const from = new Date(now);
+    from.setDate(from.getDate() - 30);
+    return { from, to: now };
+  }
+  if (period === 'custom' && customFrom && customTo) {
+    return { from: new Date(customFrom), to: new Date(`${customTo}T23:59:59`) };
+  }
+  return { from: null, to: null };
+}
+
+function inRange(dateStr: string, from: Date | null, to: Date | null, days: number[]): boolean {
+  const date = new Date(dateStr);
+  if (from && to && (date < from || date > to)) return false;
+  if (days.length > 0 && !days.includes(date.getDay())) return false;
+  return true;
+}
+
+function isWithinParticipationRange(dateStr: string, participation?: BoothEventParticipation): boolean {
+  if (!participation) return false;
+  const date = new Date(dateStr);
+  const start = new Date(`${participation.startAt}T00:00:00`);
+  const end = new Date(`${participation.endAt}T23:59:59`);
+  return date >= start && date <= end;
 }
 
 function threadStatusColor(status: Thread['status']): string {
@@ -68,41 +107,123 @@ function leadStatusColor(status: string): string {
 export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
   const { threads: allThreads } = useThreads();
   const { showToast } = useToast();
+  const [period, setPeriod] = useState<Period>('all');
+  const [selectedEventId, setSelectedEventId] = useState<string>('all');
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTo, setCustomTo] = useState('');
+  const [showCustom, setShowCustom] = useState(false);
+  const [selectedDays, setSelectedDays] = useState<number[]>([]);
 
   const visits = useMemo<Visit[]>(() => getVisits().filter((visit) => visit.boothId === boothId), [boothId]);
   const favorites = useMemo<Favorite[]>(() => getFavorites().filter((favorite) => favorite.boothId === boothId), [boothId]);
-  const leads = useMemo<Lead[]>(() => getBoothLeads(boothId), [boothId]);
-  const threads = useMemo<Thread[]>(() => allThreads.filter((thread) => thread.boothId === boothId), [allThreads, boothId]);
-  const surveyAgg = useMemo(() => getSurveyAggregate(boothId), [boothId]);
+  const allLeads = useMemo<Lead[]>(() => getBoothLeads(boothId), [boothId]);
+  const allBoothThreads = useMemo<Thread[]>(() => allThreads.filter((thread) => thread.boothId === boothId), [allThreads, boothId]);
+  const allSurveys = useMemo(() => getBoothSurveys(boothId), [boothId]);
   const analyticsAll = useMemo(() => getAnalytics().filter((analytics) => analytics.boothId === boothId), [boothId]);
+  const participations = useMemo(() => getBoothParticipations(boothId), [boothId]);
+  const events = useMemo(() => getEvents(), []);
+  const selectedParticipation = useMemo(
+    () => participations.find((participation) => participation.eventId === selectedEventId),
+    [participations, selectedEventId],
+  );
+  const eventOptions = useMemo(() => {
+    return participations.reduce<Array<{ participation: BoothEventParticipation; event: ReturnType<typeof getEvents>[number] }>>((acc, participation) => {
+      const event = events.find((item) => item.id === participation.eventId);
+      if (event) acc.push({ participation, event });
+      return acc;
+    }, []);
+  }, [events, participations]);
+  const selectedEventMeta = useMemo(
+    () => eventOptions.find((item) => item.participation.id === selectedParticipation?.id),
+    [eventOptions, selectedParticipation],
+  );
+  const { from, to } = getPeriodRange(period, customFrom, customTo);
+  const scopedVisits = useMemo(
+    () => (selectedEventId === 'all'
+      ? visits
+      : visits.filter((visit) => visit.eventId === selectedEventId || isWithinParticipationRange(visit.visitedAt, selectedParticipation))),
+    [selectedEventId, selectedParticipation, visits],
+  );
+  const scopedFavorites = useMemo(
+    () => (selectedEventId === 'all'
+      ? favorites
+      : favorites.filter((favorite) => isWithinParticipationRange(favorite.createdAt, selectedParticipation))),
+    [favorites, selectedEventId, selectedParticipation],
+  );
+  const scopedLeads = useMemo(
+    () => (selectedEventId === 'all'
+      ? allLeads
+      : allLeads.filter((lead) => isWithinParticipationRange(lead.createdAt, selectedParticipation))),
+    [allLeads, selectedEventId, selectedParticipation],
+  );
+  const scopedThreads = useMemo(
+    () => (selectedEventId === 'all'
+      ? allBoothThreads
+      : allBoothThreads.filter((thread) => {
+        const threadStartedAt = thread.messages[0]?.at ?? thread.lastUpdated;
+        return isWithinParticipationRange(threadStartedAt, selectedParticipation);
+      })),
+    [allBoothThreads, selectedEventId, selectedParticipation],
+  );
+  const scopedSurveys = useMemo(
+    () => (selectedEventId === 'all'
+      ? allSurveys
+      : allSurveys.filter((survey) => isWithinParticipationRange(survey.createdAt, selectedParticipation))),
+    [allSurveys, selectedEventId, selectedParticipation],
+  );
+  const filteredVisits = useMemo(
+    () => scopedVisits.filter((visit) => inRange(visit.visitedAt, from, to, selectedDays)),
+    [scopedVisits, from, to, selectedDays],
+  );
 
-  const analyticsTotal = analyticsAll.find((analytics) => !analytics.eventId);
-  const qrVisits = visits.filter((visit) => visit.source === 'qr').length;
-  const directVisits = visits.filter((visit) => visit.source === 'direct' || !visit.source).length;
-  const totalFavorites = analyticsTotal?.favorites ?? favorites.length;
-  const totalInquiries = analyticsTotal?.inquiries ?? threads.length;
-  const totalVisits = analyticsTotal?.scans ?? visits.length;
+  const analyticsTotal = selectedEventId === 'all'
+    ? analyticsAll.find((analytics) => !analytics.eventId)
+    : analyticsAll.find((analytics) => analytics.eventId === selectedEventId);
+  const qrVisits = scopedVisits.filter((visit) => visit.source === 'qr').length;
+  const directVisits = scopedVisits.filter((visit) => visit.source === 'direct' || !visit.source).length;
+  const totalFavorites = analyticsTotal?.favorites ?? scopedFavorites.length;
+  const totalInquiries = analyticsTotal?.inquiries ?? scopedThreads.length;
+  const totalVisits = analyticsTotal?.scans ?? scopedVisits.length;
+  const filteredQrVisits = filteredVisits.filter((visit) => visit.source === 'qr').length;
+  const filteredDirectVisits = filteredVisits.filter((visit) => visit.source === 'direct' || !visit.source).length;
 
   const leadsBySource = {
-    bizcard: leads.filter((lead) => lead.source === 'bizcard').length,
-    inquiry: leads.filter((lead) => lead.source === 'inquiry').length,
-    email_info: leads.filter((lead) => lead.source === 'email_info').length,
-    survey: leads.filter((lead) => lead.source === 'survey').length,
+    bizcard: scopedLeads.filter((lead) => lead.source === 'bizcard').length,
+    inquiry: scopedLeads.filter((lead) => lead.source === 'inquiry').length,
+    email_info: scopedLeads.filter((lead) => lead.source === 'email_info').length,
+    survey: scopedLeads.filter((lead) => lead.source === 'survey').length,
   };
 
-  const hourlyCounts = ALL_HOURS.map((hour) => visits.filter((visit) => new Date(visit.visitedAt).getHours() === hour).length);
+  const hourlyCounts = ALL_HOURS.map((hour) => filteredVisits.filter((visit) => new Date(visit.visitedAt).getHours() === hour).length);
   const maxHourly = Math.max(...hourlyCounts, 1);
   const peakHour = hourlyCounts.indexOf(Math.max(...hourlyCounts, 0));
 
-  const topInterests = Object.entries(surveyAgg.interests).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const topPurposes = Object.entries(surveyAgg.purposes).sort((a, b) => b[1] - a[1]);
+  const scopedSurveyAgg = useMemo(() => {
+    const interests: Record<string, number> = {};
+    const purposes: Record<string, number> = {};
+    let wantsContact = 0;
+
+    for (const survey of scopedSurveys) {
+      (survey.answers.interests ?? []).forEach((tag) => {
+        interests[tag] = (interests[tag] ?? 0) + 1;
+      });
+      if (survey.answers.purpose) {
+        purposes[survey.answers.purpose] = (purposes[survey.answers.purpose] ?? 0) + 1;
+      }
+      if (survey.answers.wantsContact) wantsContact += 1;
+    }
+
+    return { total: scopedSurveys.length, interests, purposes, wantsContact };
+  }, [scopedSurveys]);
+  const topInterests = Object.entries(scopedSurveyAgg.interests).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const topPurposes = Object.entries(scopedSurveyAgg.purposes).sort((a, b) => b[1] - a[1]);
   const topInterestName = topInterests[0]?.[0];
   const maxInterest = topInterests[0]?.[1] ?? 1;
 
-  const pendingInquiries = threads.filter((thread) => thread.status === '미처리').length;
-  const newLeads = leads.filter((lead) => !lead.status || lead.status === 'NEW').length;
-  const recentThreads = [...threads].sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()).slice(0, 5);
-  const recentLeads = [...leads].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
+  const pendingInquiries = scopedThreads.filter((thread) => thread.status === '미처리').length;
+  const newLeads = scopedLeads.filter((lead) => !lead.status || lead.status === 'NEW').length;
+  const recentThreads = [...scopedThreads].sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime()).slice(0, 5);
+  const recentLeads = [...scopedLeads].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
 
   const insights = [
     pendingInquiries > 0
@@ -119,12 +240,28 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
       : null,
   ].filter(Boolean) as Array<{ icon: typeof MessageSquare; color: string; text: string; action: string | null; to: string | null }>;
 
+  const PERIOD_LABELS: Record<Period, string> = {
+    all: '전체 기간',
+    week: '최근 7일',
+    month: '최근 30일',
+    custom: '기간 설정',
+  };
+
+  const toggleDay = (day: number) => {
+    setSelectedDays((prev) => (prev.includes(day) ? prev.filter((value) => value !== day) : [...prev, day]));
+  };
+
+  const handlePeriodClick = (nextPeriod: Period) => {
+    setPeriod(nextPeriod);
+    setShowCustom(nextPeriod === 'custom');
+  };
+
   const handleExportThreads = () => {
-    if (threads.length === 0) {
+    if (scopedThreads.length === 0) {
       showToast('내보낼 문의가 없어요.', 'error');
       return;
     }
-    exportBoothThreadsCSV(boothId, threads);
+    exportBoothThreadsCSV(boothId, scopedThreads);
     showToast('문의 CSV가 다운로드됐어요.', 'success');
   };
 
@@ -143,6 +280,45 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
           문의 CSV 내보내기
         </button>
       </div>
+
+      {eventOptions.length > 0 && (
+        <div className="mb-6 bg-white border border-gray-200/60 rounded-xl p-4 sm:p-5">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">행사 범위</p>
+              <p className="text-sm text-gray-600">참여 중인 행사 기준으로 통계를 좁혀볼 수 있습니다</p>
+            </div>
+            <div className="lg:ml-auto flex flex-col sm:flex-row gap-2">
+              <select
+                value={selectedEventId}
+                onChange={(e) => setSelectedEventId(e.target.value)}
+                className="h-10 min-w-[220px] bg-white border border-gray-200 rounded-lg px-3 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400"
+              >
+                <option value="all">전체 행사</option>
+                {eventOptions.map(({ event }) => (
+                  <option key={event.id} value={event.id}>
+                    {event.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {selectedParticipation && (
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500">
+              <span>{selectedParticipation.startAt} ~ {selectedParticipation.endAt}</span>
+              {selectedEventMeta?.event.location && (
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {selectedEventMeta.event.location}
+                </span>
+              )}
+              {selectedParticipation.boothLocation && (
+                <span>부스 위치 {selectedParticipation.boothLocation}</span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {insights.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -167,6 +343,83 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
         </div>
       )}
 
+      <div className="mb-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+          {(['all', 'week', 'month', 'custom'] as Period[]).map((value) => (
+            <button
+              key={value}
+              onClick={() => handlePeriodClick(value)}
+              className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-[13px] font-medium transition-all duration-150 ${
+                period === value
+                  ? 'bg-brand-600 text-white shadow-sm'
+                  : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              {PERIOD_LABELS[value]}
+              {value === 'custom' && <ChevronDown className="w-3.5 h-3.5 opacity-70" />}
+            </button>
+          ))}
+        </div>
+
+        {showCustom && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 pl-6">
+            <input
+              type="date"
+              value={customFrom}
+              onChange={(e) => setCustomFrom(e.target.value)}
+              className="h-9 border border-gray-200 rounded-lg px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400"
+            />
+            <span className="text-sm text-gray-400 font-medium">~</span>
+            <input
+              type="date"
+              value={customTo}
+              onChange={(e) => setCustomTo(e.target.value)}
+              min={customFrom}
+              className="h-9 border border-gray-200 rounded-lg px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400"
+            />
+            {customFrom && customTo && (
+              <span className="text-[12px] text-gray-400 font-medium">
+                {customFrom} ~ {customTo}
+              </span>
+            )}
+          </div>
+        )}
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-[12px] font-medium text-gray-400 shrink-0">요일</span>
+          {[['일', 0], ['월', 1], ['화', 2], ['수', 3], ['목', 4], ['금', 5], ['토', 6]].map(([label, day]) => {
+            const isSelected = selectedDays.includes(day as number);
+            const isWeekend = day === 0 || day === 6;
+            return (
+              <button
+                key={day}
+                onClick={() => toggleDay(day as number)}
+                className={`w-8 h-8 rounded-lg text-[13px] font-bold transition-all duration-150 ${
+                  isSelected
+                    ? isWeekend
+                      ? 'bg-red-500 text-white shadow-sm'
+                      : 'bg-brand-600 text-white shadow-sm'
+                    : isWeekend
+                      ? 'bg-white border border-gray-200 text-red-400 hover:border-red-200 hover:bg-red-50'
+                      : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+          {selectedDays.length > 0 && (
+            <button
+              onClick={() => setSelectedDays([])}
+              className="text-[12px] font-medium text-gray-400 hover:text-gray-600 transition-colors ml-1"
+            >
+              초기화
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
           { label: 'QR 방문 수', value: qrVisits.toLocaleString(), icon: <QrCode className="w-5 h-5" />, sub: 'QR 코드 스캔 기준' },
@@ -188,7 +441,7 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
           { label: '명함 스캔 리드', value: leadsBySource.bizcard, icon: <CreditCard className="w-5 h-5" /> },
           { label: '문의 동의 리드', value: leadsBySource.inquiry, icon: <UserCheck className="w-5 h-5" /> },
           { label: '이메일 수신 신청', value: leadsBySource.email_info, icon: <TrendingUp className="w-5 h-5" /> },
-          { label: '설문 응답 수', value: surveyAgg.total, icon: <ClipboardList className="w-5 h-5" /> },
+          { label: '설문 응답 수', value: scopedSurveyAgg.total, icon: <ClipboardList className="w-5 h-5" /> },
         ].map((item) => (
           <div key={item.label} className="bg-white border border-gray-200/60 rounded-xl p-4 hover:shadow-card-hover transition-all duration-200">
             <div className="text-gray-400 mb-3">{item.icon}</div>
@@ -206,9 +459,9 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
           </div>
           <div className="space-y-4">
             {[
-              { label: '전체 방문', value: totalVisits, color: 'bg-brand-500', ratio: 100 },
-              { label: 'QR 방문', value: qrVisits, color: 'bg-brand-400', ratio: totalVisits > 0 ? (qrVisits / totalVisits) * 100 : 0 },
-              { label: '직접 방문', value: directVisits, color: 'bg-slate-400', ratio: totalVisits > 0 ? (directVisits / totalVisits) * 100 : 0 },
+              { label: '전체 방문', value: filteredVisits.length, color: 'bg-brand-500', ratio: 100 },
+              { label: 'QR 방문', value: filteredQrVisits, color: 'bg-brand-400', ratio: filteredVisits.length > 0 ? (filteredQrVisits / filteredVisits.length) * 100 : 0 },
+              { label: '직접 방문', value: filteredDirectVisits, color: 'bg-slate-400', ratio: filteredVisits.length > 0 ? (filteredDirectVisits / filteredVisits.length) * 100 : 0 },
             ].map((item) => (
               <div key={item.label}>
                 <div className="flex items-center justify-between mb-1.5">
@@ -228,13 +481,13 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
             <Clock className="w-5 h-5 text-gray-400" />
             <h2 className="text-sm font-semibold text-gray-900">시간대별 방문</h2>
             <span className="bg-gray-100 text-gray-500 rounded-md h-6 px-2 text-[11px] font-semibold flex items-center ml-auto">
-              전체 기간
+              {PERIOD_LABELS[period]}
             </span>
           </div>
 
-          {visits.length === 0 ? (
+          {filteredVisits.length === 0 ? (
             <div className="h-32 flex items-center justify-center">
-              <p className="text-sm text-gray-400">방문 기록이 없어요</p>
+              <p className="text-sm text-gray-400">해당 기간에 방문 기록이 없어요</p>
             </div>
           ) : (
             <div className="flex items-end gap-1 h-32">
@@ -262,13 +515,13 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
         </div>
       </div>
 
-      {surveyAgg.total > 0 && (
+      {scopedSurveyAgg.total > 0 && (
         <div className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 mb-6 shadow-sm">
           <div className="flex items-center gap-2 mb-6">
             <ClipboardList className="w-5 h-5 text-gray-400" />
             <h2 className="text-sm font-semibold text-gray-900">설문 집계</h2>
             <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 rounded-md px-2 h-5 flex items-center ml-auto">
-              총 {surveyAgg.total}건
+              총 {scopedSurveyAgg.total}건
             </span>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -301,7 +554,7 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
                         <span className="text-gray-700 font-medium">{purpose}</span>
                         <div className="flex items-center gap-3">
                           <div className="h-1.5 bg-brand-200 rounded-full overflow-hidden w-24">
-                            <div className="h-full bg-brand-500" style={{ width: `${(count / surveyAgg.total) * 100}%` }} />
+                            <div className="h-full bg-brand-500" style={{ width: `${(count / scopedSurveyAgg.total) * 100}%` }} />
                           </div>
                           <span className="font-bold text-gray-600 w-8 text-right">{count}건</span>
                         </div>
@@ -313,9 +566,9 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
               <div className="bg-emerald-50 border border-emerald-100/50 rounded-xl p-5">
                 <p className="text-xs font-semibold text-emerald-600 mb-1">연락 희망 응답자</p>
                 <p className="text-2xl font-bold text-emerald-700">
-                  {surveyAgg.wantsContact}명
+                  {scopedSurveyAgg.wantsContact}명
                   <span className="text-sm font-medium text-emerald-500 ml-2">
-                    ({surveyAgg.total > 0 ? Math.round((surveyAgg.wantsContact / surveyAgg.total) * 100) : 0}%)
+                    ({scopedSurveyAgg.total > 0 ? Math.round((scopedSurveyAgg.wantsContact / scopedSurveyAgg.total) * 100) : 0}%)
                   </span>
                 </p>
                 <p className="text-[11px] text-emerald-600/60 mt-1 font-medium italic">잠재 리드로 연결될 가능성이 높습니다</p>
