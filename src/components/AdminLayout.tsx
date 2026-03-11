@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   Settings,
+  UserCheck,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -20,6 +21,7 @@ const navItems = [
   { to: '/admin/booths', icon: LayoutGrid, label: '내 부스 관리' },
   { to: '/admin/inbox', icon: Inbox, label: '문의 인박스' },
   { to: '/admin/leads', icon: Users, label: '리드 목록' },
+  { to: '/admin/team', icon: UserCheck, label: '전체 팀원 관리' },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
