@@ -336,6 +336,55 @@ export default function BoothPage() {
     summary: `${booth.name}은(는) ${booth.category} 분야의 부스입니다. ${booth.description.slice(0, 80)}...`,
     highlight: booth.faq.length > 0 ? `FAQ ${booth.faq.length}개 제공` : '상세 소개 제공',
   } : null;
+  const eventScheduleCard = booth.nextEvents.length > 0 && (() => {
+    const getEventStatus = (dateStr: string): { label: string; color: string; order: number } => {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const parts = dateStr.split('~').map((s) => s.trim());
+      const start = new Date(parts[0]);
+      const end = parts.length > 1 ? new Date(parts[1]) : new Date(parts[0]);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+      if (now >= start && now <= end) return { label: '운영 중', color: 'bg-emerald-100 text-emerald-700', order: 0 };
+      if (now < start) return { label: '운영 예정', color: 'bg-blue-100 text-blue-700', order: 1 };
+      return { label: '운영 종료', color: 'bg-gray-100 text-gray-500', order: 2 };
+    };
+
+    const sorted = [...booth.nextEvents]
+      .map((ev) => ({ ...ev, status: getEventStatus(ev.date) }))
+      .sort((a, b) => a.status.order - b.status.order);
+
+    return (
+      <div className="order-9 md:order-none bg-white border border-gray-200/60 rounded-xl p-6 shadow-sm">
+        <h2 className="text-sm font-semibold text-gray-900 mb-4">행사 일정</h2>
+        <div className="space-y-3">
+          {sorted.map((ev, i) => (
+            <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${ev.status.order === 2 ? 'bg-gray-50/60 border-gray-100' : 'bg-gray-50 border-gray-100/50 hover:border-gray-200 transition-colors'}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${ev.status.order === 0 ? 'bg-emerald-100' : 'bg-gray-200/50'}`}>
+                <Calendar className={`w-5 h-5 ${ev.status.order === 0 ? 'text-emerald-600' : 'text-gray-500'}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className={`text-sm font-bold ${ev.status.order === 2 ? 'text-gray-400' : 'text-gray-900'}`}>{ev.title}</p>
+                  <span className={`inline-flex items-center h-5 px-1.5 rounded text-[11px] font-bold ${ev.status.color}`}>
+                    {ev.status.label}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <span className={`flex items-center gap-1 text-xs font-medium ${ev.status.order === 2 ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <Clock className="w-3.5 h-3.5" /> {ev.date}
+                  </span>
+                  <span className={`flex items-center gap-1 text-xs font-medium ${ev.status.order === 2 ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <MapPin className="w-3.5 h-3.5" /> {ev.location}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  })();
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
@@ -424,7 +473,16 @@ export default function BoothPage() {
                   </span>
                 )}
               </div>
-              <h1 className="text-white text-xl md:text-3xl font-bold mb-1 md:mb-2">{booth.name}</h1>
+              <div className="flex items-center gap-2.5 mb-1 md:mb-2">
+                <h1 className="text-white text-xl md:text-3xl font-bold min-w-0">{booth.name}</h1>
+                <button
+                  onClick={() => setShowEmailInfo(true)}
+                  className="inline-flex items-center gap-1.5 h-8 md:h-9 px-3 md:px-3.5 rounded-full bg-white/14 backdrop-blur-md border border-white/20 text-white text-xs md:text-[13px] font-semibold shadow-[0_8px_24px_rgba(0,0,0,0.18)] hover:bg-white/22 transition-all duration-200"
+                >
+                  <Mail className="w-3.5 h-3.5 text-white/90" />
+                  소식 받기
+                </button>
+              </div>
               <p className="text-white/75 text-sm md:text-base leading-relaxed">{booth.tagline}</p>
             </div>
           </div>
@@ -459,55 +517,6 @@ export default function BoothPage() {
 
           {/* ── Left column ── */}
           <div className="contents md:flex md:flex-col md:flex-1 md:gap-6">
-
-            {/* 행사 일정 — mobile order: 1 */}
-            {booth.nextEvents.length > 0 && (() => {
-              const getEventStatus = (dateStr: string): { label: string; color: string; order: number } => {
-                const now = new Date();
-                now.setHours(0, 0, 0, 0);
-                const parts = dateStr.split('~').map((s) => s.trim());
-                const start = new Date(parts[0]);
-                const end = parts.length > 1 ? new Date(parts[1]) : new Date(parts[0]);
-                start.setHours(0, 0, 0, 0);
-                end.setHours(23, 59, 59, 999);
-                if (now >= start && now <= end) return { label: '운영 중', color: 'bg-emerald-100 text-emerald-700', order: 0 };
-                if (now < start) return { label: '운영 예정', color: 'bg-blue-100 text-blue-700', order: 1 };
-                return { label: '운영 종료', color: 'bg-gray-100 text-gray-500', order: 2 };
-              };
-              const sorted = [...booth.nextEvents]
-                .map((ev) => ({ ...ev, status: getEventStatus(ev.date) }))
-                .sort((a, b) => a.status.order - b.status.order);
-              return (
-                <div className="order-1 md:order-none bg-white border border-gray-200/60 rounded-xl p-6 shadow-sm">
-                  <h2 className="text-sm font-semibold text-gray-900 mb-4">행사 일정</h2>
-                  <div className="space-y-3">
-                    {sorted.map((ev, i) => (
-                      <div key={i} className={`flex items-start gap-4 p-4 rounded-xl border ${ev.status.order === 2 ? 'bg-gray-50/60 border-gray-100' : 'bg-gray-50 border-gray-100/50 hover:border-gray-200 transition-colors'}`}>
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${ev.status.order === 0 ? 'bg-emerald-100' : 'bg-gray-200/50'}`}>
-                          <Calendar className={`w-5 h-5 ${ev.status.order === 0 ? 'text-emerald-600' : 'text-gray-500'}`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className={`text-sm font-bold ${ev.status.order === 2 ? 'text-gray-400' : 'text-gray-900'}`}>{ev.title}</p>
-                            <span className={`inline-flex items-center h-5 px-1.5 rounded text-[11px] font-bold ${ev.status.color}`}>
-                              {ev.status.label}
-                            </span>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                            <span className={`flex items-center gap-1 text-xs font-medium ${ev.status.order === 2 ? 'text-gray-400' : 'text-gray-500'}`}>
-                              <Clock className="w-3.5 h-3.5" /> {ev.date}
-                            </span>
-                            <span className={`flex items-center gap-1 text-xs font-medium ${ev.status.order === 2 ? 'text-gray-400' : 'text-gray-500'}`}>
-                              <MapPin className="w-3.5 h-3.5" /> {ev.location}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
 
             {/* AI 요약 — mobile order: 2 */}
             {mockAiSummary && (
@@ -719,15 +728,6 @@ export default function BoothPage() {
               </div>
             )}
 
-            {/* 프로모션 소식 받기 — mobile only, order: 7 */}
-            <button
-              onClick={() => setShowEmailInfo(true)}
-              className="order-7 md:hidden w-full flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-bold border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm"
-            >
-              <Mail className="w-4.5 h-4.5 text-gray-400" />
-              프로모션 소식 받기
-            </button>
-
             {/* 1분 설문 — mobile order: 6 */}
             <div className="order-6 md:order-none bg-white border border-gray-200/60 rounded-xl p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
@@ -776,6 +776,8 @@ export default function BoothPage() {
               </div>
             )}
 
+            {eventScheduleCard}
+
           </div>
 
         </div>
@@ -784,10 +786,10 @@ export default function BoothPage() {
 
       {/* ═══ Mobile Sticky Bottom Bar ═══ */}
       <div className="fixed bottom-0 left-0 right-0 md:hidden z-30 bg-white/95 backdrop-blur-xl border-t border-gray-200 px-4 pt-3 pb-6 safe-area-bottom shadow-[0_-8px_24px_rgba(0,0,0,0.05)]">
-        <div className="max-w-5xl mx-auto flex gap-2.5">
+        <div className="max-w-5xl mx-auto flex gap-2">
           <button
             onClick={handleToggleFav}
-            className={`h-11 px-5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all duration-200 ${
+            className={`h-11 px-4 rounded-xl text-sm font-bold flex items-center gap-2 transition-all duration-200 ${
               fav ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-gray-700'
             }`}
           >
@@ -797,9 +799,15 @@ export default function BoothPage() {
           <button
             onClick={() => setShowInquiry(true)}
             disabled={!inquiryAllowed}
-            className="flex-1 h-11 rounded-xl text-sm font-bold bg-brand-600 text-white hover:bg-brand-500 transition-all duration-200 shadow-lg shadow-brand-100 disabled:opacity-40 disabled:shadow-none"
+            className="h-11 px-4 rounded-xl text-sm font-bold bg-brand-600 text-white hover:bg-brand-500 transition-all duration-200 shadow-lg shadow-brand-100 disabled:opacity-40 disabled:shadow-none whitespace-nowrap"
           >
             {!inquiryAllowed ? '문의 마감' : '문의하기'}
+          </button>
+          <button
+            onClick={() => setShowEmailInfo(true)}
+            className="h-11 px-4 rounded-xl text-sm font-bold border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 whitespace-nowrap"
+          >
+            소식 받기
           </button>
           <button
             onClick={handleShare}
