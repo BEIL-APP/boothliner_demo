@@ -505,8 +505,12 @@ export function getAllStaff(): StaffMember[] {
   return get<StaffMember[]>(KEYS.staff) ?? [];
 }
 
-export function getBoothStaff(boothId: string): StaffMember[] {
-  return getAllStaff().filter((s) => s.boothId === boothId);
+export function getBoothStaff(boothId: string, eventId?: string): StaffMember[] {
+  return getAllStaff().filter((staff) => {
+    if (staff.boothId !== boothId) return false;
+    if (!eventId) return true;
+    return !staff.eventId || staff.eventId === eventId;
+  });
 }
 
 export function saveStaff(member: StaffMember): void {

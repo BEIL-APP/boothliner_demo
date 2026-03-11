@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useThreads } from '../../hooks/useThreads';
 import { useToast } from '../../contexts/ToastContext';
-import { exportBoothThreadsCSV } from '../../utils/csv';
+import { exportAnalyticsCSV } from '../../utils/csv';
 import {
   getVisits,
   getFavorites,
@@ -256,31 +256,16 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
     setShowCustom(nextPeriod === 'custom');
   };
 
-  const handleExportThreads = () => {
-    if (scopedThreads.length === 0) {
-      showToast('내보낼 문의가 없어요.', 'error');
-      return;
-    }
-    exportBoothThreadsCSV(boothId, scopedThreads);
-    showToast('문의 CSV가 다운로드됐어요.', 'success');
+  const handleExportAnalytics = () => {
+    const exportRows = selectedEventId === 'all'
+      ? analyticsAll.filter((analytics) => !analytics.eventId)
+      : analyticsAll.filter((analytics) => analytics.eventId === selectedEventId);
+    exportAnalyticsCSV(exportRows);
+    showToast('통계 CSV가 다운로드됐어요.', 'success');
   };
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <div>
-          <h2 className="text-lg font-bold text-gray-900 tracking-tight">부스 통계</h2>
-          <p className="text-sm text-gray-500 font-medium">대시보드와 같은 기준으로 이 부스 성과를 보여줍니다</p>
-        </div>
-        <button
-          onClick={handleExportThreads}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 h-10 rounded-lg px-4 text-[13px] font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-150"
-        >
-          <Download className="w-4 h-4 text-gray-400" />
-          문의 CSV 내보내기
-        </button>
-      </div>
-
       {eventOptions.length > 0 && (
         <div className="mb-6 bg-white border border-gray-200/60 rounded-xl p-4 sm:p-5">
           <div className="flex flex-col lg:flex-row lg:items-center gap-3">
@@ -674,6 +659,22 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mt-6">
+        <h2 className="text-sm font-semibold text-gray-900 mb-4">데이터 내보내기</h2>
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3">
+          <button
+            onClick={handleExportAnalytics}
+            className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 w-full sm:w-auto"
+          >
+            <Download className="w-4 h-4 text-gray-500" />
+            통계 CSV 내보내기
+          </button>
+        </div>
+        <p className="text-xs text-gray-400 mt-3">
+          선택한 행사 기준 통계가 CSV로 내보내집니다.
+        </p>
       </div>
     </div>
   );

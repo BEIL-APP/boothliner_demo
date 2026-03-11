@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 import {
-  ArrowLeft, Download, ExternalLink, FileDown,
+  ArrowLeft, Download, ExternalLink,
   Upload, Trash2, Calendar, ToggleLeft, ToggleRight, Paperclip,
   Link2, Plus, Instagram, ShoppingBag, Globe,
   Edit3, ImagePlus, HelpCircle, Settings2,
@@ -11,11 +11,8 @@ import { AdminLayout } from '../../components/AdminLayout';
 import { AdminBoothStatsTab } from '../../components/admin/AdminBoothStatsTab';
 import { AdminBoothTeamTab } from '../../components/admin/AdminBoothTeamTab';
 import { useBooth } from '../../hooks/useBooths';
-import { useThreads } from '../../hooks/useThreads';
 import { useToast } from '../../contexts/ToastContext';
-import { exportBoothThreadsCSV, exportAnalyticsCSV } from '../../utils/csv';
 import {
-  getAnalytics,
   getBoothPolicy,
   saveBoothPolicy,
   getBoothAttachments,
@@ -35,7 +32,6 @@ export default function AdminBoothDetailPage() {
   const { boothId, '*': boothSection } = useParams<{ boothId: string; '*': string }>();
   const navigate = useNavigate();
   const { booth } = useBooth(boothId ?? '');
-  const { threads } = useThreads();
   const { showToast } = useToast();
   const qrRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -256,17 +252,6 @@ export default function AdminBoothDetailPage() {
     showToast('QR 코드가 다운로드됐어요!', 'success');
   };
 
-  const handleExportCSV = () => {
-    const filtered = getAnalytics().filter((a) => a.boothId === boothId && !a.eventId);
-    exportAnalyticsCSV(filtered);
-    showToast('CSV 파일이 다운로드됐어요!', 'success');
-  };
-
-  const handleExportThreadsCSV = () => {
-    exportBoothThreadsCSV(boothId ?? '', threads);
-    showToast('문의 데이터가 다운로드됐어요!', 'success');
-  };
-
   const handleSavePolicy = () => {
     const now = new Date();
     const activeParticipation = boothParticipations.find((participation) => {
@@ -391,41 +376,7 @@ export default function AdminBoothDetailPage() {
               <ExternalLink className="w-4 h-4" />
               관람객 보기
             </Link>
-            <button
-              onClick={handleDeleteBooth}
-              className="flex items-center justify-center gap-1.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 flex-1 sm:flex-initial"
-            >
-              <Trash2 className="w-4 h-4" />
-              삭제
-            </button>
           </div>
-        </div>
-
-        {/* Tab nav */}
-        <div className="flex border-b border-gray-200 mb-6 gap-1">
-          {[
-            { label: '통계', to: `/admin/booths/${boothId}/stats` },
-            { label: '설정', to: `/admin/booths/${boothId}/setting` },
-            { label: '팀', to: `/admin/booths/${boothId}/team` },
-          ].map((tab) => {
-            const isActive =
-              (tab.label === '통계' && activeTab === 'stats') ||
-              (tab.label === '설정' && activeTab === 'setting') ||
-              (tab.label === '팀' && activeTab === 'team');
-            return (
-              <Link
-                key={tab.to}
-                to={tab.to}
-                className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                  isActive
-                    ? 'border-brand-600 text-brand-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
         </div>
 
         {/* QR Code Card */}
@@ -459,6 +410,33 @@ export default function AdminBoothDetailPage() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Tab nav */}
+        <div className="flex border-b border-gray-200 mb-6 gap-1">
+          {[
+            { label: '통계', to: `/admin/booths/${boothId}/stats` },
+            { label: '설정', to: `/admin/booths/${boothId}/setting` },
+            { label: '팀', to: `/admin/booths/${boothId}/team` },
+          ].map((tab) => {
+            const isActive =
+              (tab.label === '통계' && activeTab === 'stats') ||
+              (tab.label === '설정' && activeTab === 'setting') ||
+              (tab.label === '팀' && activeTab === 'team');
+            return (
+              <Link
+                key={tab.to}
+                to={tab.to}
+                className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                  isActive
+                    ? 'border-brand-600 text-brand-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
         </div>
 
         {activeTab === 'setting' && (
@@ -793,30 +771,6 @@ export default function AdminBoothDetailPage() {
               {surveyFieldsSaved ? '저장됐어요 ✓' : '설문 저장'}
             </button>
           </div>
-        </div>
-
-        {/* Export */}
-        <div className="order-7 bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-6">
-          <h2 className="text-sm font-semibold text-gray-900 mb-4">데이터 내보내기</h2>
-          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3">
-            <button
-              onClick={handleExportCSV}
-              className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 w-full sm:w-auto"
-            >
-              <FileDown className="w-4 h-4 text-gray-500" />
-              통계 CSV 내보내기
-            </button>
-            <button
-              onClick={handleExportThreadsCSV}
-              className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 w-full sm:w-auto"
-            >
-              <FileDown className="w-4 h-4 text-gray-500" />
-              문의 CSV 내보내기
-            </button>
-          </div>
-          <p className="text-xs text-gray-400 mt-3">
-            UTF-8 BOM 형식으로 내보내져 Excel에서 바로 열 수 있어요.
-          </p>
         </div>
 
         {/* ─── 기본 정보 (B-2) ─── */}
@@ -1248,6 +1202,21 @@ export default function AdminBoothDetailPage() {
             }`}
           >
             {participationsSaved ? '저장됐어요 ✓' : '행사 참여 저장'}
+          </button>
+        </div>
+
+        <div className="order-7 bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Trash2 className="w-4 h-4 text-red-500" />
+            <h2 className="text-sm font-semibold text-gray-900">부스 삭제 관리</h2>
+          </div>
+          <p className="text-sm text-gray-500 mb-4">부스를 삭제하면 되돌릴 수 없습니다.</p>
+          <button
+            onClick={handleDeleteBooth}
+            className="flex items-center justify-center gap-1.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 h-9 px-4 text-[13px] font-medium rounded-lg transition-all duration-150 w-full sm:w-auto"
+          >
+            <Trash2 className="w-4 h-4" />
+            삭제
           </button>
         </div>
         </div>

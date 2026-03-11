@@ -8,10 +8,12 @@ import {
   Clock,
   Mail,
   Shield,
+  Calendar,
+  MapPin,
 } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
-import { getBoothStaff, saveStaff, deleteStaff } from '../../utils/localStorage';
-import type { StaffMember } from '../../types';
+import { getBoothStaff, saveStaff, deleteStaff, getBoothParticipations, getEvents } from '../../utils/localStorage';
+import type { StaffMember, BoothEventParticipation } from '../../types';
 
 function RoleBadge({ role }: { role: StaffMember['role'] }) {
   if (role === 'owner') {
@@ -46,17 +48,32 @@ function StatusBadge({ status }: { status: StaffMember['status'] }) {
 export function AdminBoothTeamTab({ boothId }: { boothId: string }) {
   const { showToast } = useToast();
   const [members, setMembers] = useState<StaffMember[]>([]);
+  const [selectedEventId, setSelectedEventId] = useState<string>('all');
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteName, setInviteName] = useState('');
   const [inviteRole, setInviteRole] = useState<'owner' | 'staff'>('staff');
   const [showInvite, setShowInvite] = useState(false);
+  const [participations, setParticipations] = useState<BoothEventParticipation[]>([]);
 
   useEffect(() => {
-    setMembers(getBoothStaff(boothId));
+    setParticipations(getBoothParticipations(boothId));
   }, [boothId]);
 
+  const events = getEvents();
+  const eventOptions = participations
+    .map((participation) => ({
+      participation,
+      event: events.find((event) => event.id === participation.eventId),
+    }))
+    .filter((item): item is { participation: BoothEventParticipation; event: NonNullable<typeof item.event> } => Boolean(item.event));
+  const selectedEventMeta = eventOptions.find((item) => item.event.id === selectedEventId);
+
+  useEffect(() => {
+    setMembers(getBoothStaff(boothId, selectedEventId === 'all' ? undefined : selectedEventId));
+  }, [boothId, selectedEventId]);
+
   const reload = () => {
-    setMembers(getBoothStaff(boothId));
+    setMembers(getBoothStaff(boothId, selectedEventId === 'all' ? undefined : selectedEventId));
   };
 
   const handleInvite = () => {
@@ -67,6 +84,7 @@ export function AdminBoothTeamTab({ boothId }: { boothId: string }) {
     saveStaff({
       id: `staff-${Date.now()}`,
       boothId,
+      eventId: selectedEventId === 'all' ? undefined : selectedEventId,
       name: inviteName.trim(),
       email: inviteEmail.trim(),
       role: inviteRole,
@@ -103,6 +121,41 @@ export function AdminBoothTeamTab({ boothId }: { boothId: string }) {
 
   return (
     <div className="space-y-6">
+      {eventOptions.length > 0 && (
+        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-5">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">행사 범위</p>
+              <p className="text-sm text-gray-600">행사별로 다른 운영팀을 관리할 수 있습니다</p>
+            </div>
+            <div className="lg:ml-auto flex flex-col sm:flex-row gap-2">
+              <select
+                value={selectedEventId}
+                onChange={(e) => setSelectedEventId(e.target.value)}
+                className="h-10 min-w-[220px] bg-white border border-gray-200 rounded-lg px-3 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400"
+              >
+                <option value="all">전체 행사</option>
+                {eventOptions.map(({ event }) => (
+                  <option key={event.id} value={event.id}>
+                    {event.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {selectedEventMeta && (
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500">
+              <span>{selectedEventMeta.participation.startAt} ~ {selectedEventMeta.participation.endAt}</span>
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5" />
+                {selectedEventMeta.event.location}
+              </span>
+              {selectedEventMeta.participation.boothLocation && <span>부스 위치 {selectedEventMeta.participation.boothLocation}</span>}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex justify-end">
         <button
           onClick={() => setShowInvite((prev) => !prev)}
@@ -116,6 +169,10 @@ export function AdminBoothTeamTab({ boothId }: { boothId: string }) {
       {showInvite && (
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6">
           <h2 className="text-sm font-semibold text-gray-900 mb-4">새 팀원 초대</h2>
+          <div className="flex items-center gap-2 text-xs text-gray-500 mb-4">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>{selectedEventId === 'all' ? '전체 행사 공통 팀원으로 초대됩니다' : `${selectedEventMeta?.event.name ?? '선택 행사'} 팀원으로 초대됩니다`}</span>
+          </div>
           <div className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -181,8 +238,8 @@ export function AdminBoothTeamTab({ boothId }: { boothId: string }) {
           <p className="text-sm text-gray-400 text-center py-6">활성 팀원이 없어요</p>
         ) : (
           <div className="divide-y divide-gray-100">
-            {activeMembers.map((member) => (
-              <div key={member.id} className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
+              {activeMembers.map((member) => (
+                <div key={member.id} className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
                 <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center shrink-0 text-sm font-semibold text-gray-600">
                   {member.name[0]}
                 </div>
@@ -192,6 +249,14 @@ export function AdminBoothTeamTab({ boothId }: { boothId: string }) {
                     <Mail className="w-3 h-3 text-gray-400" />
                     <p className="text-xs text-gray-400 truncate">{member.email}</p>
                   </div>
+                  {selectedEventId === 'all' && member.eventId && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {events.find((event) => event.id === member.eventId)?.name ?? member.eventId}
+                    </p>
+                  )}
+                  {selectedEventId === 'all' && !member.eventId && (
+                    <p className="text-xs text-gray-400 mt-1">전체 행사 공통</p>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap justify-end">
                   <RoleBadge role={member.role} />
@@ -227,14 +292,22 @@ export function AdminBoothTeamTab({ boothId }: { boothId: string }) {
           </div>
 
           <div className="divide-y divide-gray-100">
-            {pendingMembers.map((member) => (
-              <div key={member.id} className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
+              {pendingMembers.map((member) => (
+                <div key={member.id} className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
                 <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center shrink-0 text-sm font-semibold text-gray-500">
                   {member.name[0]}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900">{member.name}</p>
                   <p className="text-xs text-gray-400 truncate">{member.email}</p>
+                  {selectedEventId === 'all' && member.eventId && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {events.find((event) => event.id === member.eventId)?.name ?? member.eventId}
+                    </p>
+                  )}
+                  {selectedEventId === 'all' && !member.eventId && (
+                    <p className="text-xs text-gray-400 mt-1">전체 행사 공통</p>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap justify-end">
                   <StatusBadge status={member.status} />

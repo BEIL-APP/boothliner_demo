@@ -148,6 +148,7 @@ export interface Collection {
 export interface StaffMember {
   id: string;
   boothId: string;
+  eventId?: string;
   name: string;
   email: string;
   role: 'owner' | 'staff';

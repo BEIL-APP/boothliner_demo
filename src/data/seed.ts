@@ -574,6 +574,7 @@ export const SEED_STAFF: StaffMember[] = [
   {
     id: 'staff-002',
     boothId: 'booth-001',
+    eventId: 'event-001',
     name: '박민호',
     email: 'minho@teaco.kr',
     role: 'staff',
@@ -583,6 +584,7 @@ export const SEED_STAFF: StaffMember[] = [
   {
     id: 'staff-003',
     boothId: 'booth-001',
+    eventId: 'event-002',
     name: '김지영',
     email: 'jiyoung@agency.com',
     role: 'staff',
@@ -601,6 +603,7 @@ export const SEED_STAFF: StaffMember[] = [
   {
     id: 'staff-005',
     boothId: 'booth-004',
+    eventId: 'event-002',
     name: '한소영',
     email: 'soyoung@dataflow.io',
     role: 'staff',
