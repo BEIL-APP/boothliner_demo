@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 import {
   ArrowLeft, Download, ExternalLink, FileDown,
   Upload, Trash2, Calendar, ToggleLeft, ToggleRight, Paperclip,
-  ClipboardList, Link2, Plus, Instagram, ShoppingBag, Globe,
+  Link2, Plus, Instagram, ShoppingBag, Globe,
   Edit3, ImagePlus, HelpCircle, Settings2,
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -21,7 +21,6 @@ import {
   getBoothAttachments,
   saveAttachment,
   deleteAttachment,
-  getSurveyAggregate,
   saveBooth,
   getBoothParticipations,
   getEvents,
@@ -100,15 +99,6 @@ export default function AdminBoothDetailPage() {
 
   // Attachments state
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-
-  // Survey aggregate
-  const surveyAgg = boothId ? getSurveyAggregate(boothId) : { total: 0, interests: {}, purposes: {}, wantsContact: 0 };
-  const topInterests = Object.entries(surveyAgg.interests)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 6);
-  const topPurposes = Object.entries(surveyAgg.purposes)
-    .sort((a, b) => b[1] - a[1]);
-  const maxInterest = topInterests[0]?.[1] ?? 1;
 
   const [surveyFields, setSurveyFields] = useState<Array<{ id: string; label: string; type: 'text' | 'select' | 'checkbox'; options?: string[]; required: boolean }>>(() => {
     try {
@@ -774,76 +764,6 @@ export default function AdminBoothDetailPage() {
               {surveyFieldsSaved ? '저장됐어요 ✓' : '설문 저장'}
             </button>
           </div>
-        </div>
-
-        {/* ─── 설문 집계 결과 ─── */}
-        <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6 mb-6">
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <ClipboardList className="w-4 h-4 text-gray-500" />
-              <h2 className="text-sm font-semibold text-gray-900">설문 집계 결과</h2>
-              <span className="h-6 px-2 rounded-md text-xs font-medium inline-flex items-center bg-gray-100 text-gray-600">
-                총 {surveyAgg.total}건
-              </span>
-            </div>
-          </div>
-
-          {surveyAgg.total === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-6">아직 설문 응답이 없어요</p>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-              {/* Interests bar chart */}
-              {topInterests.length > 0 && (
-                <div>
-                  <p className="text-xs font-medium text-gray-500 mb-3">관심 분야</p>
-                  <div className="space-y-2">
-                    {topInterests.map(([tag, count]) => (
-                      <div key={tag}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-gray-700">{tag}</span>
-                          <span className="text-xs font-medium text-gray-500">{count}명</span>
-                        </div>
-                        <div className="h-2 bg-gray-100 rounded-lg overflow-hidden">
-                          <div
-                            className="h-full bg-brand-400 rounded-lg transition-all"
-                            style={{ width: `${(count / maxInterest) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Purpose + wantsContact */}
-              <div>
-                {topPurposes.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-xs font-medium text-gray-500 mb-3">방문 목적</p>
-                    <div className="space-y-1.5">
-                      {topPurposes.map(([purpose, count]) => (
-                        <div key={purpose} className="flex items-center justify-between text-xs">
-                          <span className="text-gray-700">{purpose}</span>
-                          <span className="font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5">
-                            {count}건
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 sm:p-4">
-                  <p className="text-xs text-gray-500 mb-0.5">연락 희망 응답</p>
-                  <p className="text-xl sm:text-2xl font-semibold text-emerald-700">
-                    {surveyAgg.wantsContact}명
-                    <span className="text-sm font-normal text-emerald-600 ml-1">
-                      ({surveyAgg.total > 0 ? Math.round((surveyAgg.wantsContact / surveyAgg.total) * 100) : 0}%)
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Export */}
