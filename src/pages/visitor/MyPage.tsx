@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Clock, Heart, QrCode, ChevronRight, Share2, Trash2, AlertTriangle,
   FolderPlus, Folder, FolderOpen, Plus, X, Sparkles, TrendingUp, Wand2,
-  LogIn, ChevronDown,
+  LogIn, ChevronDown, Copy, Link2, CheckCircle,
 } from 'lucide-react';
 import { VisitorHeader } from '../../components/VisitorHeader';
+import { Modal } from '../../components/Modal';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useVisits } from '../../hooks/useVisits';
@@ -423,6 +424,8 @@ export default function MyPage() {
   const [activeTab, setActiveTab] = useState<'recent' | 'favorites' | 'collections'>('recent');
   const resolvedTab = (!isLoggedIn && activeTab === 'collections') ? 'recent' : activeTab;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [shareBooth, setShareBooth] = useState<Booth | null>(null);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const allBooths = getBooths();
   const boothMap = Object.fromEntries(allBooths.map((b) => [b.id, b]));
@@ -446,18 +449,28 @@ export default function MyPage() {
     .map((f) => ({ booth: boothMap[f.boothId], createdAt: f.createdAt }))
     .filter((item) => item.booth) as Array<{ booth: Booth; createdAt: string }>;
 
-  const handleShare = async (booth: Booth) => {
-    const url = `${window.location.origin}/scan/${booth.id}`;
-    const shareData = { title: booth.name, text: booth.tagline, url };
+  const handleShare = (booth: Booth) => {
+    setShareBooth(booth);
+    setShareCopied(false);
+  };
+
+  const shareUrl = shareBooth ? `${window.location.origin}/scan/${shareBooth.id}` : '';
+
+  const handleCopyShareLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch {
+      showToast('링크 복사에 실패했어요', 'error');
+    }
+  };
+
+  const handleNativeShare = async () => {
+    if (!shareBooth) return;
+    const shareData = { title: shareBooth.name, text: shareBooth.tagline, url: shareUrl };
     if (navigator.share && navigator.canShare?.(shareData)) {
-      try { await navigator.share(shareData); } catch { /* cancelled */ }
-    } else {
-      try {
-        await navigator.clipboard.writeText(url);
-        showToast('링크가 복사됐어요!', 'success');
-      } catch {
-        showToast('링크 복사에 실패했어요', 'error');
-      }
+      try { await navigator.share(shareData); setShareBooth(null); } catch { /* cancelled */ }
     }
   };
 
@@ -658,6 +671,71 @@ export default function MyPage() {
           )}
         </div>
       </div>
+
+      {/* ═══ Share Modal ═══ */}
+      <Modal open={!!shareBooth} onClose={() => setShareBooth(null)} title="공유하기">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+            <Link2 className="w-4 h-4 text-gray-400 shrink-0" />
+            <p className="flex-1 text-xs text-gray-600 font-mono truncate">{shareUrl}</p>
+            <button
+              onClick={handleCopyShareLink}
+              className={`flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                shareCopied
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {shareCopied ? <><CheckCircle className="w-3.5 h-3.5" /> 복사됨</> : <><Copy className="w-3.5 h-3.5" /> 복사</>}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => showToast('카카오톡 공유는 준비 중이에요', 'info')}
+              className="flex flex-col items-center gap-2 p-4 rounded-xl bg-[#FEE500]/10 hover:bg-[#FEE500]/20 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full bg-[#FEE500] flex items-center justify-center">
+                <span className="text-[#3C1E1E] text-sm font-bold">K</span>
+              </div>
+              <span className="text-xs text-gray-700 font-medium">카카오톡</span>
+            </button>
+            <button
+              onClick={() => {
+                if (!shareBooth) return;
+                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareBooth.name + ' - ' + shareBooth.tagline)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
+              }}
+              className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center">
+                <span className="text-white text-sm font-bold">𝕏</span>
+              </div>
+              <span className="text-xs text-gray-700 font-medium">X (트위터)</span>
+            </button>
+            {typeof navigator !== 'undefined' && 'share' in navigator && (
+              <button
+                onClick={handleNativeShare}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center">
+                  <Share2 className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-xs text-gray-700 font-medium">더보기</span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div className="w-9 h-9 bg-gray-200 rounded-lg flex items-center justify-center shrink-0">
+              <QrCode className="w-4 h-4 text-gray-500" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-gray-700">QR 코드로 공유</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">이 부스 페이지의 QR은 운영자가 제공합니다</p>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
