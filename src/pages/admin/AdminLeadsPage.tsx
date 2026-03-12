@@ -399,79 +399,75 @@ export default function AdminLeadsPage() {
               </div>
 
               {/* Desktop table */}
-              <div className="hidden md:block overflow-x-auto">
-                <table className="w-full min-w-[900px]">
+              <div className="hidden md:block">
+                <table className="w-full">
                   <thead>
                     <tr className="bg-gray-50/50 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
-                      <th className="text-left px-6 py-4">고객 정보</th>
-                      <th className="text-left px-4 py-4">소속</th>
-                      <th className="text-left px-4 py-4">연락처</th>
-                      <th className="text-left px-4 py-4">수집 경로</th>
-                      <th className="text-left px-4 py-4">상태</th>
-                      <th className="text-left px-4 py-4">부스</th>
-                      <th className="text-left px-4 py-4 whitespace-nowrap">수집일</th>
-                      <th className="text-left px-4 py-4">메모</th>
-                      <th className="px-6 py-4" />
+                      <th className="text-left pl-5 pr-3 py-3">고객 정보</th>
+                      <th className="text-left px-3 py-3">수집 경로</th>
+                      <th className="text-left px-3 py-3">상태</th>
+                      <th className="text-left px-3 py-3">부스</th>
+                      <th className="text-left px-3 py-3">수집일</th>
+                      <th className="text-left px-3 py-3">메모</th>
+                      <th className="w-20 px-3 py-3" />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {filtered.map((lead) => (
                       <tr key={lead.id} className="hover:bg-gray-50/50 transition-colors group">
-                        <td className="px-6 py-4">
+                        <td className="pl-5 pr-3 py-3">
                           <p className="text-sm font-bold text-gray-900">{lead.name ?? '-'}</p>
-                          <p className="text-xs text-gray-400 font-medium">{lead.email ?? '-'}</p>
+                          <p className="text-xs text-gray-400 font-medium truncate max-w-[200px]">{lead.email ?? '-'}</p>
+                          <div className="flex items-center gap-3 mt-0.5">
+                            {lead.company && <p className="text-xs text-gray-400">{lead.company}</p>}
+                            {lead.phone && <p className="text-[11px] text-gray-400 font-mono">{lead.phone}</p>}
+                          </div>
                         </td>
-                        <td className="px-4 py-4">
-                          <p className="text-sm text-gray-700 font-medium">{lead.company ?? '-'}</p>
-                        </td>
-                        <td className="px-4 py-4">
-                          <p className="text-xs text-gray-500 font-mono tracking-tighter">{lead.phone ?? '-'}</p>
-                        </td>
-                        <td className="px-4 py-4">
-                          <span className={`h-6 px-2 rounded-lg text-[10px] font-bold uppercase tracking-tight inline-flex items-center gap-1.5 whitespace-nowrap ${SOURCE_COLORS[lead.source]}`}>
+                        <td className="px-3 py-3">
+                          <span className={`h-6 px-2 rounded-lg text-[10px] font-bold uppercase tracking-tight inline-flex items-center gap-1 whitespace-nowrap ${SOURCE_COLORS[lead.source]}`}>
                             {SOURCE_ICONS[lead.source]}
                             {SOURCE_LABELS[lead.source]}
                           </span>
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-3">
                           <select
                             value={lead.status ?? 'NEW'}
                             onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                            className={`h-9 text-[11px] font-bold uppercase rounded-lg px-2 border-0 outline-none cursor-pointer shadow-sm transition-all hover:brightness-95 ${STATUS_COLORS[lead.status ?? 'NEW']}`}
+                            className={`h-8 text-[11px] font-bold uppercase rounded-lg px-2 border-0 outline-none cursor-pointer shadow-sm transition-all hover:brightness-95 ${STATUS_COLORS[lead.status ?? 'NEW']}`}
                           >
                             {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
                               <option key={s} value={s}>{STATUS_LABELS[s]}</option>
                             ))}
                           </select>
                         </td>
-                        <td className="px-4 py-4">
-                          <p className="text-xs font-bold text-gray-500 truncate max-w-[120px]">
+                        <td className="px-3 py-3">
+                          <p className="text-xs font-bold text-gray-500 truncate max-w-[100px]">
                             {boothMap[lead.boothId] ?? lead.boothId}
                           </p>
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-3 whitespace-nowrap">
                           <p className="text-[11px] font-bold text-gray-400 uppercase">
                             {new Date(lead.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                           </p>
                         </td>
-                        <td className="px-4 py-4 min-w-[180px]">
-                          <p className="text-xs text-gray-500 truncate max-w-[180px]">
+                        <td className="px-3 py-3">
+                          <p className="text-xs text-gray-500 truncate max-w-[140px]">
                             {lead.memo || <span className="text-gray-300">-</span>}
                           </p>
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-3 py-3 text-right">
                           <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
                             <button
                               onClick={() => openEditModal(lead)}
-                              className="p-2 text-gray-300 hover:text-brand-500 hover:bg-brand-50 rounded-xl transition-all"
+                              className="p-1.5 text-gray-300 hover:text-brand-500 hover:bg-brand-50 rounded-lg transition-all"
                             >
-                              <Pencil className="w-4 h-4" />
+                              <Pencil className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => handleDelete(lead.id)}
-                              className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                              className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </td>
