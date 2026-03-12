@@ -527,6 +527,7 @@ export const SEED_SURVEYS: SurveyResponse[] = [
     boothId: 'booth-001',
     visitorId: 'guest-seed-1',
     answers: { interests: ['기업선물', '복지'], purpose: '구매검토', wantsContact: true },
+    consent: true,
     createdAt: '2026-02-10T15:00:00Z',
   },
   {
@@ -534,6 +535,7 @@ export const SEED_SURVEYS: SurveyResponse[] = [
     boothId: 'booth-001',
     visitorId: 'guest-seed-2',
     answers: { interests: ['복지', '건강'], purpose: '정보수집', wantsContact: false },
+    consent: true,
     createdAt: '2026-02-11T10:00:00Z',
   },
   {
@@ -541,6 +543,8 @@ export const SEED_SURVEYS: SurveyResponse[] = [
     boothId: 'booth-004',
     visitorId: 'guest-seed-3',
     answers: { interests: ['SaaS', '영업자동화'], purpose: '파트너십', wantsContact: true },
+    consent: true,
+    consentMarketing: true,
     createdAt: '2026-02-11T11:30:00Z',
   },
   {
@@ -548,6 +552,7 @@ export const SEED_SURVEYS: SurveyResponse[] = [
     boothId: 'booth-003',
     visitorId: 'guest-seed-4',
     answers: { interests: ['ESG', '오피스'], purpose: '구매검토', wantsContact: true },
+    consent: true,
     createdAt: '2026-02-12T13:00:00Z',
   },
   {
@@ -555,6 +560,8 @@ export const SEED_SURVEYS: SurveyResponse[] = [
     boothId: 'booth-002',
     visitorId: 'guest-seed-5',
     answers: { interests: ['인쇄', '명함'], purpose: '견적', wantsContact: true },
+    consent: true,
+    consentMarketing: true,
     createdAt: '2026-02-12T14:00:00Z',
   },
 ];

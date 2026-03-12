@@ -116,6 +116,9 @@ export default function BoothPage() {
   const [surveyIntro, setSurveyIntro] = useState(DEFAULT_SURVEY_INTRO);
   const [surveyAnswers, setSurveyAnswers] = useState<Record<string, string | string[]>>({});
   const [surveyWantsContact, setSurveyWantsContact] = useState(false);
+  const [surveyContactEmail, setSurveyContactEmail] = useState('');
+  const [surveyConsent, setSurveyConsent] = useState(false);
+  const [surveyConsentMarketing, setSurveyConsentMarketing] = useState(false);
   const [surveySent, setSurveySent] = useState(false);
 
   const [policy, setPolicy] = useState<BoothPolicy | undefined>();
@@ -275,6 +278,14 @@ export default function BoothPage() {
       showToast('필수 설문 항목을 입력해주세요.', 'error');
       return;
     }
+    if (!surveyConsent) {
+      showToast('개인정보 수집·이용 동의가 필요합니다.', 'error');
+      return;
+    }
+    if (surveyWantsContact && !isLoggedIn && !surveyContactEmail.includes('@')) {
+      showToast('연락받을 이메일 주소를 입력해주세요.', 'error');
+      return;
+    }
     const guestId = getGuestId();
     const response: SurveyResponse = {
       id: `survey-${Date.now()}`,
@@ -286,6 +297,8 @@ export default function BoothPage() {
         purpose: typeof surveyAnswers.purpose === 'string' ? surveyAnswers.purpose || undefined : undefined,
         wantsContact: surveyWantsContact,
       },
+      consent: surveyConsent,
+      consentMarketing: surveyConsentMarketing || undefined,
       createdAt: new Date().toISOString(),
     };
     saveSurvey(response);
@@ -296,8 +309,11 @@ export default function BoothPage() {
         id: `lead-survey-${Date.now()}`,
         boothId,
         source: 'survey',
+        email: !isLoggedIn && surveyContactEmail ? surveyContactEmail : undefined,
         memo: `관심분야: ${leadInterests.join(', ')} | 목적: ${leadPurpose}`,
-        consent: surveyWantsContact,
+        consent: surveyConsent,
+        consentMarketing: surveyConsentMarketing || undefined,
+        consentAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
       });
     }
@@ -309,6 +325,9 @@ export default function BoothPage() {
   const handleCloseSurvey = () => {
     setShowSurvey(false);
     setSurveySent(false);
+    setSurveyConsent(false);
+    setSurveyConsentMarketing(false);
+    setSurveyContactEmail('');
   };
 
   const getSurveyAnswer = (fieldId: string) => surveyAnswers[fieldId];
@@ -1063,19 +1082,43 @@ export default function BoothPage() {
                 })}
               </div>
             </div>
-            <div className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg">
-              <div>
-                <p className="text-sm font-medium text-gray-800">연락 받기를 원해요</p>
-                <p className="text-xs text-gray-400 mt-0.5">운영자가 리드로 저장합니다</p>
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between p-4 bg-gray-50">
+                <div>
+                  <p className="text-sm font-medium text-gray-800">연락 받기를 원해요</p>
+                  <p className="text-xs text-gray-400 mt-0.5">운영자가 리드로 저장합니다</p>
+                </div>
+                <button
+                  onClick={() => setSurveyWantsContact((v) => !v)}
+                  className={`relative w-11 h-6 rounded-full transition-all duration-150 ${surveyWantsContact ? 'bg-brand-600' : 'bg-gray-200'}`}>
+                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${surveyWantsContact ? 'left-6' : 'left-1'}`} />
+                </button>
               </div>
-              <button
-                onClick={() => setSurveyWantsContact((v) => !v)}
-                className={`relative w-11 h-6 rounded-full transition-all duration-150 ${surveyWantsContact ? 'bg-brand-600' : 'bg-gray-200'}`}>
-                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${surveyWantsContact ? 'left-6' : 'left-1'}`} />
-              </button>
+              {surveyWantsContact && !isLoggedIn && (
+                <div className="px-4 pb-4 pt-3 border-t border-gray-200 bg-white">
+                  <input
+                    type="email"
+                    value={surveyContactEmail}
+                    onChange={(e) => setSurveyContactEmail(e.target.value)}
+                    placeholder="연락받을 이메일 주소"
+                    className="w-full h-10 text-sm bg-white border border-gray-200 rounded-lg px-3 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
+                  />
+                </div>
+              )}
+            </div>
+            <div className="space-y-2.5 pt-1">
+              <label className="flex items-start gap-2.5 cursor-pointer">
+                <input type="checkbox" checked={surveyConsent} onChange={(e) => setSurveyConsent(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
+                <span className="text-xs text-gray-500">(필수) 개인정보 수집·이용에 동의합니다<span className="text-gray-400 block">설문 응답이 부스 운영자에게 제공됩니다</span></span>
+              </label>
+              <label className="flex items-start gap-2.5 cursor-pointer">
+                <input type="checkbox" checked={surveyConsentMarketing} onChange={(e) => setSurveyConsentMarketing(e.target.checked)} className="mt-0.5 w-4 h-4 rounded accent-brand-600" />
+                <span className="text-xs text-gray-500">(선택) 마케팅 정보 수신에 동의합니다<span className="text-gray-400 block">언제든 철회할 수 있어요</span></span>
+              </label>
             </div>
             <button onClick={handleSendSurvey}
-              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150">
+              disabled={!surveyConsent}
+              className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed">
               제출하기
             </button>
           </div>

@@ -111,6 +111,8 @@ export interface SurveyResponse {
     purpose?: string;
     wantsContact?: boolean;
   } & Record<string, string | string[] | boolean | undefined>;
+  consent: boolean;
+  consentMarketing?: boolean;
   createdAt: string;
 }
 
