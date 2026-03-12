@@ -1022,9 +1022,10 @@ export default function BoothPage() {
 
       {/* ═══ Survey Modal ═══ */}
       {(() => {
-        const surveyTotalPages = surveyFields.length + 1;
+        const FIELDS_PER_PAGE = 2;
+        const surveyTotalPages = Math.ceil(surveyFields.length / FIELDS_PER_PAGE);
         const isLastPage = surveyPage === surveyTotalPages - 1;
-        const currentField = surveyPage < surveyFields.length ? surveyFields[surveyPage] : null;
+        const pageFields = surveyFields.slice(surveyPage * FIELDS_PER_PAGE, (surveyPage + 1) * FIELDS_PER_PAGE);
 
         const renderSurveyField = (field: SurveyField) => {
           const answer = getSurveyAnswer(field.id);
@@ -1131,13 +1132,19 @@ export default function BoothPage() {
                 <button onClick={handleCloseSurvey} className="w-full bg-brand-600 text-white text-sm font-medium rounded-lg h-10 hover:bg-brand-500 transition-all duration-150">확인</button>
               </div>
             ) : isDesktop ? (
-              /* ── Desktop: 페이지네이션 (1문항/페이지) ── */
+              /* ── Desktop: 페이지네이션 (2문항/페이지) ── */
               <div className="space-y-5">
-                {currentField && (
-                  <div className="min-h-[120px]">{renderSurveyField(currentField)}</div>
-                )}
+                <div className="space-y-5">
+                  {pageFields.map((field) => renderSurveyField(field))}
+                </div>
 
-                {isLastPage && <div className="space-y-5">{contactConsentBlock}</div>}
+                {isLastPage && (
+                  <>
+                    <div className="border-t border-gray-100 pt-5 space-y-5">
+                      {contactConsentBlock}
+                    </div>
+                  </>
+                )}
 
                 {isLastPage ? (
                   <button onClick={handleSendSurvey} disabled={!surveyConsent}

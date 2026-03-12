@@ -85,7 +85,7 @@ export function getGuestId(): string {
 
 // ─── Seed ─────────────────────────────────────────────────────────────────────
 
-const SEED_VERSION = 'v3';
+const SEED_VERSION = 'v4';
 
 export function initSeedData(): void {
   if (localStorage.getItem(KEYS.seeded) === SEED_VERSION) return;
@@ -101,6 +101,21 @@ export function initSeedData(): void {
   set(KEYS.boothEvents, SEED_PARTICIPATIONS);
   set(KEYS.visits, []);
   set(KEYS.favorites, []);
+
+  // booth-001 설문 필드 10개 시드
+  localStorage.setItem('bep_survey_fields_booth-001', JSON.stringify([
+    { id: 'interests', label: '관심 분야', type: 'checkbox', options: ['구매검토', '파트너십', 'B2B 납품', '정보수집'], required: false },
+    { id: 'purpose', label: '방문 목적', type: 'select', options: ['구매/계약 검토', '제품 정보 수집', '파트너십/협력', '견적 요청'], required: false },
+    { id: 'company', label: '소속 회사명', type: 'text', required: true },
+    { id: 'position', label: '직책/직급', type: 'text', required: false },
+    { id: 'industry', label: '업종', type: 'select', options: ['제조업', 'IT/소프트웨어', '유통/물류', '금융', '공공기관', '기타'], required: true },
+    { id: 'companySize', label: '회사 규모', type: 'select', options: ['1~10명', '11~50명', '51~200명', '201~1000명', '1000명 이상'], required: false },
+    { id: 'budget', label: '예상 예산 범위', type: 'select', options: ['500만원 미만', '500만~2000만원', '2000만~5000만원', '5000만~1억', '1억 이상', '미정'], required: false },
+    { id: 'timeline', label: '도입 검토 시기', type: 'select', options: ['즉시', '3개월 이내', '6개월 이내', '1년 이내', '미정'], required: false },
+    { id: 'channels', label: '정보 수집 경로', type: 'checkbox', options: ['검색엔진', 'SNS', '지인 추천', '이메일', '전시회 현장'], required: false },
+    { id: 'feedback', label: '부스에 대한 한줄 피드백', type: 'text', required: false },
+  ]));
+
   localStorage.setItem(KEYS.seeded, SEED_VERSION);
 }
 
