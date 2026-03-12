@@ -8,8 +8,10 @@ import {
   Users,
   PhoneCall,
   Search,
+  Download,
 } from 'lucide-react';
 import { getBoothSurveys } from '../../utils/localStorage';
+import { exportSurveysCSV } from '../../utils/csv';
 
 type SurveyField = {
   id: string;
@@ -91,17 +93,29 @@ export function AdminBoothSurveyDetail({ boothId }: { boothId: string }) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Link
-          to={`/admin/booths/${boothId}/stats`}
-          className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 text-gray-500" />
-        </Link>
-        <div>
-          <h1 className="text-lg font-bold text-gray-900">설문 응답 상세</h1>
-          <p className="text-xs text-gray-400 mt-0.5">총 {surveys.length}건의 응답</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link
+            to={`/admin/booths/${boothId}/stats`}
+            className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 text-gray-500" />
+          </Link>
+          <div>
+            <h1 className="text-lg font-bold text-gray-900">설문 응답 상세</h1>
+            <p className="text-xs text-gray-400 mt-0.5">총 {surveys.length}건의 응답</p>
+          </div>
         </div>
+        {surveys.length > 0 && (
+          <button
+            onClick={() => exportSurveysCSV(boothId, surveys, surveyFields)}
+            className="flex items-center gap-1.5 h-9 px-3 sm:px-4 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all shadow-sm"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">CSV 내보내기</span>
+            <span className="sm:hidden">CSV</span>
+          </button>
+        )}
       </div>
 
       {/* Summary cards */}

@@ -96,3 +96,50 @@ export function exportLeadsCSV(leads: import('../types').Lead[]): void {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+export function exportSurveysCSV(
+  boothId: string,
+  surveys: import('../types').SurveyResponse[],
+  fields: Array<{ id: string; label: string }>,
+): void {
+  const fieldIds = fields.map((f) => f.id);
+  const extraIds = new Set<string>();
+  for (const s of surveys) {
+    for (const key of Object.keys(s.answers)) {
+      if (!fieldIds.includes(key) && key !== 'wantsContact') extraIds.add(key);
+    }
+  }
+  const allIds = [...fieldIds, ...Array.from(extraIds)];
+
+  const header = ['#', '방문자 ID', ...allIds.map((id) => fields.find((f) => f.id === id)?.label ?? id), '연락 희망', '개인정보 동의', '응답일'];
+
+  const rows: string[][] = [
+    header,
+    ...surveys.map((s, i) => [
+      String(i + 1),
+      s.visitorId,
+      ...allIds.map((id) => {
+        const v = s.answers[id];
+        if (v === undefined || v === null) return '-';
+        if (typeof v === 'boolean') return v ? '예' : '아니오';
+        if (Array.isArray(v)) return v.join(' | ');
+        return String(v);
+      }),
+      s.answers.wantsContact ? '예' : '아니오',
+      s.consent ? '동의' : '미동의',
+      s.createdAt,
+    ]),
+  ];
+
+  const csv = rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `survey-${boothId}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
