@@ -64,7 +64,7 @@ export default function AdminTeamPage() {
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newRole, setNewRole] = useState<'staff' | 'owner'>('staff');
-  const [newBoothId, setNewBoothId] = useState(booths[0]?.id ?? '');
+  const [newBoothIds, setNewBoothIds] = useState<string[]>([]);
   const [newEventId, setNewEventId] = useState('');
 
   const filteredMembers = useMemo(() => {
@@ -85,31 +85,69 @@ export default function AdminTeamPage() {
       .filter((group) => group.members.length > 0);
   }, [booths, filteredMembers, selectedBooth]);
 
+  // Group by email for flat list view
+  const membersByEmail = useMemo(() => {
+    const map = new Map<string, StaffMember[]>();
+    filteredMembers.forEach((m) => {
+      const list = map.get(m.email) ?? [];
+      list.push(m);
+      map.set(m.email, list);
+    });
+    return Array.from(map.values());
+  }, [filteredMembers]);
+
+  const uniqueCount = membersByEmail.length;
+
   const refresh = () => setMembers(getAllStaff());
 
+  const toggleNewBooth = (boothId: string) => {
+    setNewBoothIds((prev) =>
+      prev.includes(boothId) ? prev.filter((id) => id !== boothId) : [...prev, boothId],
+    );
+  };
+
   const handleAdd = () => {
-    if (!newName.trim() || !newEmail.includes('@') || !newBoothId) {
+    if (!newName.trim() || !newEmail.includes('@') || newBoothIds.length === 0) {
       showToast('이름, 이메일, 부스를 확인해주세요', 'error');
       return;
     }
-    const member: StaffMember = {
-      id: `staff-${Date.now()}`,
-      boothId: newBoothId,
-      eventId: newEventId || undefined,
-      name: newName.trim(),
-      email: newEmail.trim(),
-      role: newRole,
-      status: 'pending',
-      invitedAt: new Date().toISOString(),
-    };
-    saveStaff(member);
+    const existing = members.filter((m) => m.email === newEmail.trim());
+    const duplicateBooths = newBoothIds.filter((bid) => existing.some((m) => m.boothId === bid));
+    const boothsToAdd = newBoothIds.filter((bid) => !duplicateBooths.includes(bid));
+
+    if (boothsToAdd.length === 0) {
+      showToast('이미 해당 부스에 등록된 팀원이에요', 'error');
+      return;
+    }
+
+    boothsToAdd.forEach((boothId, i) => {
+      const member: StaffMember = {
+        id: `staff-${Date.now()}-${i}`,
+        boothId,
+        eventId: newEventId || undefined,
+        name: newName.trim(),
+        email: newEmail.trim(),
+        role: newRole,
+        status: 'pending',
+        invitedAt: new Date().toISOString(),
+      };
+      saveStaff(member);
+    });
+
     refresh();
     setNewName('');
     setNewEmail('');
     setNewRole('staff');
+    setNewBoothIds([]);
     setNewEventId('');
     setShowAddForm(false);
-    showToast('팀원을 추가했어요', 'success');
+    const count = boothsToAdd.length;
+    showToast(
+      count === 1
+        ? '팀원을 추가했어요'
+        : `${count}개 부스에 팀원을 추가했어요${duplicateBooths.length > 0 ? ` (중복 ${duplicateBooths.length}개 제외)` : ''}`,
+      'success',
+    );
   };
 
   const handleDelete = (memberId: string) => {
@@ -233,7 +271,7 @@ export default function AdminTeamPage() {
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-2">전체 팀원 관리</h1>
             <p className="text-sm text-gray-500 font-medium">
               부스와 행사 기준으로 전체 운영팀을 한 번에 관리합니다
-              <span className="ml-2 text-xs text-gray-400">총 {members.length}명</span>
+              <span className="ml-2 text-xs text-gray-400">총 {new Set(members.map((m) => m.email)).size}명</span>
             </p>
           </div>
           <button
@@ -270,17 +308,29 @@ export default function AdminTeamPage() {
                   className="w-full h-10 bg-white border border-gray-200 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400 transition-all placeholder:text-gray-400"
                 />
               </div>
-              <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1.5">소속 부스 *</label>
-                <select
-                  value={newBoothId}
-                  onChange={(e) => setNewBoothId(e.target.value)}
-                  className="w-full h-10 bg-white border border-gray-200 rounded-lg px-3 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-400"
-                >
-                  {booths.map((b) => (
-                    <option key={b.id} value={b.id}>{b.name}</option>
-                  ))}
-                </select>
+              <div className="sm:col-span-2">
+                <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+                  소속 부스 * <span className="text-gray-400 font-normal">({newBoothIds.length}개 선택)</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {booths.map((b) => {
+                    const selected = newBoothIds.includes(b.id);
+                    return (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => toggleNewBooth(b.id)}
+                        className={`text-xs font-medium rounded-lg px-3 py-1.5 border transition-all duration-150 ${
+                          selected
+                            ? 'bg-brand-600 text-white border-brand-600'
+                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {b.name}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div>
                 <label className="block text-[13px] font-medium text-gray-700 mb-1.5">담당 행사</label>
@@ -310,13 +360,13 @@ export default function AdminTeamPage() {
             <div className="flex gap-2">
               <button
                 onClick={handleAdd}
-                disabled={!newName.trim() || !newEmail.includes('@')}
+                disabled={!newName.trim() || !newEmail.includes('@') || newBoothIds.length === 0}
                 className="h-10 px-5 text-sm font-bold bg-brand-600 text-white rounded-xl hover:bg-brand-500 transition-all duration-150 disabled:opacity-40 shadow-md shadow-brand-100"
               >
                 추가하기
               </button>
               <button
-                onClick={() => { setShowAddForm(false); setNewName(''); setNewEmail(''); }}
+                onClick={() => { setShowAddForm(false); setNewName(''); setNewEmail(''); setNewBoothIds([]); }}
                 className="h-10 px-4 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all duration-150"
               >
                 취소
@@ -377,22 +427,92 @@ export default function AdminTeamPage() {
           </div>
         </div>
 
-        {/* ─── List view (flat) ─── */}
+        {/* ─── List view (flat, grouped by person) ─── */}
         {viewMode === 'list' && (
-          filteredMembers.length === 0 ? (
+          membersByEmail.length === 0 ? (
             <div className="bg-white border border-gray-200/60 rounded-xl p-8 text-center">
               <Users className="w-10 h-10 text-gray-200 mx-auto mb-3" />
               <p className="text-sm text-gray-400">표시할 팀원이 없어요.</p>
             </div>
           ) : (
-            <div className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
                 <p className="text-sm font-semibold text-gray-900">전체 팀원</p>
-                <span className="text-xs font-medium text-gray-400">{filteredMembers.length}명</span>
+                <span className="text-xs font-medium text-gray-400">{uniqueCount}명</span>
               </div>
-              <div className="divide-y divide-gray-100">
-                {filteredMembers.map((member) => renderMemberRow(member, true))}
-              </div>
+              {membersByEmail.map((personMembers) => {
+                const first = personMembers[0];
+                return (
+                  <div key={first.email} className="bg-white border border-gray-200/60 rounded-xl p-4 sm:p-5">
+                    {/* Person header */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center shrink-0 text-sm font-semibold text-gray-600">
+                        {first.name[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900">{first.name}</p>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <Mail className="w-3 h-3 text-gray-400 shrink-0" />
+                          <p className="text-xs text-gray-400 truncate">{first.email}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs font-medium text-gray-400">{personMembers.length}개 부스</span>
+                    </div>
+
+                    {/* Assignment rows */}
+                    <div className="space-y-2">
+                      {personMembers.map((member) => {
+                        const boothName = booths.find((b) => b.id === member.boothId)?.name ?? member.boothId;
+                        const eventName = member.eventId ? events.find((ev) => ev.id === member.eventId)?.name : null;
+                        return (
+                          <div key={member.id} className="flex items-center gap-2 p-2.5 bg-gray-50 rounded-lg">
+                            <div className="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
+                              <span className="inline-flex items-center gap-1 h-6 px-2 text-xs font-medium text-brand-700 bg-brand-50 rounded-md shrink-0">
+                                <Building2 className="w-3 h-3" /> {boothName}
+                              </span>
+                              {eventName ? (
+                                <span className="inline-flex items-center gap-1 h-6 px-2 text-xs font-medium text-sky-700 bg-sky-50 rounded-md shrink-0">
+                                  <Calendar className="w-3 h-3" /> {eventName}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center h-6 px-2 text-xs font-medium text-gray-500 bg-gray-100 rounded-md shrink-0">
+                                  전체 행사
+                                </span>
+                              )}
+                              <RoleBadge role={member.role} />
+                              <StatusBadge status={member.status} />
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <select
+                                value={member.role}
+                                onChange={(e) => handleRoleChange(member, e.target.value as 'owner' | 'staff')}
+                                className="text-xs border border-gray-200 rounded-lg px-1.5 py-1 outline-none text-gray-600 bg-white h-7 hidden sm:block"
+                              >
+                                <option value="staff">스태프</option>
+                                <option value="owner">오너</option>
+                              </select>
+                              {member.status === 'pending' && (
+                                <button
+                                  onClick={() => handleActivate(member)}
+                                  className="text-xs text-brand-600 hover:text-brand-700 font-medium px-1.5 py-1"
+                                >
+                                  수락
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDelete(member.id)}
+                                className="p-1 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )
         )}
