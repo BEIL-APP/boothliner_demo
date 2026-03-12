@@ -40,15 +40,17 @@ export function Modal({ open, onClose, title, headerRight, children, size = 'sm'
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h3 className="text-[15px] font-semibold text-gray-900 shrink-0">{title}</h3>
-            {headerRight && <div className="flex-1 min-w-0 flex justify-end">{headerRight}</div>}
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-1 -mr-1 rounded-lg hover:bg-gray-100 shrink-0"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              {headerRight}
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1 -mr-1 rounded-lg hover:bg-gray-100 shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         )}
         <div className="p-6 overflow-y-auto">{children}</div>
