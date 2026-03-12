@@ -65,7 +65,7 @@ export default function AdminBoothsPage() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="inline-flex items-center h-5 px-2 text-[10px] font-bold text-gray-500 bg-gray-100 rounded-md uppercase tracking-wider">
+                        <span className="inline-flex items-center h-5 px-2 text-[10px] font-bold text-gray-500 bg-gray-100 rounded-md">
                           {booth.category}
                         </span>
                         <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-brand-500 group-hover:translate-x-0.5 transition-all duration-200" />
@@ -106,7 +106,7 @@ export default function AdminBoothsPage() {
           <div className="mt-10 lg:mt-12">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-4 h-4 text-brand-600" />
-              <h2 className="text-[13px] font-bold text-gray-900 uppercase tracking-wider">전체 통계 요약</h2>
+              <h2 className="text-[13px] font-bold text-gray-900">전체 통계 요약</h2>
             </div>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:gap-6">
               {[

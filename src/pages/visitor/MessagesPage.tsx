@@ -118,17 +118,17 @@ export default function MessagesPage() {
                           <p className="text-sm text-gray-500 truncate font-medium">{lastMsg?.text}</p>
                           <div className="flex flex-wrap items-center gap-2 mt-3">
                             {isNew && (
-                              <span className="h-5 px-2 rounded font-bold text-[10px] text-brand-600 bg-brand-50 tracking-tight">
+                              <span className="h-5 px-2 rounded font-bold text-[10px] text-brand-600 bg-brand-50">
                                 새 답변
                               </span>
                             )}
                             {hasBoothReply && (
-                              <span className="h-5 px-2 rounded font-bold text-[10px] text-emerald-600 bg-emerald-50 tracking-tight">
+                              <span className="h-5 px-2 rounded font-bold text-[10px] text-emerald-600 bg-emerald-50">
                                 답변 완료
                               </span>
                             )}
                             <span
-                              className={`h-5 px-2 rounded font-bold text-[10px] tracking-tight ${
+                              className={`h-5 px-2 rounded font-bold text-[10px] ${
                                 thread.status === '처리'
                                   ? 'text-emerald-600 bg-emerald-50'
                                   : thread.status === '보류'
@@ -201,7 +201,7 @@ export default function MessagesPage() {
                       >
                         <p className="text-[15px] leading-relaxed font-medium">{msg.text}</p>
                         <p
-                          className={`text-[10px] font-bold mt-2 tracking-tight ${
+                          className={`text-[10px] font-bold mt-2 ${
                             msg.from === 'visitor' ? 'text-brand-200' : 'text-gray-400'
                           }`}
                         >

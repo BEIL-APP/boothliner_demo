@@ -46,7 +46,7 @@ function BoothCard({
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-bold text-gray-400 tracking-wider mb-1">{booth.category}</p>
+          <p className="text-[10px] font-bold text-gray-400 mb-1">{booth.category}</p>
           <p className="text-sm font-bold text-gray-900 truncate group-hover:text-brand-600 transition-colors">{booth.name}</p>
           <p className="text-xs text-gray-500 mt-0.5 truncate font-medium">{booth.tagline}</p>
           {meta && <p className="text-[11px] font-bold text-brand-500 mt-1.5">{meta}</p>}
@@ -166,7 +166,7 @@ function AiInsights({ visitedBooths, favoriteBooths }: { visitedBooths: Booth[];
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-gray-800 truncate group-hover:text-brand-600 transition-colors">{b.name}</p>
-                      <p className="text-[11px] text-gray-400 font-medium truncate tracking-tight">{b.category}</p>
+                      <p className="text-[11px] text-gray-400 font-medium truncate">{b.category}</p>
                     </div>
                     <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-brand-500 transition-all" />
                   </Link>
@@ -331,7 +331,7 @@ function CollectionsTab({ favoriteBooths }: { favoriteBooths: Array<{ booth: Boo
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-gray-900 truncate">{col.name}</p>
-                      <p className="text-[11px] font-bold text-gray-400 tracking-tight">부스 {col.boothIds.length}개</p>
+                      <p className="text-[11px] font-bold text-gray-400">부스 {col.boothIds.length}개</p>
                     </div>
                   </button>
                   <div className="flex gap-1 shrink-0">
@@ -371,7 +371,7 @@ function CollectionsTab({ favoriteBooths }: { favoriteBooths: Array<{ booth: Boo
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-bold text-gray-800 truncate group-hover:text-brand-600 transition-colors">{b.name}</p>
-                            <p className="text-[10px] text-gray-400 font-bold truncate tracking-tight">{b.category}</p>
+                            <p className="text-[10px] text-gray-400 font-bold truncate">{b.category}</p>
                           </div>
                         </Link>
                         <button
@@ -387,7 +387,7 @@ function CollectionsTab({ favoriteBooths }: { favoriteBooths: Array<{ booth: Boo
                     {addable.length > 0 && (
                       addingToId === col.id ? (
                         <div className="pt-2 animate-fade-in">
-                          <p className="text-[11px] font-bold text-gray-400 mb-2 tracking-wider px-1">관심 부스 목록:</p>
+                          <p className="text-[11px] font-bold text-gray-400 mb-2 px-1">관심 부스 목록:</p>
                           <div className="space-y-1 max-h-40 overflow-y-auto pr-1 scrollbar-hide">
                             {addable.map((b) => (
                               <button
@@ -398,7 +398,7 @@ function CollectionsTab({ favoriteBooths }: { favoriteBooths: Array<{ booth: Boo
                                 <Plus className="w-3.5 h-3.5 text-brand-500 shrink-0 group-hover:scale-110 transition-transform" />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs font-bold text-gray-700 truncate">{b.name}</p>
-                                  <p className="text-[10px] text-gray-400 font-bold tracking-tight">{b.category}</p>
+                                  <p className="text-[10px] text-gray-400 font-bold">{b.category}</p>
                                 </div>
                               </button>
                             ))}
@@ -736,7 +736,7 @@ export default function MyPage() {
 
         {/* Data Deletion */}
         <div className="mt-12 pt-8 border-t border-gray-100">
-          <p className="text-[13px] font-bold text-gray-400 tracking-wider mb-3">개인정보 관리</p>
+          <p className="text-[13px] font-bold text-gray-400 mb-3">개인정보 관리</p>
           {!showDeleteConfirm ? (
             <button
               onClick={() => setShowDeleteConfirm(true)}

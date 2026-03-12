@@ -251,19 +251,19 @@ export default function AdminLeadsPage() {
           <div className="flex flex-col gap-1 bg-white border border-gray-200/60 rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
             <div className="flex items-center justify-between">
               <Users className="w-4 h-4 text-gray-400" />
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">전체</span>
+              <span className="text-[10px] font-bold text-gray-400">전체</span>
             </div>
             <p className="text-xl font-bold text-gray-900 mt-1">{leads.length}</p>
-            <p className="text-[11px] font-bold text-gray-500 uppercase">전체 리드</p>
+            <p className="text-[11px] font-bold text-gray-500">전체 리드</p>
           </div>
           {(['bizcard', 'inquiry', 'email_info', 'survey', 'manual'] as Lead['source'][]).map((src) => (
             <div key={src} className="flex flex-col gap-1 bg-white border border-gray-200/60 rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
                 <span className="text-gray-400">{SOURCE_ICONS[src]}</span>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{src.split('_')[0]}</span>
+                <span className="text-[10px] font-bold text-gray-400">{src.split('_')[0]}</span>
               </div>
               <p className="text-xl font-bold text-gray-900 mt-1">{countBySource(src)}</p>
-              <p className="text-[11px] font-bold text-gray-500 uppercase">{SOURCE_LABELS[src]}</p>
+              <p className="text-[11px] font-bold text-gray-500">{SOURCE_LABELS[src]}</p>
             </div>
           ))}
         </div>
@@ -281,14 +281,14 @@ export default function AdminLeadsPage() {
                   <p className="text-xs text-gray-500 font-medium">빠른 연락이 필요한 신규 리드입니다</p>
                 </div>
               </div>
-              <span className="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md uppercase">
+              <span className="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">
                 긴급 {followUpLeads.length}건
               </span>
             </div>
             <div className="space-y-2">
               {followUpLeads.map((lead) => (
                 <div key={lead.id} className="flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all group/item">
-                  <span className={`h-6 px-2 rounded-lg text-[10px] font-bold uppercase tracking-tight flex items-center shrink-0 ${STATUS_COLORS[lead.status ?? 'NEW']}`}>
+                  <span className={`h-6 px-2 rounded-lg text-[10px] font-bold flex items-center shrink-0 ${STATUS_COLORS[lead.status ?? 'NEW']}`}>
                     {STATUS_LABELS[lead.status ?? 'NEW']}
                   </span>
                   <div className="flex-1 min-w-0">
@@ -423,7 +423,7 @@ export default function AdminLeadsPage() {
               <div className="hidden md:block">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gray-50/50 text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100">
+                    <tr className="bg-gray-50/50 text-[11px] font-bold text-gray-400 border-b border-gray-100">
                       <th className="text-left pl-5 pr-3 py-3">고객 정보</th>
                       <th className="text-left px-3 py-3">수집 경로</th>
                       <th className="text-left px-3 py-3">상태</th>
@@ -445,7 +445,7 @@ export default function AdminLeadsPage() {
                           </div>
                         </td>
                         <td className="px-3 py-3">
-                          <span className={`h-6 px-2 rounded-lg text-[10px] font-bold uppercase tracking-tight inline-flex items-center gap-1 whitespace-nowrap ${SOURCE_COLORS[lead.source]}`}>
+                          <span className={`h-6 px-2 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 whitespace-nowrap ${SOURCE_COLORS[lead.source]}`}>
                             {SOURCE_ICONS[lead.source]}
                             {SOURCE_LABELS[lead.source]}
                           </span>
@@ -454,7 +454,7 @@ export default function AdminLeadsPage() {
                           <select
                             value={lead.status ?? 'NEW'}
                             onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                            className={`h-8 text-[11px] font-bold uppercase rounded-lg px-2 border-0 outline-none cursor-pointer shadow-sm transition-all hover:brightness-95 ${STATUS_COLORS[lead.status ?? 'NEW']}`}
+                            className={`h-8 text-[11px] font-bold rounded-lg px-2 border-0 outline-none cursor-pointer shadow-sm transition-all hover:brightness-95 ${STATUS_COLORS[lead.status ?? 'NEW']}`}
                           >
                             {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
                               <option key={s} value={s}>{STATUS_LABELS[s]}</option>
@@ -467,7 +467,7 @@ export default function AdminLeadsPage() {
                           </p>
                         </td>
                         <td className="px-3 py-3 whitespace-nowrap">
-                          <p className="text-[11px] font-bold text-gray-400 uppercase">
+                          <p className="text-[11px] font-bold text-gray-400">
                             {new Date(lead.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                           </p>
                         </td>
@@ -525,7 +525,7 @@ export default function AdminLeadsPage() {
               className="fixed z-50 w-64 bg-white border border-gray-200 rounded-xl shadow-lg p-3 animate-scale-in overflow-y-auto"
               style={posStyle}
             >
-              <p className="text-[11px] font-bold text-gray-400 uppercase mb-1.5">메모</p>
+              <p className="text-[11px] font-bold text-gray-400 mb-1.5">메모</p>
               <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap break-words">{lead.memo}</p>
             </div>
           </>
@@ -547,7 +547,7 @@ export default function AdminLeadsPage() {
             {lotteryWinner && (
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-8 text-left shadow-inner relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-16 h-16 bg-brand-500/5 rounded-full -translate-y-8 translate-x-8" />
-                <p className="text-[11px] font-bold text-brand-600 uppercase tracking-widest mb-2">당첨자 정보</p>
+                <p className="text-[11px] font-bold text-brand-600 mb-2">당첨자 정보</p>
                 <p className="text-lg font-bold text-gray-900 mb-1">
                   {lotteryWinner.name ?? '이름 정보 없음'}
                 </p>
@@ -564,13 +564,13 @@ export default function AdminLeadsPage() {
             <div className="flex gap-3">
               <button
                 onClick={handleLottery}
-                className="flex-1 h-12 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-xl flex items-center justify-center hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                className="flex-1 h-11 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-xl flex items-center justify-center hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
               >
                 다시 추첨
               </button>
               <button
                 onClick={() => { setShowLottery(false); setLotteryWinner(null); }}
-                className="flex-1 h-12 bg-brand-600 text-white text-sm font-bold rounded-xl flex items-center justify-center hover:bg-brand-500 transition-all shadow-lg shadow-brand-100"
+                className="flex-1 h-11 bg-brand-600 text-white text-sm font-bold rounded-xl flex items-center justify-center hover:bg-brand-500 transition-all shadow-lg shadow-brand-100"
               >
                 확인
               </button>
@@ -779,28 +779,28 @@ export default function AdminLeadsPage() {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                   <Mail className="w-4 h-4 text-gray-400 shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase mb-0.5">이메일</p>
+                    <p className="text-[11px] font-bold text-gray-400 mb-0.5">이메일</p>
                     <p className="text-sm text-gray-700 truncate">{selectedLead.email ?? '-'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                   <PhoneCall className="w-4 h-4 text-gray-400 shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase mb-0.5">전화번호</p>
+                    <p className="text-[11px] font-bold text-gray-400 mb-0.5">전화번호</p>
                     <p className="text-sm text-gray-700">{selectedLead.phone ?? '-'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                   <Users className="w-4 h-4 text-gray-400 shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase mb-0.5">부스</p>
+                    <p className="text-[11px] font-bold text-gray-400 mb-0.5">부스</p>
                     <p className="text-sm text-gray-700 truncate">{boothMap[selectedLead.boothId] ?? selectedLead.boothId}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                   <ClipboardList className="w-4 h-4 text-gray-400 shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase mb-0.5">수집일</p>
+                    <p className="text-[11px] font-bold text-gray-400 mb-0.5">수집일</p>
                     <p className="text-sm text-gray-700">
                       {new Date(selectedLead.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>
@@ -808,7 +808,7 @@ export default function AdminLeadsPage() {
                 </div>
                 {selectedLead.memo && (
                   <div className="p-3 bg-gray-50 rounded-xl">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase mb-1">메모</p>
+                    <p className="text-[11px] font-bold text-gray-400 mb-1">메모</p>
                     <p className="text-sm text-gray-700 leading-relaxed">{selectedLead.memo}</p>
                   </div>
                 )}

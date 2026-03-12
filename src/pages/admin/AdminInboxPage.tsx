@@ -409,18 +409,18 @@ export default function AdminInboxPage() {
                           <p className="text-sm font-bold text-gray-900 truncate group-hover:text-brand-600 transition-colors">
                             {t.visitorName ?? t.visitorEmail ?? '방문자'}
                           </p>
-                          <span className="text-[10px] font-bold text-gray-400 shrink-0 ml-2 uppercase">{formatTime(t.lastUpdated)}</span>
+                          <span className="text-[10px] font-bold text-gray-400 shrink-0 ml-2">{formatTime(t.lastUpdated)}</span>
                         </div>
                         <p className="text-xs text-gray-500 truncate mb-3 font-medium">{lastMsg?.text}</p>
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <StatusBadge status={t.status} />
                           {t.blocked && (
-                            <span className="h-6 px-2 rounded-md text-[10px] font-bold inline-flex items-center gap-0.5 bg-red-50 text-red-600 uppercase tracking-tighter">
+                            <span className="h-6 px-2 rounded-md text-[10px] font-bold inline-flex items-center gap-0.5 bg-red-50 text-red-600">
                               <ShieldOff className="w-2.5 h-2.5" /> 차단됨
                             </span>
                           )}
                           {t.tags.slice(0, 1).map((tag) => (
-                            <span key={tag} className="h-6 px-2 rounded-md text-[10px] font-bold bg-gray-100 text-gray-500 inline-flex items-center uppercase tracking-tighter">
+                            <span key={tag} className="h-6 px-2 rounded-md text-[10px] font-bold bg-gray-100 text-gray-500 inline-flex items-center">
                               #{tag}
                             </span>
                           ))}
@@ -448,7 +448,7 @@ export default function AdminInboxPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <p className="text-lg font-bold text-gray-900 tracking-tight">{boothMap[selectedThread.boothId]?.name}</p>
-                  <span className={`h-5 px-2 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center ${
+                  <span className={`h-5 px-2 rounded-md text-[10px] font-bold flex items-center ${
                     selectedThread.visitorId === 'user'
                       ? 'bg-brand-50 text-brand-600'
                       : 'bg-gray-100 text-gray-500'
@@ -511,7 +511,7 @@ export default function AdminInboxPage() {
             {/* Tag input row */}
             {showTagInput && (
               <div className="bg-gray-50/50 px-5 py-3 sm:px-8 sm:py-4 border-b border-gray-100 flex items-center gap-3 flex-wrap animate-fade-in">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">빠른 태그:</span>
+                <span className="text-[11px] font-bold text-gray-400">빠른 태그:</span>
                 <div className="flex gap-1.5 flex-wrap">
                   {TAG_SUGGESTIONS.map((s) => (
                     <button
@@ -561,7 +561,7 @@ export default function AdminInboxPage() {
                     }`}
                   >
                     <p className="text-[15px] leading-relaxed font-medium">{msg.text}</p>
-                    <div className={`flex items-center gap-2 mt-2.5 text-[10px] font-bold uppercase tracking-tight ${
+                    <div className={`flex items-center gap-2 mt-2.5 text-[10px] font-bold ${
                       msg.from === 'booth' ? 'text-brand-200' : 'text-gray-400'
                     }`}>
                       {formatTime(msg.at)}
@@ -577,7 +577,7 @@ export default function AdminInboxPage() {
             <div className="px-5 py-3 sm:px-8 sm:py-4 bg-amber-50/30 border-t border-amber-100">
               <div className="flex items-center gap-2 mb-1">
                 <Pencil className="w-3 h-3 text-amber-500" />
-                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">내부 메모</span>
+                <span className="text-[10px] font-bold text-amber-600">내부 메모</span>
               </div>
               <textarea
                 value={selectedThread.memo}
@@ -601,7 +601,7 @@ export default function AdminInboxPage() {
             {/* Template replies */}
             <div className="px-5 py-4 sm:px-8 sm:py-5 border-t border-gray-100 bg-gray-50/50">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                <p className="text-[11px] font-bold text-gray-400 flex items-center gap-1.5">
                   <ChevronDown className="w-3.5 h-3.5" /> 답변 템플릿
                 </p>
                 <button

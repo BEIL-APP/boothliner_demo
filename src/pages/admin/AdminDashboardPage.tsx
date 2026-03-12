@@ -426,7 +426,7 @@ export default function AdminDashboardPage() {
                       )}
                       {val === 0 && <div className="w-full" style={{ height: '2px' }} />}
                       {(h % 3 === 0) && (
-                        <span className="text-[10px] font-medium text-gray-400">{h}</span>
+                        <span className="text-[11px] font-medium text-gray-400">{h}</span>
                       )}
                     </div>
                   );
@@ -508,7 +508,7 @@ export default function AdminDashboardPage() {
           <div className="overflow-x-auto hidden md:block">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50/50 text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <tr className="bg-gray-50/50 text-[11px] font-bold text-gray-400 border-b border-gray-100">
                   <th className="text-left px-6 py-3.5">부스</th>
                   <th className="text-left px-4 py-3.5">카테고리</th>
                   <th className="text-right px-4 py-3.5">방문</th>
@@ -584,19 +584,19 @@ export default function AdminDashboardPage() {
                   <div className="grid grid-cols-4 gap-3 text-center shrink-0">
                     <div>
                       <p className="text-xs font-bold text-gray-900">{visits}</p>
-                      <p className="text-[9px] font-bold text-gray-400">방문</p>
+                      <p className="text-[11px] font-bold text-gray-400">방문</p>
                     </div>
                     <div>
                       <p className="text-xs font-bold text-gray-600">{favs}</p>
-                      <p className="text-[9px] font-bold text-gray-400">관심</p>
+                      <p className="text-[11px] font-bold text-gray-400">관심</p>
                     </div>
                     <div>
                       <p className="text-xs font-bold text-gray-600">{inqs}</p>
-                      <p className="text-[9px] font-bold text-gray-400">문의</p>
+                      <p className="text-[11px] font-bold text-gray-400">문의</p>
                     </div>
                     <div>
                       <p className="text-xs font-bold text-brand-600">{convRate}%</p>
-                      <p className="text-[9px] font-bold text-gray-400">전환</p>
+                      <p className="text-[11px] font-bold text-gray-400">전환</p>
                     </div>
                   </div>
                 </Link>

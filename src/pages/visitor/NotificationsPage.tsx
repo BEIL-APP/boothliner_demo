@@ -62,7 +62,7 @@ export default function NotificationsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-[15px] font-bold text-gray-900 leading-tight group-hover:text-brand-600 transition-colors">{n.title}</p>
-                    <p className="text-[11px] font-bold text-gray-300 tracking-tight ml-3 shrink-0">{formatTime(n.createdAt)}</p>
+                    <p className="text-[11px] font-bold text-gray-300 ml-3 shrink-0">{formatTime(n.createdAt)}</p>
                   </div>
                   <p className="text-sm text-gray-500 font-medium leading-relaxed line-clamp-2">{n.body}</p>
                 </div>

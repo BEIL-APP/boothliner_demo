@@ -256,7 +256,7 @@ export default function ExplorePage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="부스 이름, 카테고리, 키워드로 검색"
-                className="w-full h-12 bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-11 text-sm outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white transition-all placeholder:text-gray-400"
+                className="w-full h-11 bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-11 text-sm outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 focus:bg-white transition-all placeholder:text-gray-400"
               />
               {search && (
                 <button

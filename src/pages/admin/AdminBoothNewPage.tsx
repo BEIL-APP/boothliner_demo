@@ -785,7 +785,7 @@ export default function AdminBoothNewPage() {
               <div className="flex items-center gap-2">
                 <Gift className="w-4 h-4 text-amber-500" />
                 <p className="text-sm font-semibold text-gray-900">선물 추첨</p>
-                <span className="text-[10px] font-bold text-gray-400 uppercase bg-gray-100 px-1.5 py-0.5 rounded">Optional</span>
+                <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">선택사항</span>
               </div>
               <button
                 type="button"
