@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import {
   BarChart3,
   TrendingUp,
+  ChevronLeft,
+  ChevronRight,
   Users,
   QrCode,
   Download,
@@ -126,6 +128,7 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
   const [customTo, setCustomTo] = useState('');
   const [showCustom, setShowCustom] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
+  const [surveyPage, setSurveyPage] = useState(0);
 
   const visits = useMemo<Visit[]>(() => getVisits().filter((visit) => visit.boothId === boothId), [boothId]);
   const favorites = useMemo<Favorite[]>(() => getFavorites().filter((favorite) => favorite.boothId === boothId), [boothId]);
@@ -557,91 +560,136 @@ export function AdminBoothStatsTab({ boothId }: { boothId: string }) {
         </div>
       </div>
 
-      {surveySummary.total > 0 && (
-        <div className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 mb-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-6">
-            <ClipboardList className="w-5 h-5 text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-900">설문 집계</h2>
-            <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 rounded-md px-2 h-5 flex items-center ml-auto">
-              총 {surveySummary.total}건
-            </span>
-          </div>
-          <div className="space-y-6">
-            {surveySummary.choiceFields.length > 0 && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {surveySummary.choiceFields.map((field) => {
-                  const maxCount = field.ranked[0]?.[1] ?? 1;
-                  return (
-                    <div key={field.id} className="bg-gray-50/70 border border-gray-100 rounded-xl p-5">
-                      <p className="text-sm font-semibold text-gray-900 mb-1">{field.label}</p>
-                      <p className="text-xs text-gray-400 mb-4">
-                        {field.type === 'checkbox' ? '다중 선택 응답 분포' : '단일 선택 응답 분포'}
-                      </p>
-                      {field.ranked.length === 0 ? (
-                        <p className="text-sm text-gray-400">아직 응답이 없어요</p>
-                      ) : (
-                        <div className="space-y-3">
-                          {field.ranked.map(([option, count]) => (
-                            <div key={option}>
-                              <div className="flex items-center justify-between mb-1.5">
-                                <span className="text-sm font-medium text-gray-700">{option}</span>
-                                <span className="text-xs font-bold text-gray-500">{count}건</span>
-                              </div>
-                              <div className="h-2 bg-white rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-brand-500 rounded-full transition-all duration-700"
-                                  style={{ width: `${(count / maxCount) * 100}%` }}
-                                />
-                              </div>
+      {surveySummary.total > 0 && (() => {
+        const surveyPages = [
+          ...surveySummary.choiceFields.map((field) => ({ type: 'choice' as const, field })),
+          ...surveySummary.textFields.map((field) => ({ type: 'text' as const, field })),
+          { type: 'contact' as const },
+        ];
+        const totalPages = surveyPages.length;
+
+        return (
+          <div className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-6">
+              <ClipboardList className="w-5 h-5 text-gray-400" />
+              <h2 className="text-sm font-semibold text-gray-900">설문 집계</h2>
+              <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 rounded-md px-2 h-5 flex items-center ml-auto">
+                총 {surveySummary.total}건
+              </span>
+            </div>
+
+            {/* Paginated content */}
+            {(() => {
+              const page = surveyPages[surveyPage];
+              if (!page) return null;
+
+              if (page.type === 'choice') {
+                const field = page.field;
+                const maxCount = field.ranked[0]?.[1] ?? 1;
+                return (
+                  <div className="bg-gray-50/70 border border-gray-100 rounded-xl p-5">
+                    <p className="text-sm font-semibold text-gray-900 mb-1">{field.label}</p>
+                    <p className="text-xs text-gray-400 mb-4">
+                      {field.type === 'checkbox' ? '다중 선택 응답 분포' : '단일 선택 응답 분포'}
+                    </p>
+                    {field.ranked.length === 0 ? (
+                      <p className="text-sm text-gray-400">아직 응답이 없어요</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {field.ranked.map(([option, count]) => (
+                          <div key={option}>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-sm font-medium text-gray-700">{option}</span>
+                              <span className="text-xs font-bold text-gray-500">{count}건</span>
                             </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {surveySummary.textFields.map((field) => (
-              <div key={field.id} className="bg-gray-50/70 border border-gray-100 rounded-xl p-5">
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{field.label}</p>
-                    <p className="text-xs text-gray-400 mt-1">직접 입력 응답 목록</p>
-                  </div>
-                  <span className="text-xs font-semibold text-gray-500 bg-white border border-gray-100 rounded-md px-2 py-1">
-                    {field.responses.length}건
-                  </span>
-                </div>
-                {field.responses.length === 0 ? (
-                  <p className="text-sm text-gray-400">아직 응답이 없어요</p>
-                ) : (
-                  <div className="space-y-2.5">
-                    {field.responses.slice(0, 8).map((response, index) => (
-                      <div key={`${field.id}-${index}`} className="rounded-lg bg-white border border-gray-100 px-4 py-3">
-                        <p className="text-[11px] font-medium text-gray-400 mb-1.5">{formatDate(response.createdAt)}</p>
-                        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{response.value}</p>
+                            <div className="h-2 bg-white rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-brand-500 rounded-full transition-all duration-700"
+                                style={{ width: `${(count / maxCount) * 100}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
+                );
+              }
 
-            <div className="bg-emerald-50 border border-emerald-100/50 rounded-xl p-5">
-              <p className="text-xs font-semibold text-emerald-600 mb-1">연락 희망 응답자</p>
-              <p className="text-2xl font-bold text-emerald-700">
-                {surveySummary.wantsContact}명
-                <span className="text-sm font-medium text-emerald-500 ml-2">
-                  ({surveySummary.total > 0 ? Math.round((surveySummary.wantsContact / surveySummary.total) * 100) : 0}%)
-                </span>
-              </p>
-              <p className="text-[11px] text-emerald-600/60 mt-1 font-medium italic">잠재 리드로 연결될 가능성이 높습니다</p>
+              if (page.type === 'text') {
+                const field = page.field;
+                return (
+                  <div className="bg-gray-50/70 border border-gray-100 rounded-xl p-5">
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{field.label}</p>
+                        <p className="text-xs text-gray-400 mt-1">직접 입력 응답 목록</p>
+                      </div>
+                      <span className="text-xs font-semibold text-gray-500 bg-white border border-gray-100 rounded-md px-2 py-1">
+                        {field.responses.length}건
+                      </span>
+                    </div>
+                    {field.responses.length === 0 ? (
+                      <p className="text-sm text-gray-400">아직 응답이 없어요</p>
+                    ) : (
+                      <div className="space-y-2.5 max-h-[320px] overflow-y-auto">
+                        {field.responses.map((response, index) => (
+                          <div key={`${field.id}-${index}`} className="rounded-lg bg-white border border-gray-100 px-4 py-3">
+                            <p className="text-[11px] font-medium text-gray-400 mb-1.5">{formatDate(response.createdAt)}</p>
+                            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{response.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <div className="bg-emerald-50 border border-emerald-100/50 rounded-xl p-5">
+                  <p className="text-xs font-semibold text-emerald-600 mb-1">연락 희망 응답자</p>
+                  <p className="text-2xl font-bold text-emerald-700">
+                    {surveySummary.wantsContact}명
+                    <span className="text-sm font-medium text-emerald-500 ml-2">
+                      ({surveySummary.total > 0 ? Math.round((surveySummary.wantsContact / surveySummary.total) * 100) : 0}%)
+                    </span>
+                  </p>
+                  <p className="text-[11px] text-emerald-600/60 mt-1 font-medium italic">잠재 리드로 연결될 가능성이 높습니다</p>
+                </div>
+              );
+            })()}
+
+            {/* Pagination controls */}
+            <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
+              <button
+                onClick={() => setSurveyPage((p) => Math.max(0, p - 1))}
+                disabled={surveyPage === 0}
+                className="flex items-center gap-1 h-8 px-3 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-30 disabled:pointer-events-none"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                이전
+              </button>
+              <div className="flex items-center gap-1.5">
+                {surveyPages.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSurveyPage(i)}
+                    className={`w-2 h-2 rounded-full transition-all ${i === surveyPage ? 'bg-brand-500 w-5' : 'bg-gray-200 hover:bg-gray-300'}`}
+                  />
+                ))}
+              </div>
+              <button
+                onClick={() => setSurveyPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={surveyPage === totalPages - 1}
+                className="flex items-center gap-1 h-8 px-3 text-xs font-bold text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-30 disabled:pointer-events-none"
+              >
+                다음
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         <div className="bg-white border border-gray-200/60 rounded-xl p-5 sm:p-6 shadow-sm">
