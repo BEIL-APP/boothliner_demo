@@ -58,6 +58,7 @@ npm run preview    # 빌드 결과 로컬 확인
 | `/admin/booths/new` | AdminBoothNewPage | 부스 생성 (템플릿 선택·AI 자동입력) |
 | `/admin/booths/:boothId` | AdminBoothDetailPage | 부스 상세 (QR·통계·정책·설문 폼 관리·편집) |
 | `/admin/booths/:boothId/team` | AdminBoothTeamPage | 팀원 초대·권한 관리 (enforcement 안내) |
+| `/admin/team` | AdminTeamPage | 전체 부스 팀원 통합 관리 |
 | `/admin/settings` | AdminSettingsPage | 운영자 프로필·알림·운영 설정 |
 
 ### 기타
@@ -83,7 +84,8 @@ npm run preview    # 빌드 결과 로컬 확인
 2. 리드 목록 `/admin/leads`
 3. 대시보드 `/admin/dashboard`
 4. 내 부스 `/admin/booths`
-5. 설정 `/admin/settings` (하단)
+5. 팀 관리 `/admin/team`
+6. 설정 `/admin/settings` (하단)
 
 ---
 
@@ -184,15 +186,19 @@ Lead            { id, boothId, source, status?: LeadStatus,
 LeadStatus      = 'NEW' | 'CONTACTED' | 'MEETING' | 'WON' | 'LOST'
 
 // ─── Policy & Attachments ────────────────────────
-BoothPolicy     { boothId, startAt, endAt, allowViewAfterEnd, allowInquiryAfterEnd }
+BoothPolicy     { boothId, eventId?, startAt, endAt, allowViewAfterEnd, allowInquiryAfterEnd }
 Attachment      { id, boothId, filename, type, size?, createdAt }
 SurveyResponse  { id, boothId, visitorId, answers, createdAt }
 
 // ─── Team & Templates ────────────────────────────
-StaffMember     { id, boothId, name, email, role, status, invitedAt }
+StaffMember     { id, boothId, eventId?, name, email, role, status, invitedAt }
 ReplyTemplate   { id, label, text, createdAt }
 Collection      { id, name, boothIds[], createdAt }
 RateLimit       { key, count, resetAt }
+
+// ─── Events & Participations ─────────────────────
+BoothEvent      { id, name, startDate, endDate, location, createdAt }
+BoothEventParticipation { id, boothId, eventId, boothLocation?, startAt, endAt }
 
 // ─── Consent ─────────────────────────────────────
 ConsentWithdrawal { id, type, status, requestedAt, completedAt?, reason? }
@@ -221,7 +227,9 @@ ConsentWithdrawal { id, type, status, requestedAt, completedAt?, reason? }
 | `bep_isAdmin` | '0' \| '1' | |
 | `bep_userEmail` | string | |
 | `bep_guestId` | string | 익명 방문자 영구 ID |
-| `bep_seeded` | '1' | |
+| `bep_events` | BoothEvent[] | 시드 3개 |
+| `bep_booth_events` | BoothEventParticipation[] | 시드 10개 |
+| `bep_seeded` | 'v3' | 시드 버전 (변경 시 데이터 초기화) |
 | `bep_survey_fields_{boothId}` | SurveyField[] | 부스별 설문 폼 설정 |
 | `visitor_profile` | VisitorProfile | 관람객 프로필 |
 | `visitor_notification_settings` | NotificationSettings | 알림 토글 |
@@ -312,10 +320,13 @@ src/
 │   ├── AdminLayout.tsx      # 사이드바 + 상단 헤더
 │   ├── VisitorHeader.tsx    # 관람객 하단 탭 네비
 │   ├── Modal.tsx            # 범용 모달
-│   ├── NotFoundPage.tsx     # 404 처리
+│   ├── NotFoundPage.tsx     # 404 처리 (Admin/Visitor 경로별 분기)
+│   ├── admin/               # 어드민 전용 탭 컴포넌트
+│   │   ├── AdminBoothStatsTab.tsx
+│   │   └── AdminBoothTeamTab.tsx
 │   └── ui/                  # Button, Card, Input, Badge, EmptyState
 ├── contexts/           # React Context
-│   ├── AuthContext.tsx       # 로그인/관리자 상태
+│   ├── AuthContext.tsx       # 로그인/관리자 상태 (logoutAdmin 포함)
 │   └── ToastContext.tsx      # 토스트 알림
 ├── hooks/              # Custom Hooks
 │   ├── useBooths.ts
@@ -325,7 +336,7 @@ src/
 │   └── useThreads.ts
 ├── pages/
 │   ├── auth/           # AuthPage, SignupPage, OAuthPage
-│   ├── admin/          # 운영자 9개 페이지
+│   ├── admin/          # 운영자 12개 페이지
 │   ├── visitor/        # 관람객 6개 페이지
 │   └── LandingPage.tsx
 ├── data/
