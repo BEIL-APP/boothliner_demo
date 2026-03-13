@@ -137,7 +137,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             className="absolute inset-0 bg-black/50 animate-fade-in"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="relative w-[260px] h-full bg-gray-950 flex flex-col shadow-2xl animate-slide-in-left">
+          <aside className="absolute inset-y-0 left-0 w-[260px] h-screen h-[100dvh] bg-gray-950 flex flex-col overflow-y-auto shadow-2xl animate-slide-in-left">
             <button
               onClick={() => setSidebarOpen(false)}
               className="absolute top-3.5 right-3 w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors z-10"
