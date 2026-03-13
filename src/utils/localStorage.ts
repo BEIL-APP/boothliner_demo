@@ -23,6 +23,7 @@ const KEYS = {
   surveys: `${PREFIX}surveys`,
   notifications: `${PREFIX}notifications`,
   staff: `${PREFIX}staff`,
+  followUpLeadIds: `${PREFIX}follow_up_lead_ids`,
   rateLimits: `${PREFIX}rate_limits`,
   templates: `${PREFIX}reply_templates`,
   collections: `${PREFIX}collections`,
@@ -377,6 +378,21 @@ export function saveLead(lead: Lead): void {
 
 export function deleteLead(id: string): void {
   set(KEYS.leads, getLeads().filter((l) => l.id !== id));
+  removeLeadFromFollowUpPriority(id);
+}
+
+export function getFollowUpPriorityLeadIds(): string[] {
+  return get<string[]>(KEYS.followUpLeadIds) ?? [];
+}
+
+export function addLeadToFollowUpPriority(id: string): void {
+  const ids = getFollowUpPriorityLeadIds();
+  if (ids.includes(id)) return;
+  set(KEYS.followUpLeadIds, [id, ...ids]);
+}
+
+export function removeLeadFromFollowUpPriority(id: string): void {
+  set(KEYS.followUpLeadIds, getFollowUpPriorityLeadIds().filter((leadId) => leadId !== id));
 }
 
 // ─── Booth Policies ────────────────────────────────────────────────────────────

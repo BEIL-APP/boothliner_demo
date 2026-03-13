@@ -21,7 +21,14 @@ import {
 import { AdminLayout } from '../../components/AdminLayout';
 import { useBooths } from '../../hooks/useBooths';
 import { useToast } from '../../contexts/ToastContext';
-import { getLeads, deleteLead, saveLead } from '../../utils/localStorage';
+import {
+  getLeads,
+  deleteLead,
+  saveLead,
+  getFollowUpPriorityLeadIds,
+  addLeadToFollowUpPriority,
+  removeLeadFromFollowUpPriority,
+} from '../../utils/localStorage';
 import { exportLeadsCSV } from '../../utils/csv';
 import type { Lead, LeadStatus } from '../../types';
 
@@ -82,6 +89,7 @@ export default function AdminLeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [memoPopoverId, setMemoPopoverId] = useState<string | null>(null);
   const [memoPopoverPos, setMemoPopoverPos] = useState<{ top?: number; bottom?: number; left: number; maxHeight: number }>({ left: 0, maxHeight: 300 });
+  const [priorityLeadIds, setPriorityLeadIds] = useState<string[]>(() => getFollowUpPriorityLeadIds());
 
   const openMemoPopover = useCallback((leadId: string, e: React.MouseEvent) => {
     if (memoPopoverId === leadId) { setMemoPopoverId(null); return; }
@@ -171,10 +179,23 @@ export default function AdminLeadsPage() {
     return true;
   });
 
-  const followUpLeads = leads.filter((l) => {
-    const status = l.status ?? 'NEW';
-    return status === 'NEW' || status === 'CONTACTED';
-  }).slice(0, 5);
+  const pinnedFollowUpLeads = priorityLeadIds
+    .map((id) => leads.find((lead) => lead.id === id))
+    .filter((lead): lead is Lead => Boolean(lead));
+
+  const followUpLeads = pinnedFollowUpLeads.slice(0, 5);
+
+  const handleAddToFollowUp = (leadId: string) => {
+    addLeadToFollowUpPriority(leadId);
+    setPriorityLeadIds(getFollowUpPriorityLeadIds());
+    showToast('팔로업 우선순위에 추가했어요', 'success');
+  };
+
+  const handleRemoveFromFollowUp = (leadId: string) => {
+    removeLeadFromFollowUpPriority(leadId);
+    setPriorityLeadIds(getFollowUpPriorityLeadIds());
+    showToast('팔로업 우선순위에서 제외했어요', 'info');
+  };
 
   const handleStatusChange = (id: string, status: LeadStatus) => {
     const lead = leads.find((l) => l.id === id);
@@ -188,6 +209,7 @@ export default function AdminLeadsPage() {
   const handleDelete = (id: string) => {
     deleteLead(id);
     setLeads(getLeads());
+    setPriorityLeadIds(getFollowUpPriorityLeadIds());
     showToast('리드를 삭제했어요', 'info');
   };
 
@@ -269,56 +291,70 @@ export default function AdminLeadsPage() {
         </div>
 
         {/* Follow-up section */}
-        {followUpLeads.length > 0 && (
-          <div className="bg-white border border-brand-100 rounded-xl p-5 sm:p-6 mb-8 shadow-sm group">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 bg-brand-50 rounded-xl flex items-center justify-center">
-                  <PhoneCall className="w-4.5 h-4.5 text-brand-600" />
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-gray-900">팔로업 우선순위</h2>
-                  <p className="text-xs text-gray-500 font-medium">빠른 연락이 필요한 신규 리드입니다</p>
-                </div>
+        <div className="bg-white border border-brand-100 rounded-xl p-5 sm:p-6 mb-8 shadow-sm group">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 bg-brand-50 rounded-xl flex items-center justify-center">
+                <PhoneCall className="w-4.5 h-4.5 text-brand-600" />
               </div>
-              <span className="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">
-                긴급 {followUpLeads.length}건
-              </span>
+              <div>
+                <h2 className="text-sm font-semibold text-gray-900">팔로업 우선순위</h2>
+                <p className="text-xs text-gray-500 font-medium">하단 리드 목록에서 직접 추가한 리드만 여기에 표시됩니다</p>
+              </div>
             </div>
-            <div className="space-y-2">
-              {followUpLeads.map((lead) => (
-                <div key={lead.id} className="flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all group/item">
-                  <span className={`h-6 px-2 rounded-lg text-[10px] font-bold flex items-center shrink-0 ${STATUS_COLORS[lead.status ?? 'NEW']}`}>
-                    {STATUS_LABELS[lead.status ?? 'NEW']}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-900 truncate">{lead.name ?? lead.email ?? '이름 없음'}</p>
-                    <p className="text-xs text-gray-400 font-medium truncate mt-0.5">{lead.company ?? '소속 미정'} · {boothMap[lead.boothId] ?? lead.boothId}</p>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <select
-                      value={lead.status ?? 'NEW'}
-                      onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
-                      className="h-9 text-[11px] font-bold bg-white border border-gray-200 rounded-lg px-2 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 text-gray-600 cursor-pointer shadow-sm"
-                    >
-                      {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
-                        <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 pt-4 border-t border-gray-50 flex justify-center">
-              <button
-                onClick={() => setFilterStatus('NEW')}
-                className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 transition-colors group/btn"
-              >
-                신규 리드 전체 보기 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </div>
+            <span className="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">
+              우선 {followUpLeads.length}건
+            </span>
           </div>
-        )}
+
+          {followUpLeads.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-brand-100 bg-brand-50/40 px-4 py-8 text-center">
+              <p className="text-sm font-bold text-gray-500">아직 우선순위로 지정한 리드가 없어요</p>
+              <p className="text-xs text-gray-400 mt-1">하단 리드 목록에서 `우선 추가`를 누르면 여기에 올라옵니다</p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                {followUpLeads.map((lead) => (
+                  <div key={lead.id} className="flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all group/item">
+                    <span className={`h-6 px-2 rounded-lg text-[10px] font-bold flex items-center shrink-0 ${STATUS_COLORS[lead.status ?? 'NEW']}`}>
+                      {STATUS_LABELS[lead.status ?? 'NEW']}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-gray-900 truncate">{lead.name ?? lead.email ?? '이름 없음'}</p>
+                      <p className="text-xs text-gray-400 font-medium truncate mt-0.5">{lead.company ?? '소속 미정'} · {boothMap[lead.boothId] ?? lead.boothId}</p>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <select
+                        value={lead.status ?? 'NEW'}
+                        onChange={(e) => handleStatusChange(lead.id, e.target.value as LeadStatus)}
+                        className="h-9 text-[11px] font-bold bg-white border border-gray-200 rounded-lg px-2 outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-400 text-gray-600 cursor-pointer shadow-sm"
+                      >
+                        {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
+                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={() => handleRemoveFromFollowUp(lead.id)}
+                        className="h-9 px-3 rounded-lg border border-gray-200 bg-white text-[11px] font-bold text-gray-500 hover:bg-gray-50 transition-all"
+                      >
+                        제외
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 pt-4 border-t border-gray-50 flex justify-center">
+                <button
+                  onClick={() => setFilterStatus('all')}
+                  className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 transition-colors group/btn"
+                >
+                  전체 리드 보기 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-3 mb-6">
@@ -391,17 +427,19 @@ export default function AdminLeadsPage() {
           ) : (
             <>
               {/* Mobile card list */}
-              <div className="md:hidden divide-y divide-gray-100">
+              <div className="lg:hidden divide-y divide-gray-100">
                 {filtered.map((lead) => (
-                  <button
+                  <div
                     key={lead.id}
-                    onClick={() => setSelectedLead(lead)}
-                    className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 transition-colors"
                   >
                     <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 text-sm font-bold text-gray-500">
                       {(lead.name ?? lead.email ?? '?')[0]}
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <button
+                      onClick={() => setSelectedLead(lead)}
+                      className="flex-1 min-w-0 text-left active:bg-gray-100 rounded-lg"
+                    >
                       <div className="flex items-center gap-2 mb-0.5">
                         <p className="text-sm font-bold text-gray-900 truncate">{lead.name ?? '이름 없음'}</p>
                         <span className={`shrink-0 h-5 px-1.5 rounded text-[10px] font-bold inline-flex items-center ${STATUS_COLORS[lead.status ?? 'NEW']}`}>
@@ -413,24 +451,34 @@ export default function AdminLeadsPage() {
                         {lead.company && <span>·</span>}
                         <span className="shrink-0">{SOURCE_LABELS[lead.source]}</span>
                       </div>
+                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {!priorityLeadIds.includes(lead.id) && (
+                        <button
+                          onClick={() => handleAddToFollowUp(lead.id)}
+                          className="h-8 px-2.5 rounded-lg bg-brand-50 text-brand-700 text-[11px] font-bold hover:bg-brand-100 transition-colors"
+                        >
+                          우선 추가
+                        </button>
+                      )}
+                      <ChevronDown className="w-4 h-4 text-gray-300 -rotate-90 shrink-0" />
                     </div>
-                    <ChevronDown className="w-4 h-4 text-gray-300 -rotate-90 shrink-0" />
-                  </button>
+                  </div>
                 ))}
               </div>
 
               {/* Desktop table */}
-              <div className="hidden md:block">
+              <div className="hidden lg:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gray-50/50 text-[11px] font-bold text-gray-400 border-b border-gray-100">
+                      <tr className="bg-gray-50/50 text-[11px] font-bold text-gray-400 border-b border-gray-100">
                       <th className="text-left pl-5 pr-3 py-3">고객 정보</th>
                       <th className="text-left px-3 py-3">수집 경로</th>
                       <th className="text-left px-3 py-3">상태</th>
                       <th className="text-left px-3 py-3">부스</th>
                       <th className="text-left px-3 py-3">수집일</th>
                       <th className="text-left px-3 py-3">메모</th>
-                      <th className="w-20 px-3 py-3" />
+                      <th className="w-32 px-3 py-3" />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -484,7 +532,15 @@ export default function AdminLeadsPage() {
                           )}
                         </td>
                         <td className="px-3 py-3 text-right">
-                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                          <div className="flex items-center justify-end gap-1 whitespace-nowrap">
+                            {!priorityLeadIds.includes(lead.id) && (
+                              <button
+                                onClick={() => handleAddToFollowUp(lead.id)}
+                                className="h-7 min-w-[64px] px-2.5 rounded-lg bg-brand-50 text-brand-700 hover:bg-brand-100 text-[10px] font-bold leading-none whitespace-nowrap transition-all"
+                              >
+                                우선 추가
+                              </button>
+                            )}
                             <button
                               onClick={() => openEditModal(lead)}
                               className="p-1.5 text-gray-300 hover:text-brand-500 hover:bg-brand-50 rounded-lg transition-all"
@@ -720,117 +776,118 @@ export default function AdminLeadsPage() {
         </div>
       )}
 
-      {/* Mobile Bottom Sheet */}
+      {/* Responsive lead detail */}
       {selectedLead && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-50 lg:hidden" onClick={() => setSelectedLead(null)}>
           <div
             className="absolute inset-0 bg-black/50 animate-fade-in"
-            onClick={() => setSelectedLead(null)}
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl animate-slide-up-sheet max-h-[85vh] flex flex-col">
-            {/* Handle bar */}
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 bg-gray-200 rounded-full" />
-            </div>
-
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 pb-3 border-b border-gray-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-500">
-                  {(selectedLead.name ?? selectedLead.email ?? '?')[0]}
-                </div>
-                <div>
-                  <p className="text-base font-bold text-gray-900">{selectedLead.name ?? '이름 없음'}</p>
-                  {selectedLead.company && <p className="text-xs text-gray-400">{selectedLead.company}</p>}
-                </div>
+          <div
+            className="absolute inset-x-0 bottom-0 md:inset-x-auto md:bottom-auto md:left-1/2 md:top-1/2 md:w-full md:max-w-lg md:-translate-x-1/2 md:-translate-y-1/2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl animate-slide-up-sheet md:animate-scale-in max-h-[85vh] flex flex-col">
+              {/* Handle bar */}
+              <div className="flex justify-center pt-3 pb-1 md:hidden">
+                <div className="w-10 h-1 bg-gray-200 rounded-full" />
               </div>
-              <button
-                onClick={() => setSelectedLead(null)}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            </div>
 
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-              {/* Status + Source row */}
-              <div className="flex items-center gap-2">
-                <select
-                  value={selectedLead.status ?? 'NEW'}
-                  onChange={(e) => {
-                    handleStatusChange(selectedLead.id, e.target.value as LeadStatus);
-                    setSelectedLead({ ...selectedLead, status: e.target.value as LeadStatus });
-                  }}
-                  className={`h-8 text-[11px] font-bold rounded-lg px-2 border-0 outline-none cursor-pointer ${STATUS_COLORS[selectedLead.status ?? 'NEW']}`}
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 pb-3 pt-1 md:px-6 md:py-4 border-b border-gray-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-500">
+                    {(selectedLead.name ?? selectedLead.email ?? '?')[0]}
+                  </div>
+                  <div>
+                    <p className="text-base font-bold text-gray-900">{selectedLead.name ?? '이름 없음'}</p>
+                    {selectedLead.company && <p className="text-xs text-gray-400">{selectedLead.company}</p>}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedLead(null)}
+                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
                 >
-                  {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
-                    <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                  ))}
-                </select>
-                <span className={`h-6 px-2 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 ${SOURCE_COLORS[selectedLead.source]}`}>
-                  {SOURCE_ICONS[selectedLead.source]}
-                  {SOURCE_LABELS[selectedLead.source]}
-                </span>
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
               </div>
 
-              {/* Info rows */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                  <Mail className="w-4 h-4 text-gray-400 shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-gray-400 mb-0.5">이메일</p>
-                    <p className="text-sm text-gray-700 truncate">{selectedLead.email ?? '-'}</p>
-                  </div>
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedLead.status ?? 'NEW'}
+                    onChange={(e) => {
+                      handleStatusChange(selectedLead.id, e.target.value as LeadStatus);
+                      setSelectedLead({ ...selectedLead, status: e.target.value as LeadStatus });
+                    }}
+                    className={`h-8 text-[11px] font-bold rounded-lg px-2 border-0 outline-none cursor-pointer ${STATUS_COLORS[selectedLead.status ?? 'NEW']}`}
+                  >
+                    {(Object.keys(STATUS_LABELS) as LeadStatus[]).map((s) => (
+                      <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                    ))}
+                  </select>
+                  <span className={`h-6 px-2 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 ${SOURCE_COLORS[selectedLead.source]}`}>
+                    {SOURCE_ICONS[selectedLead.source]}
+                    {SOURCE_LABELS[selectedLead.source]}
+                  </span>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                  <PhoneCall className="w-4 h-4 text-gray-400 shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-gray-400 mb-0.5">전화번호</p>
-                    <p className="text-sm text-gray-700">{selectedLead.phone ?? '-'}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                  <Users className="w-4 h-4 text-gray-400 shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-gray-400 mb-0.5">부스</p>
-                    <p className="text-sm text-gray-700 truncate">{boothMap[selectedLead.boothId] ?? selectedLead.boothId}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                  <ClipboardList className="w-4 h-4 text-gray-400 shrink-0" />
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-gray-400 mb-0.5">수집일</p>
-                    <p className="text-sm text-gray-700">
-                      {new Date(selectedLead.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </p>
-                  </div>
-                </div>
-                {selectedLead.memo && (
-                  <div className="p-3 bg-gray-50 rounded-xl">
-                    <p className="text-[11px] font-bold text-gray-400 mb-1">메모</p>
-                    <p className="text-sm text-gray-700 leading-relaxed">{selectedLead.memo}</p>
-                  </div>
-                )}
-              </div>
-            </div>
 
-            {/* Actions */}
-            <div className="flex gap-3 px-5 py-4 border-t border-gray-100">
-              <button
-                onClick={() => { openEditModal(selectedLead); setSelectedLead(null); }}
-                className="flex-1 h-11 text-sm font-bold bg-white border border-gray-200 text-gray-700 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition-all"
-              >
-                <Pencil className="w-4 h-4" />
-                수정
-              </button>
-              <button
-                onClick={() => { handleDelete(selectedLead.id); setSelectedLead(null); }}
-                className="h-11 px-5 text-sm font-bold text-red-500 bg-red-50 border border-red-100 rounded-xl flex items-center justify-center gap-2 hover:bg-red-100 transition-all"
-              >
-                <Trash2 className="w-4 h-4" />
-                삭제
-              </button>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <Mail className="w-4 h-4 text-gray-400 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-gray-400 mb-0.5">이메일</p>
+                      <p className="text-sm text-gray-700 truncate">{selectedLead.email ?? '-'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <PhoneCall className="w-4 h-4 text-gray-400 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-gray-400 mb-0.5">전화번호</p>
+                      <p className="text-sm text-gray-700">{selectedLead.phone ?? '-'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <Users className="w-4 h-4 text-gray-400 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-gray-400 mb-0.5">부스</p>
+                      <p className="text-sm text-gray-700 truncate">{boothMap[selectedLead.boothId] ?? selectedLead.boothId}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <ClipboardList className="w-4 h-4 text-gray-400 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-gray-400 mb-0.5">수집일</p>
+                      <p className="text-sm text-gray-700">
+                        {new Date(selectedLead.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    </div>
+                  </div>
+                  {selectedLead.memo && (
+                    <div className="p-3 bg-gray-50 rounded-xl">
+                      <p className="text-[11px] font-bold text-gray-400 mb-1">메모</p>
+                      <p className="text-sm text-gray-700 leading-relaxed">{selectedLead.memo}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex gap-3 px-5 py-4 border-t border-gray-100">
+                <button
+                  onClick={() => { openEditModal(selectedLead); setSelectedLead(null); }}
+                  className="flex-1 h-11 text-sm font-bold bg-white border border-gray-200 text-gray-700 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition-all"
+                >
+                  <Pencil className="w-4 h-4" />
+                  수정
+                </button>
+                <button
+                  onClick={() => { handleDelete(selectedLead.id); setSelectedLead(null); }}
+                  className="h-11 px-5 text-sm font-bold text-red-500 bg-red-50 border border-red-100 rounded-xl flex items-center justify-center gap-2 hover:bg-red-100 transition-all"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  삭제
+                </button>
+              </div>
             </div>
           </div>
         </div>
