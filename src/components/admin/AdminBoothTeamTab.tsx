@@ -8,7 +8,6 @@ import {
   Clock,
   Mail,
   Shield,
-  Plus,
   Calendar,
 } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
@@ -176,7 +175,7 @@ export function AdminBoothTeamTab({ boothId }: { boothId: string }) {
           onClick={() => { setShowAddForm(!showAddForm); setShowAssignPicker(false); }}
           className="flex items-center justify-center gap-1.5 bg-brand-600 text-white hover:bg-brand-500 h-9 px-4 text-[13px] font-bold rounded-lg transition-all duration-150 shadow-md shadow-brand-100"
         >
-          <Plus className="w-4 h-4" />
+          <UserPlus className="w-4 h-4" />
           팀원 추가
         </button>
         {unassignedPeople.length > 0 && (

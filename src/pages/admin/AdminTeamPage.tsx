@@ -9,7 +9,7 @@ import {
   Building2,
   Calendar,
   ArrowRight,
-  Plus,
+  UserPlus,
   Users,
   LayoutList,
   LayoutGrid,
@@ -351,7 +351,7 @@ export default function AdminTeamPage() {
             onClick={() => setShowAddForm(!showAddForm)}
             className="flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-bold border-2 border-brand-600 text-brand-600 bg-white hover:bg-brand-50 transition-all duration-200 shrink-0 lg:bg-brand-600 lg:text-white lg:border-brand-600 lg:hover:bg-brand-500 lg:shadow-md lg:shadow-brand-100"
           >
-            <Plus className="w-4 h-4" />
+            <UserPlus className="w-4 h-4" />
             <span className="hidden sm:inline">팀원 추가</span>
           </button>
         </div>
