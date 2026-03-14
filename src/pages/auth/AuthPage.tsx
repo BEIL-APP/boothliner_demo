@@ -1,5 +1,7 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { QrCode, Building2, User, ArrowRight, ChevronRight } from 'lucide-react';
+import { Building2, User, ArrowRight, ChevronRight } from 'lucide-react';
+
+import { Logo } from '../../components/ui/Logo';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -8,13 +10,7 @@ export default function AuthPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:p-8">
-      {/* Logo */}
-      <div className="flex items-center gap-2 mb-8">
-        <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
-          <QrCode className="w-4 h-4 text-white" />
-        </div>
-        <span className="text-sm font-semibold text-gray-900">BoothLiner</span>
-      </div>
+      <Logo className="mb-8" />
 
       {/* Card */}
       <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-6 sm:p-8 w-full max-w-sm">

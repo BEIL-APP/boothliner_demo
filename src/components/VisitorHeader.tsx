@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { QrCode, Heart, MessageSquare, User, LogIn, Bell, Settings, Compass } from 'lucide-react';
+import { Heart, MessageSquare, User, LogIn, Bell, Settings, Compass } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getGuestId, getUnreadNotificationCount } from '../utils/localStorage';
+
+import { Logo } from './ui/Logo';
 
 export function VisitorHeader() {
   const { isLoggedIn, toggleLogin } = useAuth();
@@ -28,10 +30,7 @@ export function VisitorHeader() {
     <header className="sticky top-0 z-30 bg-white border-b border-gray-100">
       <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-brand-600 rounded-md flex items-center justify-center">
-            <QrCode className="w-3 h-3 text-white" />
-          </div>
-          <span className="font-semibold text-gray-900 text-sm tracking-tight">BoothLiner</span>
+          <Logo size="sm" />
         </Link>
 
         <div className="flex items-center">

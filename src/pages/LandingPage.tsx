@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Logo } from '../components/ui/Logo';
 import { Link } from 'react-router-dom';
 import {
   QrCode,
@@ -28,11 +29,8 @@ function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-100">
       <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-brand-600 rounded-md flex items-center justify-center">
-            <QrCode className="w-3 h-3 text-white" />
-          </div>
-          <span className="text-sm font-semibold text-gray-900 tracking-tight">BoothLiner</span>
+        <Link to="/" className="flex items-center">
+          <Logo size="sm" />
         </Link>
 
         {/* Desktop nav */}
@@ -421,11 +419,8 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-6 h-6 bg-white/10 rounded-md flex items-center justify-center">
-                  <QrCode className="w-3 h-3 text-white" />
-                </div>
-                <span className="text-sm font-semibold text-white">BoothLiner</span>
+              <div className="flex items-center mb-6">
+                <Logo size="sm" variant="white" />
               </div>
               <p className="text-xs text-gray-500 max-w-xs">이벤트 부스 운영을 위한 올인원 B2B 플랫폼. 리드 수집, 문의 관리, 통계를 한 곳에서.</p>
             </div>

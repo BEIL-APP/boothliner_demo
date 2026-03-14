@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Logo } from './ui/Logo';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutGrid,
   Inbox,
-  QrCode,
   LogOut,
   Plus,
   BarChart3,
@@ -69,11 +69,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const sidebarContent = (
     <>
       <div className="h-11 lg:h-12 flex items-center px-3 lg:px-4 border-b border-white/[0.06]">
-        <Link to="/admin/dashboard" className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-brand-600 rounded-md flex items-center justify-center">
-            <QrCode className="w-3 h-3 text-white" />
-          </div>
-          <span className="text-[13px] lg:text-sm font-semibold text-white tracking-tight">BoothLiner</span>
+        <Link to="/admin/dashboard" className="flex items-center">
+          <Logo size="sm" variant="white" />
         </Link>
       </div>
 
@@ -147,12 +144,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
       {/* Tablet sidebar overlay */}
       {sidebarOpen && (
-        <div className="hidden md:block fixed inset-0 z-50 lg:hidden h-screen h-[100dvh]">
+        <div className="hidden md:block fixed inset-0 z-50 lg:hidden h-[100dvh]">
           <div
             className="absolute inset-0 h-full bg-black/50 backdrop-blur-[0.25px] animate-fade-in"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 w-[260px] h-screen h-[100dvh] bg-gray-950 flex flex-col overflow-hidden shadow-2xl animate-slide-in-left">
+          <aside className="absolute inset-y-0 left-0 w-[260px] h-[100dvh] bg-gray-950 flex flex-col overflow-hidden shadow-2xl animate-slide-in-left">
             <button
               onClick={() => setSidebarOpen(false)}
               className="absolute top-3.5 right-3 w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors z-10"
@@ -186,11 +183,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
         {/* Mobile top bar */}
         <header className="md:hidden flex items-center justify-between h-14 px-4 bg-white border-b border-gray-100 shrink-0">
-          <Link to="/admin/dashboard" className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 bg-brand-600 rounded-lg flex items-center justify-center shrink-0">
-              <QrCode className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="text-sm font-semibold text-gray-900 tracking-tight">BoothLiner</span>
+          <Link to="/admin/dashboard" className="flex items-center min-w-0">
+            <Logo size="sm" />
           </Link>
 
           <div className="flex items-center gap-2">

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QrCode, Zap, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Zap, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import { Logo } from '../../components/ui/Logo';
 
 export default function AdminLoginPage() {
   const { isAdmin, loginAsAdmin } = useAuth();
@@ -49,15 +50,9 @@ export default function AdminLoginPage() {
   return (
     <div className="bg-gray-50 min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-2.5 mb-10">
-          <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
-            <QrCode className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <div className="font-semibold text-gray-900 text-sm">BoothLiner</div>
-            <div className="text-xs text-gray-400">운영자 대시보드</div>
-          </div>
+        <div className="flex flex-col items-center gap-2 mb-10 text-center">
+          <Logo size="md" />
+          <div className="text-xs text-gray-400 font-medium">운영자 대시보드</div>
         </div>
 
         {/* Card */}

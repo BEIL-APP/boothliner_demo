@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, QrCode, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import { Logo } from '../../components/ui/Logo';
 import { setUserEmail } from '../../utils/localStorage';
 
 export default function SignupPage() {
@@ -72,13 +73,7 @@ export default function SignupPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:p-8">
-      {/* Logo */}
-      <div className="flex items-center gap-2 mb-8">
-        <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
-          <QrCode className="w-4 h-4 text-white" />
-        </div>
-        <span className="text-sm font-semibold text-gray-900">BoothLiner</span>
-      </div>
+      <Logo className="mb-8" />
 
       <div className="bg-white rounded-xl border border-gray-200/60 shadow-card p-6 sm:p-8 w-full max-w-sm">
         {/* Back */}
